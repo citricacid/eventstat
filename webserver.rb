@@ -76,12 +76,28 @@ end
 get '/manage_events' do
   require_logged_in
   desc = ''
-  erb :manage_events, :locals => {genres: Genre.all, categories: Category.all, desc: desc }
+  erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all, categories: Category.all, edit: false }
 end
 
 
 
-#  erb :view_console, :locals => {:log => lines, :table => table, :links => camera_links}
+get '/view_events' do
+  require_logged_in
+
+  erb :view_events, :locals => {events: Event.all, branches: Branch.all}
+end
+
+
+get '/edit_event/:event_id' do
+  require_logged_in
+
+  event_id = params['event_id']
+
+
+  erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all, categories: Category.all, event: Event.find(event_id), edit: true }
+end
+
+
 
 # CRUDS
 
@@ -90,9 +106,14 @@ put '/api/events' do
   # branch_id = params['branch_id']
   data = JSON.parse(request.body.read)
 
+  puts data.class
+  puts data.inspect
+
   event = Event.new do |evt|
     evt.date = data['date']
     evt.genre_id = data['genre_id']
+    evt.branch_id = data['branch_id']
+    evt.title = 'Godfoten'
     evt.description = data['desc'] # null?
   end
 

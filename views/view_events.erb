@@ -1,0 +1,24 @@
+
+<div class="table-responsive">
+ <table class="table table-striped">
+
+   <thead>
+         <tr>
+           <th>Filial</th>
+           <th>Tidspunkt</th>
+           <th></th>
+         </tr>
+       </thead>
+       <tbody>
+
+         <% events.each do |event| %>
+            <%= "<tr>" %>
+            <%= "<td>#{event.id}</td><td>#{event.date}</td>" %>
+            <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>
+            <%= "</tr>" %>
+         <% end %>
+
+       </tbody>
+
+ </table>
+</div>

@@ -5,11 +5,18 @@ require 'active_record'
 
 
 class Event < ActiveRecord::Base
-  has_one :genre
   has_many :counts
-
+  belongs_to :branch
+  belongs_to :genre
 
 end
+
+
+class Branch < ActiveRecord::Base
+
+end
+
+
 
 
 class Category < ActiveRecord::Base
@@ -28,6 +35,5 @@ end
 
 
 class Genre < ActiveRecord::Base
-
 
 end

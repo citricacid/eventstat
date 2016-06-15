@@ -1,17 +1,29 @@
 
 
-<script src="js/moment.min.js"></script>
+<script src="/js/moment.min.js"></script>
 <!-- Include Date Range Picker -->
-<script src="js/daterangepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="css/daterangepicker.css" />
+<script src="/js/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/daterangepicker.css" />
 
-<script src="js/manage_events.js"></script>
+<script src="/js/manage_events.js"></script>
 
+
+<div class="form-group">
+  <label for="select_branch">Velg filial:</label>
+  <select class="form-control" id="select_branch">
+<% branches.each do |branch| %>
+    <% if edit && branch.id == event.branch_id %>
+      <%= "<option value='#{branch.id}' selected>#{branch.name}</option>" %>
+    <% else %>
+      <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
+    <% end %>
+<% end %>
+</select>
 
 
 <div class="form-group">
   <label for="daterange">Tidspunkt:</label>
-  <input type="text" name="daterange" class="form-control" id="daterange">
+  <input type="text" name="daterange" class="form-control" id="daterange" <%= value="#{event.date}" if edit%>>
 </div>
 
 
@@ -20,14 +32,18 @@
   <label for="select_genre">Velg type:</label>
   <select class="form-control" id="select_genre">
 <% genres.each do |genre| %>
-    <%= "<option value='#{genre.id}' >#{genre.description}</option>" %>
+  <% if edit && genre.id == event.genre_id %>
+    <%= "<option value='#{genre.id}' selected>#{genre.description}</option>" %>
+  <% else %>
+    <%= "<option value='#{genre.id}'>#{genre.description}</option>" %>
+  <% end %>
 <% end %>
 </select>
 
 
 <div class="form-group">
  <label for="event_desc">Beskrivelse</label>
- <textarea class="form-control" rows="5" id="event_desc"></textarea>
+ <textarea class="form-control" rows="5" id="event_desc"><%= "#{event.description if edit}" %></textarea>
 </div>
 
 
@@ -35,16 +51,16 @@
   <label for="select_category">Velg målgruppe:</label>
   <select class="form-control" id="select_category">
 <% categories.each do |cat| %>
-    <%= "<option value='#{cat.id}' >#{cat.description}</option>" %>
+    <%= "<option value='#{cat.id}'>#{cat.description}</option>" %>
 <% end %>
 </select>
 
 
 <div class="form-group">
   <label for="count">Antall:</label>
-  <input type="text" class="form-control" id="count">
+  <input type="number" class="form-control" id="count">
 </div>
 
 
-<button type="button" id="submit" class="btn btn-primary btn-md">OK</button>
+<button type="button" id="submit" class="btn btn-primary btn-md">Lagre</button>
 <button type="button" id="cancel" class="btn btn-primary btn-md">Avbryt</button>
