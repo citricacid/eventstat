@@ -76,16 +76,22 @@ end
 
 get '/manage_events' do
   require_logged_in
-  desc = ''
-  erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all, categories: Category.all, edit: false }
-end
 
+  error = session[:transaction_error] == true
+  session[:transaction_error] = nil
+
+  erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all,
+     categories: Category.all, edit: false, error: error }
+end
 
 
 get '/view_events' do
   require_logged_in
 
-  erb :view_events, :locals => {events: Event.all, branches: Branch.all}
+  success = session[:transaction_success] == true
+  session[:transaction_success] = nil
+
+  erb :view_events, :locals => {events: Event.all, branches: Branch.all, success: success}
 end
 
 
@@ -94,20 +100,16 @@ get '/edit_event/:event_id' do
 
   event_id = params['event_id']
 
-
-  erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all, categories: Category.all, event: Event.find(event_id), edit: true }
+  erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all,
+    categories: Category.all, event: Event.find(event_id), edit: true, error: false }
 end
 
 
 
 # CRUDS
 
-#greeting = params[:greeting] || "Hi There"
-
 
 post '/event' do
-  puts params.inspect
-
   event = Event.new do |evt|
     evt.title = params[:title].strip
     evt.date = params[:daterange]
@@ -118,29 +120,30 @@ post '/event' do
   success = false
 
   ActiveRecord::Base.transaction do
-    #event.save!
+    event.save!
 
     counts = params[:counts].nil? ? {} : params[:counts].first
-
     counts.each do |category_id, attendants|
       count = Count.new do |ct|
         ct.event_id = event.id
         ct.category_id = category_id
         ct.attendants = attendants
       end
-      #count.save!
+      count.save!
     end
 
     success = true
   end
 
-  "Hello World"
-  #redirect "", errors: "wsdfasdf"
-  redirect back 
-
+  if !success
+    session[:transaction_error] = true
+    redirect back
+  else
+    session[:transaction_success] = true
+    redirect "/view_events"
+  end
 
 end
-
 
 
 

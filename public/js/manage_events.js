@@ -3,6 +3,35 @@
 
 $(function () {
 
+  // helper functions
+  var addInput = function(cid, label, attendants) {
+    var inputRow = `
+    <div class="row" id="${cid}">
+      <div class="form-group col-xs-7 col-sm-5 col-md-6 col-lg-3">
+        <label for="count">Antall ${label}:</label>
+        <div class="row">
+          <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
+            <input type="number" class="form-control" name="counts[][${cid}]" value="${attendants}">
+          </div>
+          <button type="button" class="btn btn-dafault btn_remove" data-id="${cid}">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    `;
+
+    $("#categories").append(inputRow);
+  };
+
+
+  var editOption = function(cid, is_eligible) {
+    $("#select_category option[value=" + cid + "]").prop("disabled", is_eligible);
+    $("#select_category option[value=" + cid + "]").prop("hidden", is_eligible);
+  }
+
+
+  // initialize daterange picker
   $('input[name="daterange"]').daterangepicker(
     {
       singleDatePicker: true,
@@ -13,48 +42,105 @@ $(function () {
       }
     });
 
+    // add inputs for existing values (edit mode)
+    $(".counts").each(function() {
+      var cid = $(this).data("category_id");
+      var label = $(this).data("label");
+      var attendants = $(this).data("attendants");
 
+      addInput(cid, label, attendants);
+      editOption(cid, false);
+    })
+
+    if ($("#select_category :enabled").size() === 1) {
+      $("#select_category :enabled").first().prop("selected", true);
+    }
+
+
+    // event handlers
     $("#event-form").on("submit", function(e) {
       e.preventDefault();
 
+      var isOK = true;
+
       // validate title
       var len = $("#title").val().trim().length;
+      if (len > 1 && len < 100) {
+        $("#title").removeClass("invalid").addClass("valid");
+      } else {
+        $("#title").removeClass("valid").addClass("invalid");
+        isOK = false;
+      }
+
+      // ensure branch is selected
+      if ($("#select_branch :selected").val() === "") {
+        $("#select_branch").removeClass("valid").addClass("invalid");
+        isOK = false;
+      } else {
+        $("#select_branch").removeClass("invalid").addClass("valid");
+      }
+
+      // ensure genre is selected
+      if ($("#select_genre :selected").val() === "") {
+        $("#select_genre").removeClass("valid").addClass("invalid");
+        isOK = false;
+      } else {
+        $("#select_genre").removeClass("invalid").addClass("valid");
+      }
 
 
+      // ensure valid counts are added
+      var counts = $("#categories input");
+      $("#ta-alert").remove();
 
-    });
+      if (counts.size() === 0) {
+        var alarm = `
+        <div class="alert alert-danger" id="ta-alert">
+          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+          Du må legge til minst én målgruppe.
+        </div>
+        `;
+        $("#categories").append(alarm);
 
+        isOK = false;
+      }
+
+      counts.each(function(index, input) {
+        var attendants = $(this).val();
+
+        if (attendants > 0) {
+            $(this).removeClass("invalid").addClass("valid");
+        } else {
+          $(this).removeClass("valid").addClass("invalid");
+          isOK = false;
+        }
+      });
+        // daterange?
+
+
+        if (isOK) {
+            document.formz.submit();
+        }
+
+      });
 
 
     $("#btn_add").click(function() {
       var selected = $("#select_category :selected");
-      var category_id = selected.val();
-      var category = selected.text();
+      var cid = selected.val();
+      var label = selected.text();
 
       if (selected.is(":disabled")) {
         return;
       }
 
       selected.prop("disabled", true);
+      selected.prop("hidden", true);
+
       $("#select_category :enabled").first().prop("selected", true);
+      $("#ta-alert").remove();
 
-      var inputRow = `
-      <div class="row" id="${category_id}">
-        <div class="form-group col-xs-7 col-sm-5 col-md-6 col-lg-3">
-          <label for="count">Antall ${category}:</label>
-          <div class="row">
-            <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
-              <input type="number" class="form-control" name="counts[][${category_id}]">
-            </div>
-            <button type="button" class="btn btn-dafault btn_remove" data-id="${category_id}">
-              <span class="glyphicon glyphicon-minus"></span>
-            </button>
-          </div>
-        </div>
-      </div>
-      `;
-
-      $("#categories").append(inputRow);
+      addInput(cid, label, 0);
     });
 
 
@@ -62,13 +148,14 @@ $(function () {
     $("#categories").on("click", ".btn_remove", function() {
       var categoryID = $(this).data("id");
 
-      $("#select_category option[value=" + categoryID + "]").prop("disabled", false);
-      $('#' + categoryID).remove();
+      editOption(categoryID, false);
+      $("#" + categoryID).remove();
 
       if ($("#select_category :enabled").size() === 1) {
         $("#select_category :enabled").prop("selected", true);
       }
     });
+
 
 
 
