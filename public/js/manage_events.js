@@ -1,4 +1,4 @@
-"use script";
+"use strict";
 
 
 $(function () {
@@ -7,11 +7,70 @@ $(function () {
     {
       singleDatePicker: true,
       showDropdowns: true,
-          locale: {
-            format: 'DD-MM-YYYY',
-            firstDay: 1
-          }
+      locale: {
+        format: 'DD-MM-YYYY',
+        firstDay: 1
+      }
     });
+
+
+    $("#event-form").on("submit", function(e) {
+      e.preventDefault();
+
+      // validate title
+      var len = $("#title").val().trim().length;
+
+
+
+    });
+
+
+
+    $("#btn_add").click(function() {
+      var selected = $("#select_category :selected");
+      var category_id = selected.val();
+      var category = selected.text();
+
+      if (selected.is(":disabled")) {
+        return;
+      }
+
+      selected.prop("disabled", true);
+      $("#select_category :enabled").first().prop("selected", true);
+
+      var inputRow = `
+      <div class="row" id="${category_id}">
+        <div class="form-group col-xs-7 col-sm-5 col-md-6 col-lg-3">
+          <label for="count">Antall ${category}:</label>
+          <div class="row">
+            <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
+              <input type="number" class="form-control" name="counts[][${category_id}]">
+            </div>
+            <button type="button" class="btn btn-dafault btn_remove" data-id="${category_id}">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      `;
+
+      $("#categories").append(inputRow);
+    });
+
+
+
+    $("#categories").on("click", ".btn_remove", function() {
+      var categoryID = $(this).data("id");
+
+      $("#select_category option[value=" + categoryID + "]").prop("disabled", false);
+      $('#' + categoryID).remove();
+
+      if ($("#select_category :enabled").size() === 1) {
+        $("#select_category :enabled").prop("selected", true);
+      }
+    });
+
+
 
 
     $('#submit').click(function() {
@@ -35,8 +94,8 @@ $(function () {
       });
 
       request.done(function(data, textStatus, xhr) {
-          alert(textStatus);
-        });
+        alert(textStatus);
+      });
 
       request.fail(function(xhr, textStatus, errorThrown) {
         alert(textStatus);
@@ -48,7 +107,6 @@ $(function () {
     $('#cancel').click(function() {
       alert("avbryter");
     });
-
 
 
   })

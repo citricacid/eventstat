@@ -4,6 +4,7 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'sinatra'
+require 'sinatra/flash'
 require "sinatra/reloader" if development?
 require 'tilt/erb' if development?
 
@@ -100,6 +101,48 @@ end
 
 
 # CRUDS
+
+#greeting = params[:greeting] || "Hi There"
+
+
+post '/event' do
+  puts params.inspect
+
+  event = Event.new do |evt|
+    evt.title = params[:title].strip
+    evt.date = params[:daterange]
+    evt.genre_id = params[:genre_id]
+    evt.branch_id = params[:branch_id]
+  end
+
+  success = false
+
+  ActiveRecord::Base.transaction do
+    #event.save!
+
+    counts = params[:counts].nil? ? {} : params[:counts].first
+
+    counts.each do |category_id, attendants|
+      count = Count.new do |ct|
+        ct.event_id = event.id
+        ct.category_id = category_id
+        ct.attendants = attendants
+      end
+      #count.save!
+    end
+
+    success = true
+  end
+
+  "Hello World"
+  #redirect "", errors: "wsdfasdf"
+  redirect back 
+
+
+end
+
+
+
 
 put '/api/events' do
 
