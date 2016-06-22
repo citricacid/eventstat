@@ -110,17 +110,29 @@ end
 
 
 post '/event' do
-  event = Event.new do |evt|
-    evt.title = params[:title].strip
-    evt.date = params[:daterange]
-    evt.genre_id = params[:genre_id]
-    evt.branch_id = params[:branch_id]
-  end
+  require_logged_in
+  
+  is_edit = params[:event_id].present?
+  event_id = params[:event_id].to_i if is_edit
+
+  event = is_edit ? Event.find(event_id) : Event.new
+
+  event.title = params[:title].strip
+  event.date = params[:daterange]
+  event.genre_id = params[:genre_id]
+  event.branch_id = params[:branch_id]
 
   success = false
 
   ActiveRecord::Base.transaction do
     event.save!
+
+    if is_edit
+      old_counts = Count.where('event_id = ?', event_id)
+      old_counts.each do |ct|
+        ct.destroy!
+      end
+    end
 
     counts = params[:counts].nil? ? {} : params[:counts].first
     counts.each do |category_id, attendants|
@@ -135,16 +147,14 @@ post '/event' do
     success = true
   end
 
-  if !success
-    session[:transaction_error] = true
-    redirect back
-  else
+  if success
     session[:transaction_success] = true
     redirect "/view_events"
+  else
+    session[:transaction_error] = true
+    redirect back
   end
-
 end
-
 
 
 put '/api/events' do

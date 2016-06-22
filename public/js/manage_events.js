@@ -108,7 +108,7 @@ $(function () {
       counts.each(function(index, input) {
         var attendants = $(this).val();
 
-        if (attendants > 0) {
+        if (attendants > 0 && attendants <= 2147483647) {
             $(this).removeClass("invalid").addClass("valid");
         } else {
           $(this).removeClass("valid").addClass("invalid");
