@@ -4,20 +4,20 @@
 $(function () {
 
   // helper functions
-  var addInput = function(cid, label, attendants) {
+  var addInput = function (cid, label, attendants) {
     var inputRow = `
     <div class="row" id="${cid}">
-      <div class="form-group col-xs-7 col-sm-5 col-md-6 col-lg-3">
-        <label for="count">Antall ${label}:</label>
-        <div class="row">
-          <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
-            <input type="number" class="form-control" name="counts[][${cid}]" value="${attendants}">
-          </div>
-          <button type="button" class="btn btn-dafault btn_remove" data-id="${cid}">
-            <span class="glyphicon glyphicon-minus"></span>
-          </button>
-        </div>
-      </div>
+    <div class="form-group col-xs-7 col-sm-5 col-md-6 col-lg-3">
+    <label for="count">Antall ${label}:</label>
+    <div class="row">
+    <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
+    <input type="number" class="form-control" name="counts[][${cid}]" value="${attendants}">
+    </div>
+    <button type="button" class="btn btn-dafault btn_remove" data-id="${cid}">
+    <span class="glyphicon glyphicon-minus"></span>
+    </button>
+    </div>
+    </div>
     </div>
     `;
 
@@ -28,16 +28,16 @@ $(function () {
   var editOption = function(cid, isDisabled) {
     $("#select_category option[value=" + cid + "]").prop("disabled", isDisabled);
     $("#select_category option[value=" + cid + "]").prop("hidden", isDisabled);
-  }
+  };
 
 
   // initialize daterange picker
-  $('input[name="daterange"]').daterangepicker(
+  $("input[name='daterange']").daterangepicker(
     {
       singleDatePicker: true,
       showDropdowns: true,
       locale: {
-        format: 'DD-MM-YYYY',
+        format: "DD-MM-YYYY",
         firstDay: 1
       }
     });
@@ -50,7 +50,7 @@ $(function () {
 
       addInput(cid, label, attendants);
       editOption(cid, true);
-    })
+    });
 
     $("#select_category :enabled").first().prop("selected", true);
 
@@ -94,8 +94,8 @@ $(function () {
       if (counts.size() === 0) {
         var alarm = `
         <div class="alert alert-danger" id="ta-alert">
-          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-          Du må legge til minst én målgruppe.
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        Du må legge til minst én aldersgruppe.
         </div>
         `;
         $("#categories").append(alarm);
@@ -107,20 +107,20 @@ $(function () {
         var attendants = $(this).val();
 
         if (attendants > 0 && attendants <= 2147483647) {
-            $(this).removeClass("invalid").addClass("valid");
+          $(this).removeClass("invalid").addClass("valid");
         } else {
           $(this).removeClass("valid").addClass("invalid");
           isOK = false;
         }
       });
-        // daterange?
+      // daterange?
 
 
-        if (isOK) {
-            document.formz.submit();
-        }
+      if (isOK) {
+        document.formz.submit();
+      }
 
-      });
+    });
 
 
     $("#btn_add").click(function() {
