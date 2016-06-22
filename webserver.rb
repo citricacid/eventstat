@@ -29,7 +29,7 @@ set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 # -------------------------
 
 def require_logged_in
-  #redirect('/login') unless is_authenticated?
+  redirect('/login') unless is_authenticated?
 end
 
 def is_authenticated?
@@ -62,8 +62,9 @@ end
 
 
 post '/sessions' do
-  if params["pw"] == Settings::PW
-    session[:user_id] = params["user_id"]
+  puts params[:password]
+  if params[:password] == Settings::PW
+    session[:user_id] = params[:username]
   end
 
   if params["pw"] == Settings::PWADMIN
@@ -71,7 +72,7 @@ post '/sessions' do
     session[:admin] = params["user_id"]
   end
 
-  redirect('/manage_schedules')
+  redirect('/')
 end
 
 get '/manage_events' do
@@ -111,7 +112,7 @@ end
 
 post '/event' do
   require_logged_in
-  
+
   is_edit = params[:event_id].present?
   event_id = params[:event_id].to_i if is_edit
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -26,8 +26,7 @@
   <body>
 
 
-
-    <nav class="navbar navbar-inverse">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
      <div class="container-fluid">
        <div class="navbar-header">
          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -43,16 +42,21 @@
            <li><a href="/manage_events">Legg til</a></li>
          </ul>
          <ul class="nav navbar-nav navbar-right">
-           <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Logg inn</a></li>
+           <% if is_authenticated? %>
+           <%= '<li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logg ut</a></li>' %>
+           <% else %>
+           <%= '<li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Logg inn</a></li>' %>
+           <% end %>
          </ul>
        </div>
+      </div>
    </nav>
 
-
+   <div class="container-fluid">
     <div id='main'>
       <%= yield %>
     </div>
+  </div>
 
-     </div>
   </body>
 </html>

@@ -25,9 +25,9 @@ $(function () {
   };
 
 
-  var editOption = function(cid, is_eligible) {
-    $("#select_category option[value=" + cid + "]").prop("disabled", is_eligible);
-    $("#select_category option[value=" + cid + "]").prop("hidden", is_eligible);
+  var editOption = function(cid, isDisabled) {
+    $("#select_category option[value=" + cid + "]").prop("disabled", isDisabled);
+    $("#select_category option[value=" + cid + "]").prop("hidden", isDisabled);
   }
 
 
@@ -49,12 +49,10 @@ $(function () {
       var attendants = $(this).data("attendants");
 
       addInput(cid, label, attendants);
-      editOption(cid, false);
+      editOption(cid, true);
     })
 
-    if ($("#select_category :enabled").size() === 1) {
-      $("#select_category :enabled").first().prop("selected", true);
-    }
+    $("#select_category :enabled").first().prop("selected", true);
 
 
     // event handlers
@@ -134,8 +132,7 @@ $(function () {
         return;
       }
 
-      selected.prop("disabled", true);
-      selected.prop("hidden", true);
+      editOption(cid, true);
 
       $("#select_category :enabled").first().prop("selected", true);
       $("#ta-alert").remove();
