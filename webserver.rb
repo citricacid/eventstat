@@ -173,21 +173,31 @@ end
 put '/api/statistics' do
   data = JSON.parse(request.body.read)
   branch_id = data["branch_id"]
+  branch_name = branch_id == "0" ? "Samlet" : Branch.find(branch_id).name
+
   from_date = Date.parse(data["from_date"])
   to_date = Date.parse(data["to_date"])
 
-  results = nil
+  all_ages_count = 0
+  youngsters_count = 0
+  no_of_events = 0
+
+  rows = {}
 
   if branch_id == '0'
-    results = Count.sum(:attendants)
+    events = Event.where("date >= ? and date <= ?", from_date, to_date)
   else
-    cts = Branch.find(branch_id)
-    results = cts.counts.sum(:attendants)
+    events = Event.where("branch_id = ? and date >= ? and date <= ?", branch_id, from_date, to_date)
   end
 
+  events.each do |event|
+    all_ages_count += event.counts.where("category_id > ?", 0).sum(:attendants)
+    youngsters_count += event.counts.where("category_id > ?", 1).sum(:attendants)
+  end
 
-  results.to_json
-
+  rows = {branch_name: branch_name, all: all_ages_count, young: youngsters_count, no_of_events: events.size()}
+  puts rows.to_json
+  rows.to_json
 end
 
 

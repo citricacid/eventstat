@@ -9,46 +9,35 @@
 <br />
 <br />
 
+<form class="form-inline" role="form">
+
+
 <div class="row">
 
-<div class="col-xs-6 col-sm-6 col-lg-6">
-  <select id="select_quarter" name="quarter">
-    <option value="1">1. kvartal</option>
+<div class="col-xs-12 col-sm-4 col-lg-6">
+    <div class="form-group">
+  <select class="quickpick" id="select_quarter" name="quarter">
+    <option value="1" selected>1. kvartal</option>
     <option value="2">2. kvartal</option>
     <option value="3">3. kvartal</option>
     <option value="4">4. kvartal</option>
-    <option value="5">Samlet</option>
+    <option value="5">Hele</option>
     </select>
-</div>
 
-<div class="col-xs-6 col-sm-6 col-lg-6">
-  <select id="select_year" name="year">
+  <select class="quickpick" id="select_year" name="year">
     <option value="2016">2016</option>
   </select>
+periode:
+  <input  type="text" name="daterange" id="daterange_from"> -
+  <input  type="text" name="daterange" id="daterange_to">
 </div>
-
 </div>
-
+</div>
 
 
 <div class="row">
-
-<div class="col-xs-6 col-sm-6 col-lg-6">
-  <label for="daterange">Fom:</label>
-  <input class="form-control" type="text" name="daterange" id="daterange_from">
-</div>
-
-
-<div class="col-xs-6 col-sm-6 col-lg-6">
-  <label for="daterange">Tom:</label>
-  <input class="form-control" type="text" name="daterange" id="daterange_to">
-</div>
-
-
-</div>
-
-<div class="row">
-  <div class="col-xs-6 col-sm-6 col-lg-6">
+  <div class="col-xs-12 col-sm-4 col-lg-6">
+<div class="form-group">
     <label for="select_branch">Filial:</label>
     <select id="select_branch" name="branch_id">
       <option value="0">Samlet</option>
@@ -60,13 +49,31 @@
       <% end %>
       <% end %>
     </select>
-  </div>
 
 
-  <div class="col-xs-6 col-sm-6 col-lg-6">
-    <button type="button" class="btn btn-primary" id="submit">Hent</button>
+<div class = "pull-right">
+    <button type="button" class="btn btn-secondary" id="submit">Hent</button>
+    <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
+</div>
+</div>
+</div>
+</div>
+</form>
 
+<div class="table-responsive">
+ <table class="table table-striped" id="stats_table">
 
-  </div>
+   <thead>
+         <tr>
+           <th>Periode</th>
+           <th>Filial</th>
+           <th>Barn/unge</th>
+           <th>Samlet</th>
+           <th>Ant. arr</th>
+         </tr>
+      </thead>
+       <tbody>
 
+       </tbody>
+ </table>
 </div>
