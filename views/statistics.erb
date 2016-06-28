@@ -1,0 +1,72 @@
+<!-- Include Date Range Picker -->
+<script src="/js/moment.min.js"></script>
+<script src="/js/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/daterangepicker.css" />
+
+<script src="/js/statistics.js"></script>
+
+
+<br />
+<br />
+
+<div class="row">
+
+<div class="col-xs-6 col-sm-6 col-lg-6">
+  <select id="select_quarter" name="quarter">
+    <option value="1">1. kvartal</option>
+    <option value="2">2. kvartal</option>
+    <option value="3">3. kvartal</option>
+    <option value="4">4. kvartal</option>
+    <option value="5">Samlet</option>
+    </select>
+</div>
+
+<div class="col-xs-6 col-sm-6 col-lg-6">
+  <select id="select_year" name="year">
+    <option value="2016">2016</option>
+  </select>
+</div>
+
+</div>
+
+
+
+<div class="row">
+
+<div class="col-xs-6 col-sm-6 col-lg-6">
+  <label for="daterange">Fom:</label>
+  <input class="form-control" type="text" name="daterange" id="daterange_from">
+</div>
+
+
+<div class="col-xs-6 col-sm-6 col-lg-6">
+  <label for="daterange">Tom:</label>
+  <input class="form-control" type="text" name="daterange" id="daterange_to">
+</div>
+
+
+</div>
+
+<div class="row">
+  <div class="col-xs-6 col-sm-6 col-lg-6">
+    <label for="select_branch">Filial:</label>
+    <select id="select_branch" name="branch_id">
+      <option value="0">Samlet</option>
+      <% branches.each do |branch| %>
+      <% if edit && branch.id == event.branch_id %>
+      <%= "<option value='#{branch.id}' selected>#{branch.name}</option>" %>
+      <% else %>
+      <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
+      <% end %>
+      <% end %>
+    </select>
+  </div>
+
+
+  <div class="col-xs-6 col-sm-6 col-lg-6">
+    <button type="button" class="btn btn-primary" id="submit">Hent</button>
+
+
+  </div>
+
+</div>

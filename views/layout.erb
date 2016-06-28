@@ -8,7 +8,8 @@
     <title>eventStat</title>
 
     <!-- Bootstrap -->
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bs/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bs/css/custom.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,9 +20,9 @@
 
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/jquery-1.12.4.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="/bs/js/bootstrap.min.js"></script>
   </head>
   <body>
 
@@ -40,6 +41,7 @@
          <ul class="nav navbar-nav">
            <li class="active"><a href="/view_events">Oversikt</a></li>
            <li><a href="/manage_events">Legg til</a></li>
+           <li><a href="/view_statistics">Statistikk</a></li>
          </ul>
          <ul class="nav navbar-nav navbar-right">
            <% if is_authenticated? %>

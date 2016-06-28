@@ -155,8 +155,6 @@ $(function () {
 
 
 
-
-
     $('#submit').click(function() {
 
       var date = $("#daterange").val();

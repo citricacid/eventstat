@@ -7,32 +7,24 @@
 
 <script src="/js/manage_events.js"></script>
 
-<style type="text/css">
-
-.invalid {
-  border: 2px solid red;
-}
-.valid {
-}
 
 
-</style>
+
+<% if edit %>
+<%= "<h3>Redigere arrangement</h3>" %>
+<% else %>
+<%= "<h3>Legg til arrangement</h3>" %>
+<% end %>
+
+<% if error %>
+<%= '<div class="alert alert-danger" id="server-fail">' %>
+  <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
+  <%=   'Serverfeil. Kunne ikke legge til arrangementet. Prøv igjen senere.' %>
+  <%=  '</div>' %>
+  <% end %>
 
 
 <form action="/event" method="post" id="event-form" name="formz">
-
-  <% if edit %>
-  <%= "<h3>Redigere arrangement</h3>" %>
-  <% else %>
-  <%= "<h3>Legg til arrangement</h3>" %>
-  <% end %>
-
-  <% if error %>
-  <%= '<div class="alert alert-danger" id="server-fail">' %>
-    <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
-    <%=   'Serverfeil. Kunne ikke legge til arrangementet. Prøv igjen senere.' %>
-    <%=  '</div>' %>
-    <% end %>
 
     <% if edit %>
     <%= "<input type='hidden' name='event_id' value='#{event.id}'>" %>
@@ -106,3 +98,23 @@
 
     <input type="submit" class="btn btn-primary" value="Lagre">
   </form>
+
+
+  <div class="modal" id="theModal">
+  <div class="modal-dialog">
+  <div class="modal-content">
+  <div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+  <h4 class="modal-title" id="theModalLabel">Title of the window</h4>
+  </div>
+  <div class="modal-body">
+  Some contents.
+  </div>
+  <div class="modal-footer">
+  <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+  </div>
+  </div>
+  </div>
+  </div>
+
+  <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#theModal">Open Modal</button>

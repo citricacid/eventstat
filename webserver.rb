@@ -106,6 +106,18 @@ get '/edit_event/:event_id' do
 end
 
 
+get '/view_statistics' do
+  require_logged_in
+
+  error = session[:transaction_error] == true
+  session[:transaction_error] = nil
+
+  erb :statistics, :locals => {branches: Branch.all, genres: Genre.all,
+     categories: Category.all, edit: false, error: error }
+end
+
+
+
 
 # CRUDS
 
@@ -156,6 +168,29 @@ post '/event' do
     redirect back
   end
 end
+
+
+put '/api/statistics' do
+  data = JSON.parse(request.body.read)
+  branch_id = data["branch_id"]
+  from_date = Date.parse(data["from_date"])
+  to_date = Date.parse(data["to_date"])
+
+  results = nil
+
+  if branch_id == '0'
+    results = Count.sum(:attendants)
+  else
+    cts = Branch.find(branch_id)
+    results = cts.counts.sum(:attendants)
+  end
+
+
+  results.to_json
+
+end
+
+
 
 
 put '/api/events' do

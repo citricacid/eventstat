@@ -1,0 +1,7 @@
+body  { padding-top: 30px; }
+
+.invalid {
+  border: 2px solid red;
+}
+.valid {
+}
