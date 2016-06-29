@@ -11,69 +11,59 @@
 
 <form class="form-inline" role="form">
 
-
-<div class="row">
-
-<div class="col-xs-12 col-sm-4 col-lg-6">
-    <div class="form-group">
-  <select class="quickpick" id="select_quarter" name="quarter">
-    <option value="1" selected>1. kvartal</option>
-    <option value="2">2. kvartal</option>
-    <option value="3">3. kvartal</option>
-    <option value="4">4. kvartal</option>
-    <option value="5">Hele</option>
+  <div class="form-group">
+    <label for="select_quarter">Hurtigvelger:</label>
+    <select class="quickpick" id="select_quarter">
+      <option value="1" selected>1. kvartal</option>
+      <option value="2">2. kvartal</option>
+      <option value="3">3. kvartal</option>
+      <option value="4">4. kvartal</option>
+      <option value="5">Hele</option>
     </select>
 
-  <select class="quickpick" id="select_year" name="year">
-    <option value="2016">2016</option>
-  </select>
-periode:
-  <input  type="text" name="daterange" id="daterange_from"> -
-  <input  type="text" name="daterange" id="daterange_to">
-</div>
-</div>
-</div>
+    <select class="quickpick" id="select_year">
+      <% for year in 2016..Time.now.strftime("%Y").to_i %>
+      <%= " <option value='#{year}'>#{year}</option> " %>
+      <% end %>
+    </select>
+  </div>
 
 
-<div class="row">
-  <div class="col-xs-12 col-sm-4 col-lg-6">
-<div class="form-group">
+  <div class="form-group">
+    <label for="daterange_from">Periode:</label>
+    <input type="text" id="daterange_from" class="small">
+    <input type="text" id="daterange_to" class="small">
+  </div>
+
+
+  <div class="form-group">
     <label for="select_branch">Filial:</label>
-    <select id="select_branch" name="branch_id">
+    <select id="select_branch">
       <option value="0">Samlet</option>
       <% branches.each do |branch| %>
-      <% if edit && branch.id == event.branch_id %>
-      <%= "<option value='#{branch.id}' selected>#{branch.name}</option>" %>
-      <% else %>
       <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
       <% end %>
-      <% end %>
     </select>
+  </div>
 
-
-<div class = "pull-right">
+  <div class="form-group">
     <button type="button" class="btn btn-secondary" id="submit">Hent</button>
     <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
-</div>
-</div>
-</div>
-</div>
+  </div>
+
 </form>
 
 <div class="table-responsive">
- <table class="table table-striped" id="stats_table">
-
-   <thead>
-         <tr>
-           <th>Periode</th>
-           <th>Filial</th>
-           <th>Barn/unge</th>
-           <th>Samlet</th>
-           <th>Ant. arr</th>
-         </tr>
-      </thead>
-       <tbody>
-
-       </tbody>
- </table>
+  <table class="table table-striped" id="stats_table">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Periode</th>
+        <th>Filial</th>
+        <th>Barn/unge</th>
+        <th>Samlet</th>
+        <th>Ant. arr</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>

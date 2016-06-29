@@ -62,7 +62,6 @@ end
 
 
 post '/sessions' do
-  puts params[:password]
   if params[:password] == Settings::PW
     session[:user_id] = params[:username]
   end
@@ -71,6 +70,8 @@ post '/sessions' do
     session[:user_id] = params["user_id"]
     session[:admin] = params["user_id"]
   end
+
+  session.options[:expire_after] = 60*60*24*60 if session[:user_id].present? && params[:remember].present?
 
   redirect('/')
 end
@@ -112,8 +113,7 @@ get '/view_statistics' do
   error = session[:transaction_error] == true
   session[:transaction_error] = nil
 
-  erb :statistics, :locals => {branches: Branch.all, genres: Genre.all,
-     categories: Category.all, edit: false, error: error }
+  erb :statistics, :locals => {branches: Branch.all, genres: Genre.all, categories: Category.all}
 end
 
 
