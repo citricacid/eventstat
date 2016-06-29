@@ -10,7 +10,7 @@
 <br />
 
 <form class="form-inline" role="form">
-
+<div class="row">
   <div class="form-group">
     <label for="select_quarter">Hurtigvelger:</label>
     <select class="quickpick" id="select_quarter">
@@ -27,29 +27,50 @@
       <% end %>
     </select>
   </div>
+</div>
 
 
+<div class="row">
   <div class="form-group">
     <label for="daterange_from">Periode:</label>
-    <input type="text" id="daterange_from" class="small">
-    <input type="text" id="daterange_to" class="small">
+    <input type="text" id="daterange_from" class="period">
+    <input type="text" id="daterange_to" class="period">
   </div>
+</div>
 
-
+<div class="row">
   <div class="form-group">
     <label for="select_branch">Filial:</label>
     <select id="select_branch">
       <option value="0">Samlet</option>
+      <option value="-1">Alle</option>
       <% branches.each do |branch| %>
       <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
       <% end %>
     </select>
   </div>
+</div>
 
+<div class="row">
+  <div class="form-group">
+    <label for="select_genre">Kategori:</label>
+    <select id="select_genre">
+      <option value="0">Samlet</option>
+      <% genres.each do |genre| %>
+      <%= "<option value='#{genre.id}'>#{genre.description}</option>" %>
+      <% end %>
+    </select>
+  </div>
+</div>
+
+
+
+<div class="row">
   <div class="form-group">
     <button type="button" class="btn btn-secondary" id="submit">Hent</button>
     <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
   </div>
+</div>
 
 </form>
 

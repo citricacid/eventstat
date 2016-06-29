@@ -1,61 +1,46 @@
 <script src="/js/view_events.js"></script>
 
-<style type="text/css">
-
-.table {
-  table-layout:fixed;
-}
-
-.table td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-
-</style>
-
 <% if success %>
 <%= '<div class="alert alert-success" id="server-fail">' %>
-<%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
-<%=   'Arrangementet ble lagret og alt er vel' %>
-<%=  '</div>' %>
-<% end %>
+  <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
+  <%=   'Arrangementet ble lagret og alt er vel' %>
+  <%=  '</div>' %>
+  <% end %>
 
 
-<div class="">
+
   <label for="select_branch">Filial:</label>
-  <select id="select_branch"  name="branch_id">
+  <select id="select_branch" name="branch_id">
     <option value="0" selected>-- Alle --</option>
     <% branches.each do |branch| %>
     <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
     <% end %>
   </select>
-</div>
 
 
-<div class="table-responsive">
- <table class="table table-striped" id="event_table">
 
-   <thead>
-         <tr>
-           <th>Tittel</th>
-           <th>Dato</th>
-           <th>Deltagere</th>
-           <th></th>
-         </tr>
+  <div class="table-responsive">
+    <table class="fw_table table table-striped" id="event_table">
+
+      <thead>
+        <tr>
+          <th>Tittel</th>
+          <th>Dato</th>
+          <th>Deltagere</th>
+          <th></th>
+        </tr>
       </thead>
-       <tbody>
+      <tbody>
 
-         <% events.each do |event| %>
-            <%= "<tr class='#{event.branch.id}'>" %>
-            <%= "<td>#{event.title}</td><td>#{event.date.strftime('%d/%m/%-y')}</td>" %>
-            <%= "<td>#{event.counts.sum(:attendants)}</td>" %>
-            <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>
-            <%= "</tr>" %>
-         <% end %>
+        <% events.each do |event| %>
+        <%= "<tr class='#{event.branch.id}'>" %>
+          <%= "<td>#{event.title}</td><td>#{event.date.strftime('%d/%m/%-y')}</td>" %>
+          <%= "<td>#{event.counts.sum(:attendants)}</td>" %>
+          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>
+          <%= "</tr>" %>
+          <% end %>
 
-       </tbody>
+        </tbody>
 
- </table>
-</div>
+      </table>
+    </div>

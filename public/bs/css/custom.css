@@ -5,3 +5,13 @@ body  { padding-top: 30px; }
 }
 .valid {
 }
+
+.fw_table {
+  table-layout:fixed;
+}
+
+.fw_table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
