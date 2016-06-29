@@ -30,7 +30,7 @@ set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 # -------------------------
 
 def require_logged_in
-  redirect('/events/login') unless is_authenticated?
+  redirect('/login') unless is_authenticated?
 end
 
 def is_authenticated?
@@ -48,21 +48,21 @@ end
 # -------------------------
 
 
-get '/events/' do
-  redirect('/events/manage_events')
+get '/' do
+  redirect('/manage_events')
 end
 
-get '/events/login' do
+get '/login' do
   erb :login
 end
 
-get '/events/logout' do
+get '/logout' do
   session.clear
-  redirect('/events/')
+  redirect('/')
 end
 
 
-post '/events/sessions' do
+post '/sessions' do
   if params[:password] == Settings::PW
     session[:user_id] = params[:username]
   end
@@ -74,10 +74,10 @@ post '/events/sessions' do
 
   session.options[:expire_after] = 60*60*24*60 if session[:user_id].present? && params[:remember].present?
 
-  redirect('/events/')
+  redirect('/')
 end
 
-get '/events/manage_events' do
+get '/manage_events' do
   require_logged_in
 
   error = session[:transaction_error] == true
@@ -88,7 +88,7 @@ get '/events/manage_events' do
   end
 
 
-  get '/events/view_events' do
+  get '/view_events' do
     require_logged_in
 
     success = session[:transaction_success] == true
@@ -98,7 +98,7 @@ get '/events/manage_events' do
   end
 
 
-  get '/events/edit_event/:event_id' do
+  get '/edit_event/:event_id' do
     require_logged_in
 
     event_id = params['event_id']
@@ -108,7 +108,7 @@ get '/events/manage_events' do
     end
 
 
-    get '/events/view_statistics' do
+    get '/view_statistics' do
       require_logged_in
 
       error = session[:transaction_error] == true
@@ -123,7 +123,7 @@ get '/events/manage_events' do
     # CRUDS
 
 
-    post '/events/event' do
+    post '/event' do
       require_logged_in
 
       is_edit = params[:event_id].present?
@@ -163,7 +163,7 @@ get '/events/manage_events' do
 
       if success
         session[:transaction_success] = true
-        redirect "/events/view_events"
+        redirect "/view_events"
       else
         session[:transaction_error] = true
         redirect back
@@ -171,7 +171,7 @@ get '/events/manage_events' do
     end
 
 
-    put '/events/api/statistics' do
+    put '/api/statistics' do
       data = JSON.parse(request.body.read)
       branch_id = data["branch_id"]
       genre_id = data["genre_id"]
@@ -229,7 +229,7 @@ get '/events/manage_events' do
     end
 
 
-    put '/events/api/events' do
+    put '/api/events' do
 
       # branch_id = params['branch_id']
       data = JSON.parse(request.body.read)
