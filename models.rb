@@ -14,6 +14,21 @@ class Event < ActiveRecord::Base
   #validates presence of counts
 
 
+  def self.between_dates(from_date, to_date)
+    where("date >= ? and date <= ?", from_date, to_date)
+  end
+
+
+  def self.by_branch(id)
+    return all unless id.present?
+    where("branch_id = ?", id)
+  end
+
+  def self.by_genre(id)
+    return all unless id.present?
+    where("genre_id = ?", id)
+  end
+
 end
 
 
@@ -37,6 +52,15 @@ class Count < ActiveRecord::Base
   has_many :categories
 
   validates :attendants, numericality: {only_integer: true, greater_than: 0}
+
+  def self.sum_all_ages
+    where("category_id > ?", 0).sum(:attendants)
+  end
+
+  def self.sum_young_ages
+    where("category_id > ?", 1).sum(:attendants)
+  end
+
 end
 
 

@@ -175,97 +175,61 @@ get '/manage_events' do
       data = JSON.parse(request.body.read)
       branch_id = data["branch_id"]
       genre_id = data["genre_id"]
-      from_date = Date.parse(data["from_date"])
-      to_date = Date.parse(data["to_date"])
+      @from_date = Date.parse(data["from_date"])
+      @to_date = Date.parse(data["to_date"])
+
+      iterate_over_branches = branch_id == '-1' ? true : false
+      branch_id = nil if branch_id == '0' || branch_id == '-1'
+
+      iterate_over_genres = genre_id == '-1' ? true : false
+      genre_id = nil if genre_id == '0' || genre_id == '-1'
 
       results = []
 
-      event_set = filter_by_branch(branch_id, from_date, to_date)
-      event_set = filter_by_genre(genre_id, event_set)
 
-
-      if branch_id == '-1'
+      if iterate_over_branches
         Branch.all.each do |branch|
-          branch_events = event_set.where(branch_id: branch.id)
-          results << calculate_result(branch.name, branch_events, branch_events.size())
+          if iterate_over_genres
+            results << iterate_genres(branch.id)
+          else
+            events = get_events(branch.id, genre_id)
+            results << calculate_result(branch.name, events, events.size())
+          end
         end
+      elsif iterate_over_genres
+        results << iterate_genres(branch_id)
       else
-          branch_name = branch_id == "0" ? "Samlet" : Branch.find(branch_id).name
-          results << calculate_result(branch_name, event_set, event_set.size())
+          branch_name = branch_id.nil? ? "Samlet" : Branch.find(branch_id).name
+          events = get_events(branch_id, genre_id)
+          results << calculate_result(branch_name, events, events.size())
       end
 
       {results: results}.to_json
     end
 
-    def filter_by_branch(id, from_date, to_date)
-      if id == '0' || id == '-1'
-        events = Event.where("date >= ? and date <= ?", from_date, to_date)
-      else
-        events = Event.where("branch_id = ? and date >= ? and date <= ?", id, from_date, to_date)
-      end
+
+    def get_events (branch_id, genre_id)
+      Event.between_dates(@from_date, @to_date).by_branch(branch_id).by_genre(genre_id)
     end
 
-    def filter_by_genre(id, events)
-      if id != '0'
-        events = events.where("genre_id = ?", id)
+    def iterate_genres(branch_id)
+      results = []
+
+      Genres.all.each do |genre|
+        events = get_events(branch_id, genre.id)
+        results << calculate_result(branch.name, events, events.size())
       end
-      events
+      results
     end
-
-
-
 
     def calculate_result(branch_name, events, size)
       all_ages_count = 0
-      youngsters_count = 0
-      no_of_events = size
+      young_ages_count = 0
 
       events.each do |event|
-        all_ages_count += event.counts.where("category_id > ?", 0).sum(:attendants)
-        youngsters_count += event.counts.where("category_id > ?", 1).sum(:attendants)
+        all_ages_count += event.counts.sum_all_ages
+        young_ages_count += event.counts.sum_young_ages
       end
 
-      {branch_name: branch_name, all: all_ages_count, young: youngsters_count, no_of_events: events.size()}
-    end
-
-
-    put '/api/events' do
-
-      # branch_id = params['branch_id']
-      data = JSON.parse(request.body.read)
-
-      puts data.class
-      puts data.inspect
-
-      event = Event.new do |evt|
-        evt.date = data['date']
-        evt.genre_id = data['genre_id']
-        evt.branch_id = data['branch_id']
-        evt.title = 'Godfoten'
-        evt.description = data['desc'] # null?
-      end
-
-      success = false
-
-      ActiveRecord::Base.transaction do
-        event.save!
-
-        count = Count.new do |ct|
-          ct.event_id = event.id
-          ct.category_id = data['category_id']
-          ct.attendants = data['count']
-        end
-
-        count.save!
-        success = true
-      end
-
-
-      {:success => success, :message => "alles gut"}.to_json
-    end
-
-
-    # needed when using the Sinatra::Reloader to avoid draining the connection pool
-    after do
-      ActiveRecord::Base.clear_active_connections!
+      {branch_name: branch_name, all: all_ages_count, young: young_ages_count, no_of_events: events.size()}
     end
