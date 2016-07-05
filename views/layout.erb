@@ -25,6 +25,9 @@
     <script src="/bs/js/bootstrap.min.js"></script>
   </head>
   <body>
+    <noscript>
+      <meta http-equiv="refresh" content="0; URL=enable_javascript">
+    </noscript>
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
      <div class="container-fluid">
@@ -38,15 +41,15 @@
        </div>
        <div class="collapse navbar-collapse" id="myNavbar">
          <ul class="nav navbar-nav">
-           <li class="active"><a href="/view_events">Oversikt</a></li>
-           <li><a href="/manage_events">Legg til</a></li>
-           <li><a href="/view_statistics">Statistikk</a></li>
+           <li class="nav-view_events"><a href="/view_events">Oversikt</a></li>
+           <li class="nav-manage_events"><a href="/manage_events">Legg til</a></li>
+           <li class="nav-statistics"><a href="/view_statistics">Statistikk</a></li>
          </ul>
          <ul class="nav navbar-nav navbar-right">
            <% if is_authenticated? %>
-           <%= '<li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logg ut</a></li>' %>
+           <%= '<li class="nav-logout"><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logg ut</a></li>' %>
            <% else %>
-           <%= '<li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Logg inn</a></li>' %>
+           <%= '<li class="nav-login"><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Logg inn</a></li>' %>
            <% end %>
          </ul>
        </div>

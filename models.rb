@@ -10,9 +10,7 @@ class Event < ActiveRecord::Base
   belongs_to :genre
 
   validates :title, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
-  validates :title, :date, presence: true
-  #validates presence of counts
-
+  validates :date, presence: true
 
   def self.between_dates(from_date, to_date)
     where("date >= ? and date <= ?", from_date, to_date)
@@ -23,6 +21,7 @@ class Event < ActiveRecord::Base
     return all unless id.present?
     where("branch_id = ?", id)
   end
+
 
   def self.by_genre(id)
     return all unless id.present?
@@ -39,9 +38,7 @@ end
 
 
 
-
 class Category < ActiveRecord::Base
-
 
 end
 

@@ -18,13 +18,10 @@ ActiveRecord::Base.establish_connection(Settings::DBWEB)
 register Sinatra::Reloader if development?
 set :bind, '0.0.0.0' if development?
 set :port, 5100 if development?
+enable :show_exceptions if development?
 
 set :server, %w[thin webrick]
-enable :sessions
-enable :show_exceptions
-
 set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
-
 
 
 # -------------------------
@@ -117,7 +114,9 @@ get '/manage_events' do
       erb :statistics, :locals => {branches: Branch.all, genres: Genre.all, categories: Category.all}
     end
 
-
+    get '/enable_javascript' do
+      erb :enable_javascript
+    end
 
 
     # CRUDS
@@ -208,10 +207,6 @@ get '/manage_events' do
     end
 
 
-    def get_events (branch_id, genre_id)
-      Event.between_dates(@from_date, @to_date).by_branch(branch_id).by_genre(genre_id)
-    end
-
     def iterate_genres(branch_id)
       results = []
 
@@ -222,6 +217,12 @@ get '/manage_events' do
       results
     end
 
+
+    def get_events (branch_id, genre_id)
+      Event.between_dates(@from_date, @to_date).by_branch(branch_id).by_genre(genre_id)
+    end
+
+    
     def calculate_result(branch_name, events, size)
       all_ages_count = 0
       young_ages_count = 0
@@ -232,4 +233,9 @@ get '/manage_events' do
       end
 
       {branch_name: branch_name, all: all_ages_count, young: young_ages_count, no_of_events: events.size()}
+    end
+
+    # needed when using the Sinatra::Reloader to avoid draining the connection pool
+    after do
+      ActiveRecord::Base.clear_active_connections!
     end
