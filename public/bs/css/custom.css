@@ -1,4 +1,4 @@
-body  { padding-top: 30px; }
+body  { padding-top: 50px; }
 
 .invalid {
   border: 2px solid red;
@@ -14,4 +14,13 @@ body  { padding-top: 30px; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+label {
+  display:inline-block;
+  width: 100px;
+}
+
+.row {
+  margin-top: 5px;
 }

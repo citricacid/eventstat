@@ -80,8 +80,8 @@ get '/manage_events' do
   error = session[:transaction_error] == true
   session[:transaction_error] = nil
 
-  erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all,
-    categories: Category.all, edit: false, error: error }
+  erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+    agegroups: AgeGroup.all, edit: false, error: error }
   end
 
 
@@ -100,8 +100,8 @@ get '/manage_events' do
 
     event_id = params['event_id']
 
-    erb :manage_events, :locals => {branches: Branch.all, genres: Genre.all,
-      categories: Category.all, event: Event.find(event_id), edit: true, error: false }
+    erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+      agegroups: AgeGroup.all, event: Event.find(event_id), edit: true, error: false }
     end
 
 
@@ -111,7 +111,7 @@ get '/manage_events' do
       error = session[:transaction_error] == true
       session[:transaction_error] = nil
 
-      erb :statistics, :locals => {branches: Branch.all, genres: Genre.all, categories: Category.all}
+      erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all, agegroups: AgeGroup.all}
     end
 
     get '/enable_javascript' do
@@ -222,7 +222,7 @@ get '/manage_events' do
       Event.between_dates(@from_date, @to_date).by_branch(branch_id).by_genre(genre_id)
     end
 
-    
+
     def calculate_result(branch_name, events, size)
       all_ages_count = 0
       young_ages_count = 0

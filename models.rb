@@ -38,15 +38,23 @@ end
 
 
 
-class Category < ActiveRecord::Base
+class AgeGroup < ActiveRecord::Base
 
 end
 
 
 
+class AgeCategory < ActiveRecord::Base
+
+end
+
+
+
+
+
 class Count < ActiveRecord::Base
   belongs_to :event
-  has_many :categories
+  has_many :agegroups
 
   validates :attendants, numericality: {only_integer: true, greater_than: 0}
 
@@ -62,6 +70,6 @@ end
 
 
 
-class Genre < ActiveRecord::Base
+class Subcategory < ActiveRecord::Base
 
 end

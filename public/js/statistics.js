@@ -48,6 +48,10 @@ $(function() {
 
         if (quarter === 5) {
           startOfPeriod = moment(new Date(year, 0, 1)).format("DD-MM-YYYY");
+          endOfPeriod = moment(new Date(year, 7, 31)).format("DD-MM-YYYY");
+          quickpickString = "2. tertial " + year;
+        } else if (quarter === 6) {
+          startOfPeriod = moment(new Date(year, 0, 1)).format("DD-MM-YYYY");
           endOfPeriod = moment(new Date(year + 1, 0, 1)).subtract(1, 'days').format("DD-MM-YYYY");
           quickpickString = "Totalt " + year;
         } else {
@@ -68,7 +72,6 @@ $(function() {
       var dateString = date.getDate() + "-" + (date.getMonth() +1 )+ "-" + date.getFullYear();
       var currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
       $("#select_quarter").val(currentQuarter).change();
-
 
       $("#clear").click(function() {
         $("#stats_table tbody tr").remove();

@@ -11,9 +11,6 @@ $(".nav-statistics").addClass("active");
 <script src="/js/statistics.js"></script>
 
 
-<br />
-<br />
-
 <form class="form-inline" role="form">
 <div class="row">
   <div class="form-group">
@@ -23,7 +20,8 @@ $(".nav-statistics").addClass("active");
       <option value="2">2. kvartal</option>
       <option value="3">3. kvartal</option>
       <option value="4">4. kvartal</option>
-      <option value="5">Hele</option>
+      <option value="5">2. tertial</option>
+      <option value="6">Hele</option>
     </select>
 
     <select class="quickpick" id="select_year">
@@ -61,8 +59,8 @@ $(".nav-statistics").addClass("active");
     <label for="select_genre">Kategori:</label>
     <select id="select_genre">
       <option value="0">Samlet</option>
-      <% genres.each do |genre| %>
-      <%= "<option value='#{genre.id}'>#{genre.description}</option>" %>
+      <% subcategories.each do |subcategory| %>
+      <%= "<option value='#{subcategory.id}'>#{subcategory.name}</option>" %>
       <% end %>
     </select>
   </div>
