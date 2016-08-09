@@ -1,19 +1,59 @@
 "use strict";
 
 
+//
+// form helper functions
+//
+var clear = function(form) {
+  form.find(':input').not(':button, :submit, :reset, :checkbox, :radio').val('')
+  form.find(':checkbox, :radio').prop('checked', false)
+}
+
+var populate = function(form, data) {
+  $.each(data, function(name, val){
+    var formElement = form.find('[name="' + name + '"]')
+    var type = formElement.prop('type')
+    switch(type){
+      case 'checkbox':
+      formElement.prop('checked', val)
+      break
+      case 'radio':
+      formElement.filter('[value="'+ val +'"]').prop('checked', 'checked')
+      break
+      default:
+      formElement.val(val)
+    }
+  })
+}
+
+var convertFormToHash = function($form) {
+  var hash = {}
+  var formElements = $form.serializeArray()
+
+  $.each(formElements, function() {
+    hash[this.name] = this.value || ''
+  })
+
+  return hash
+}
+
+
+
 $(function () {
 
   // helper functions
-  var addInput = function (cid, label, attendants) {
+
+    //<input type="number" class="form-control" name="counts[][${age_group_id}]" value="${attendants}">
+  var addInput = function (age_group_id, label, attendants) {
     var inputRow = `
-    <div class="row" id="${cid}">
+    <div class="row" id="${age_group_id}">
     <div class="form-group col-xs-7 col-sm-5 col-md-6 col-lg-3">
     <label for="count">Antall ${label}:</label>
     <div class="row">
     <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
-    <input type="number" class="form-control" name="counts[][${cid}]" value="${attendants}">
+    <input type="number" class="form-control" name="${age_group_id}" value="${attendants}">
     </div>
-    <button type="button" class="btn btn-dafault btn_remove" data-id="${cid}">
+    <button type="button" class="btn btn-dafault btn_remove" data-id="${age_group_id}">
     <span class="glyphicon glyphicon-minus"></span>
     </button>
     </div>
@@ -21,18 +61,18 @@ $(function () {
     </div>
     `;
 
-    $("#categories").append(inputRow);
+    $("#counts").append(inputRow);
   };
 
-
-  var editOption = function(cid, isDisabled) {
-    $("#select_category option[value=" + cid + "]").prop("disabled", isDisabled);
-    $("#select_category option[value=" + cid + "]").prop("hidden", isDisabled);
+  // todo: this should no longer be called age_group_id
+  var editOption = function(age_group_id, isDisabled) {
+    $("#age_group_selector option[value=" + age_group_id + "]").prop("disabled", isDisabled);
+    $("#age_group_selector option[value=" + age_group_id + "]").prop("hidden", isDisabled);
   };
 
 
   // initialize daterange picker
-  $("input[name='daterange']").daterangepicker(
+  $("input[name='date']").daterangepicker(
     {
       singleDatePicker: true,
       showDropdowns: true,
@@ -44,51 +84,51 @@ $(function () {
 
     // add inputs for existing values (edit mode)
     $(".counts").each(function() {
-      var cid = $(this).data("category_id");
+      var age_group_id = $(this).data("age_group_id");
       var label = $(this).data("label");
       var attendants = $(this).data("attendants");
 
-      addInput(cid, label, attendants);
-      editOption(cid, true);
+      addInput(age_group_id, label, attendants);
+      editOption(age_group_id, true);
     });
 
-    $("#select_category :enabled").first().prop("selected", true);
+    $("#age_group_selector :enabled").first().prop("selected", true);
 
 
     // event handlers
-    $("#event-form").on("submit", function(e) {
+
+    $("#submit_button").click(function(e) {
       e.preventDefault();
 
       var isOK = true;
 
       // validate title
-      var len = $("#title").val().trim().length;
+      var len = $("#name").val().trim().length;
       if (len > 1 && len < 100) {
-        $("#title").removeClass("invalid").addClass("valid");
+        $("#name").removeClass("invalid").addClass("valid");
       } else {
-        $("#title").removeClass("valid").addClass("invalid");
+        $("#name").removeClass("valid").addClass("invalid");
         isOK = false;
       }
 
       // ensure branch is selected
-      if ($("#select_branch :selected").val() === "") {
-        $("#select_branch").removeClass("valid").addClass("invalid");
+      if ($("#branch_selector").val() === "") {
+        $("#branch_selector").removeClass("valid").addClass("invalid");
         isOK = false;
       } else {
-        $("#select_branch").removeClass("invalid").addClass("valid");
+        $("#branch_selector").removeClass("invalid").addClass("valid");
       }
 
-      // ensure genre is selected
-      if ($("#select_genre :selected").val() === "") {
-        $("#select_genre").removeClass("valid").addClass("invalid");
+      // ensure subcategory is selected
+      if ($("#subcategory_selector :selected").val() === "") {
+        $("#subcategory_selector").removeClass("valid").addClass("invalid");
         isOK = false;
       } else {
-        $("#select_genre").removeClass("invalid").addClass("valid");
+        $("#subcategory_selector").removeClass("invalid").addClass("valid");
       }
-
 
       // ensure valid counts are added
-      var counts = $("#categories input");
+      var counts = $("#counts input");
       $("#ta-alert").remove();
 
       if (counts.size() === 0) {
@@ -98,7 +138,7 @@ $(function () {
         Du må legge til minst én aldersgruppe.
         </div>
         `;
-        $("#categories").append(alarm);
+        $("#counts").append(alarm);
 
         isOK = false;
       }
@@ -115,80 +155,69 @@ $(function () {
       });
       // daterange?
 
-
       if (isOK) {
-        document.formz.submit();
+        submitData();
       }
 
     });
 
 
     $("#btn_add").click(function() {
-      var selected = $("#select_category :selected");
-      var cid = selected.val();
+      var selected = $("#age_group_selector :selected");
+      var age_group_id = selected.val();
       var label = selected.text();
 
       if (selected.is(":disabled")) {
         return;
       }
 
-      editOption(cid, true);
+      editOption(age_group_id, true);
 
-      $("#select_category :enabled").first().prop("selected", true);
+      $("#age_group_selector :enabled").first().prop("selected", true);
       $("#ta-alert").remove();
 
-      addInput(cid, label, 0);
+      addInput(age_group_id, label, 0);
     });
 
 
 
-    $("#categories").on("click", ".btn_remove", function() {
-      var categoryID = $(this).data("id");
+    $("#counts").on("click", ".btn_remove", function() {
+      var categoryID = $(this).data("id")
 
-      editOption(categoryID, false);
-      $("#" + categoryID).remove();
+      editOption(categoryID, false)
+      $("#" + categoryID).remove()
 
-      if ($("#select_category :enabled").size() === 1) {
-        $("#select_category :enabled").prop("selected", true);
+      if ($("#age_group_selector :enabled").size() === 1) {
+        $("#age_group_selector :enabled").prop("selected", true)
       }
     });
 
 
 
-    $('#submit').click(function() {
+    var submitData = function() {
+      var eventData = convertFormToHash($('#event-form'))
+      var countData = convertFormToHash($('#count-form'))
 
-      var date = $("#daterange").val();
-      var genre_id = $("#select_genre").val();
-      var branch_id = $("#select_branch").val();
-      var desc = $("#event_desc").val();
-      var category_id = $("#select_category").val();
-      var count = $("#count").val();
-
-      var event_data = {date: date, genre_id: genre_id, branch_id: branch_id, desc: desc, category_id: category_id, count: count};
-      event_data = JSON.stringify(event_data);
+      var data = {event_data: eventData, count_data: countData}
 
       var request = $.ajax({
-        url        : "/api/events",
+        url        : "/api/event",
         dataType   : "json",
         contentType: "application/json; charset=UTF-8",
-        data       : event_data,
-        type       : "PUT"
+        data       : JSON.stringify(data),
+        type       : "POST",
+        cache      : false
       });
 
-      request.done(function(data, textStatus, xhr) {
-        alert(textStatus);
+
+      request.done(function(response) {
+        window.location.href = response.redirect;
       });
 
       request.fail(function(xhr, textStatus, errorThrown) {
-        alert(textStatus);
+        alert(textStatus)
       });
 
-    });
-
-
-    $('#cancel').click(function() {
-      alert("avbryter");
-    });
-
+    };
 
   })

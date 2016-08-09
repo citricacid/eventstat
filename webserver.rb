@@ -81,7 +81,7 @@ get '/manage_events' do
   session[:transaction_error] = nil
 
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-    agegroups: AgeGroup.all, edit: false, error: error }
+    age_groups: AgeGroup.all, edit: false, error: error }
   end
 
 
@@ -111,7 +111,8 @@ get '/manage_events' do
       error = session[:transaction_error] == true
       session[:transaction_error] = nil
 
-      erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all, agegroups: AgeGroup.all}
+      erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+        categories: Category.all, age_groups: AgeGroup.all}
     end
 
     get '/enable_javascript' do
@@ -121,19 +122,18 @@ get '/manage_events' do
 
     # CRUDS
 
-
-    post '/event' do
+    post '/api/event' do
       require_logged_in
 
-      is_edit = params[:event_id].present?
-      event_id = params[:event_id].to_i if is_edit
+      data = JSON.parse(request.body.read)
+      event_data = data['event_data']
+      count_data = data['count_data']
+
+      is_edit = event_data['id'].present?
+      event_id = event_data['id'].to_i if is_edit
 
       event = is_edit ? Event.find(event_id) : Event.new
-
-      event.title = params[:title].strip
-      event.date = params[:daterange]
-      event.genre_id = params[:genre_id]
-      event.branch_id = params[:branch_id]
+      event.attributes = event.attributes.merge(event_data) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
       success = false
 
@@ -147,11 +147,10 @@ get '/manage_events' do
           end
         end
 
-        counts = params[:counts].nil? ? {} : params[:counts].first
-        counts.each do |category_id, attendants|
+        count_data.each do |age_group_id, attendants|
           count = Count.new do |ct|
             ct.event_id = event.id
-            ct.category_id = category_id
+            ct.age_group_id = age_group_id
             ct.attendants = attendants
           end
           count.save!
@@ -160,12 +159,15 @@ get '/manage_events' do
         success = true
       end
 
+      success = false # todo håndter feilmelding
+
       if success
         session[:transaction_success] = true
-        redirect "/view_events"
+        {redirect: '/view_events'}.to_json
+
       else
         session[:transaction_error] = true
-        redirect back
+        {redirect: '/edit_event/' + event.id.to_s}.to_json
       end
     end
 
@@ -173,64 +175,63 @@ get '/manage_events' do
     put '/api/statistics' do
       data = JSON.parse(request.body.read)
       branch_id = data["branch_id"]
-      genre_id = data["genre_id"]
+      category_id = data["category_id"]
+      subcategory_id = data["subcategory_id"]
       @from_date = Date.parse(data["from_date"])
       @to_date = Date.parse(data["to_date"])
 
-      iterate_over_branches = branch_id == '-1' ? true : false
-      branch_id = nil if branch_id == '0' || branch_id == '-1'
 
-      iterate_over_genres = genre_id == '-1' ? true : false
-      genre_id = nil if genre_id == '0' || genre_id == '-1'
+      sum_all_branches = branch_id == 'sum_all'
+      branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
+
+      sum_all_categories = category_id == 'sum_all' || subcategory_id == 'sum_all'
+      @iterate_over_categories = category_id != 'none'
 
       results = []
 
-
-      if iterate_over_branches
-        Branch.all.each do |branch|
-          if iterate_over_genres
-            results << iterate_genres(branch.id)
-          else
-            events = get_events(branch.id, genre_id)
+      if sum_all_branches && sum_all_categories
+        events = get_events
+        results << calculate_result('Samlet', events, events.size())
+      elsif sum_all_branches # implicit iterate categories
+        results << iterate_subcategories(nil, 'Samlet')
+      else       # implicit iterate_branches
+        branches.each do |branch|
+          if sum_all_categories
+            events = get_events(branch.id)
             results << calculate_result(branch.name, events, events.size())
+          else
+            results << iterate_subcategories(branch.id, branch.name)
           end
         end
-      elsif iterate_over_genres
-        results << iterate_genres(branch_id)
-      else
-          branch_name = branch_id.nil? ? "Samlet" : Branch.find(branch_id).name
-          events = get_events(branch_id, genre_id)
-          results << calculate_result(branch_name, events, events.size())
       end
 
-      {results: results}.to_json
-    end
+        {results: results.flatten}.to_json
+      end
 
-
-    def iterate_genres(branch_id)
+      #TODO BIG FIX
+    def iterate_subcategories(branch_id, branch_name)
       results = []
 
-      Genres.all.each do |genre|
-        events = get_events(branch_id, genre.id)
-        results << calculate_result(branch.name, events, events.size())
+      cats = @iterate_over_categories ? Category.all : Subcategory.all
+      cats.each do |cat|
+        events = @iterate_over_categories ? get_events(branch_id, cat.id, nil) : get_events(branch_id, nil, cat.id)
+        results << calculate_result(branch_name, events, events.size())
       end
       results
     end
 
 
-    def get_events (branch_id, genre_id)
-      Event.between_dates(@from_date, @to_date).by_branch(branch_id).by_genre(genre_id)
+    def get_events (branch_id = nil, category_id = nil, subcategory_id = nil)
+      Event.between_dates(@from_date, @to_date)
+        .by_branch(branch_id)
+        .by_category(category_id)
+        .by_subcategory(subcategory_id)
     end
 
 
     def calculate_result(branch_name, events, size)
-      all_ages_count = 0
-      young_ages_count = 0
-
-      events.each do |event|
-        all_ages_count += event.counts.sum_all_ages
-        young_ages_count += event.counts.sum_young_ages
-      end
+      young_ages_count = events.to_a.sum(&:sum_young_ages)
+      all_ages_count = events.to_a.sum(&:sum_all_ages)
 
       {branch_name: branch_name, all: all_ages_count, young: young_ages_count, no_of_events: events.size()}
     end

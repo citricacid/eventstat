@@ -7,9 +7,10 @@ require 'active_record'
 class Event < ActiveRecord::Base
   has_many :counts
   belongs_to :branch
-  belongs_to :genre
+  belongs_to :subcategory
+  #has_one :category, :through => :subcategory
 
-  validates :title, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
+  validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
   validates :date, presence: true
 
   def self.between_dates(from_date, to_date)
@@ -18,14 +19,27 @@ class Event < ActiveRecord::Base
 
 
   def self.by_branch(id)
-    return all unless id.present?
-    where("branch_id = ?", id)
+    id.present? ? where(subcategory_id: id) : all
   end
 
 
-  def self.by_genre(id)
-    return all unless id.present?
-    where("genre_id = ?", id)
+  def self.by_category(id)
+    id.present? ? joins(:subcategory).where('subcategories.category_id' => id) : all
+  end
+
+
+  def self.by_subcategory(id)
+    id.present? ? where(subcategory_id: id) : all
+  end
+
+
+  def sum_all_ages
+    counts.sum(:attendants)
+  end
+
+
+  def sum_young_ages
+    counts.select(&:is_young).sum(&:attendants)
   end
 
 end
@@ -39,12 +53,21 @@ end
 
 
 class AgeGroup < ActiveRecord::Base
+  has_one :count
+  belongs_to :age_category
+
+  def is_young
+    age_category.is_young
+  end
 
 end
 
 
 
 class AgeCategory < ActiveRecord::Base
+    def is_young
+      id == 2
+    end
 
 end
 
@@ -54,22 +77,31 @@ end
 
 class Count < ActiveRecord::Base
   belongs_to :event
-  has_many :agegroups
+  belongs_to :age_group
 
   validates :attendants, numericality: {only_integer: true, greater_than: 0}
 
+
+  def is_young
+    age_group.is_young
+  end
+
   def self.sum_all_ages
-    where("category_id > ?", 0).sum(:attendants)
+    sum(:attendants)
   end
 
   def self.sum_young_ages
-    where("category_id > ?", 1).sum(:attendants)
+    sum(:attendants)
   end
 
 end
 
 
+class Category < ActiveRecord::Base
+  has_many :subcategories
+end
+
 
 class Subcategory < ActiveRecord::Base
-
+  belongs_to :category
 end

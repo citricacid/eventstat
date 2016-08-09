@@ -40,7 +40,7 @@ $(".nav-view_events").addClass("active");
 
         <% events.each do |event| %>
         <%= "<tr class='#{event.branch.id}'>" %>
-          <%= "<td>#{event.title}</td><td>#{event.date.strftime('%d/%m/%-y')}</td>" %>
+          <%= "<td>#{event.name}</td><td>#{event.date.strftime('%d/%m/%-y')}</td>" %>
           <%= "<td>#{event.counts.sum(:attendants)}</td>" %>
           <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>
           <%= "</tr>" %>

@@ -43,10 +43,10 @@ $(".nav-statistics").addClass("active");
 
 <div class="row">
   <div class="form-group">
-    <label for="select_branch">Filial:</label>
-    <select id="select_branch">
-      <option value="0">Samlet</option>
-      <option value="-1">Alle</option>
+    <label for="branch_selector">Sted:</label>
+    <select id="branch_selector">
+      <option value="sum_all">Samlet</option>
+      <option value="iterate_all">Alle</option>
       <% branches.each do |branch| %>
       <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
       <% end %>
@@ -56,9 +56,22 @@ $(".nav-statistics").addClass("active");
 
 <div class="row">
   <div class="form-group">
-    <label for="select_genre">Kategori:</label>
-    <select id="select_genre">
-      <option value="0">Samlet</option>
+    <label for="category_selector">Kategori:</label>
+    <select id="category_selector" class="category_selector">
+      <option value="none" hidden disabled>-</option>
+      <option value="sum_all">Samlet</option>
+      <option value="iterate_all">Alle</option>
+      <% categories.each do |category| %>
+      <%= "<option value='#{category.id}'>#{category.name}</option>" %>
+      <% end %>
+    </select>
+
+
+    <label for="subcategory_selector">Underkategori:</label>
+    <select id="subcategory_selector" class="category_selector">
+      <option value="none">-</option>
+      <option value="sum_all">Samlet</option>
+      <option value="iterate_all">Alle</option>
       <% subcategories.each do |subcategory| %>
       <%= "<option value='#{subcategory.id}'>#{subcategory.name}</option>" %>
       <% end %>
@@ -82,7 +95,7 @@ $(".nav-statistics").addClass("active");
     <thead class="thead-inverse">
       <tr>
         <th>Periode</th>
-        <th>Filial</th>
+        <th>Sted</th>
         <th>Barn/unge</th>
         <th>Samlet</th>
         <th>Ant. arr</th>

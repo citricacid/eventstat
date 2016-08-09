@@ -1,9 +1,26 @@
 "use strict";
 
+var toggleOption = function($this, isDisabled) {
+  var $option = $this.find("option[value='none']")
+  $option.prop("disabled", isDisabled).prop("hidden", isDisabled)
+
+  if (!isDisabled) {
+    $option.prop('selected', true)
+  }
+};
+
+
+
 $(function() {
 
-  var quickpickString = "";
-  var isQuickpick = false;
+  var quickpickString = ""
+  var isQuickpick = false
+
+  $('.category_selector').change(function() {
+    toggleOption($(this), true)
+    toggleOption($(this).siblings(), false)
+  });
+
 
   // initialize daterange pickers
   $("#daterange_from").daterangepicker(
@@ -32,7 +49,7 @@ $(function() {
         isQuickpick = false;
       });
 
-
+      // not in use atm, possible remove
       $("#stats_table").on("click", ".fix_row", function() {
         var tr = $(this).parent().parent();
         tr.toggleClass("fixed_row");
@@ -79,10 +96,11 @@ $(function() {
 
 
       $('#submit').click(function() {
-        var branchID = $("#select_branch").val();
+        var branchID = $("#branch_selector").val();
         var fromDate = $("#daterange_from").val();
         var toDate = $("#daterange_to").val();
-        var genreID = $("#select_genre").val();
+        var categoryID = $("#category_selector").val();
+        var subcategoryID = $("#subcategory_selector").val();
 
         // if the dates were selected via the quickpicker, use their value
         // otherwise construct string for custom period
@@ -94,7 +112,9 @@ $(function() {
           periodString = fromDate + "/" + toDate;
         }
 
-        var stats_parameters = {branch_id: branchID, from_date: fromDate, to_date: toDate, genre_id: genreID};
+        var stats_parameters = {branch_id: branchID, from_date: fromDate,
+           to_date: toDate, category_id: categoryID, subcategory_id: subcategoryID};
+           
         var request = $.ajax({
           url        : "/api/statistics",
           dataType   : "json",
@@ -118,9 +138,6 @@ $(function() {
 
             $("#stats_table tbody").append(tableRow);
           });
-
-
-
         });
 
         request.fail(function(xhr, textStatus, errorThrown) {
