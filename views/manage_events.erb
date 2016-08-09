@@ -60,16 +60,21 @@ $(".nav-manage_events").addClass("active");
 
     <div class="form-group">
       <label for="subcategory_selector">Kategori:</label>
+      <button type="button" id="show_definition" class="btn btn-default">
+        <span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
       <select id="subcategory_selector" name="subcategory_id" class="form-control">
         <option value="" disabled hidden selected>-- velg --</option>
-        <% subcategories.each do |subcategory| %>
-        <% if edit && subcategory.id == event.subcategory_id %>
-        <%= "<option value='#{subcategory.id}' selected>#{subcategory.name}</option>" %>
-        <% else %>
-        <%= "<option value='#{subcategory.id}'>#{subcategory.name}</option>" %>
-        <% end %>
+        <% subcategories.each do |subcategory| %>        
+        <%= "<option value='#{subcategory.id}' data-definition='#{subcategory.definition}' " %>
+        <%= "selected " if edit && subcategory.id == event.subcategory_id %>
+        <%= ">#{subcategory.name}</option>" %>
         <% end %>
       </select>
+
+      <div id="definition_panel" class="panel panel-default">
+        <div class="panel-body"></div>
+      </div>
+
     </div>
 
 </form>

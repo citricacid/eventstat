@@ -74,6 +74,7 @@ post '/sessions' do
   redirect('/')
 end
 
+
 get '/manage_events' do
   require_logged_in
 
@@ -91,28 +92,39 @@ get '/manage_events' do
     success = session[:transaction_success] == true
     session[:transaction_success] = nil
 
-    erb :view_events, :locals => {events: Event.all, branches: Branch.all, success: success}
+    page_number = params[:page_number].present? ? params[:page_number].to_i : 1
+    limit = params[:viev_all].present? ? Event.all.size : 10
+    offset = (page_number - 1) * limit
+    number_of_pages = Event.all.size / limit
+    number_of_pages += 1 if Event.all.size % limit > 0
+
+    erb :view_events, :locals => {events: Event.reverse.limit(limit).offset(offset), branches: Branch.all,
+       success: success, page_number: page_number, number_of_pages: number_of_pages}
   end
 
 
   get '/edit_event/:event_id' do
     require_logged_in
 
+    error = session[:transaction_error] == true
+    session[:transaction_error] = nil
+
     event_id = params['event_id']
 
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      agegroups: AgeGroup.all, event: Event.find(event_id), edit: true, error: false }
-    end
+      age_groups: AgeGroup.all, event: Event.find(event_id), edit: true, error: error }
+
+  end
 
 
-    get '/view_statistics' do
-      require_logged_in
+  get '/view_statistics' do
+    require_logged_in
 
-      error = session[:transaction_error] == true
-      session[:transaction_error] = nil
+    error = session[:transaction_error] == true
+    session[:transaction_error] = nil
 
-      erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-        categories: Category.all, age_groups: AgeGroup.all}
+    erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+      categories: Category.all, age_groups: AgeGroup.all}
     end
 
     get '/enable_javascript' do
@@ -159,8 +171,6 @@ get '/manage_events' do
         success = true
       end
 
-      success = false # todo håndter feilmelding
-
       if success
         session[:transaction_success] = true
         {redirect: '/view_events'}.to_json
@@ -180,60 +190,67 @@ get '/manage_events' do
       @from_date = Date.parse(data["from_date"])
       @to_date = Date.parse(data["to_date"])
 
-
       sum_all_branches = branch_id == 'sum_all'
       branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
 
       sum_all_categories = category_id == 'sum_all' || subcategory_id == 'sum_all'
       @iterate_over_categories = category_id != 'none'
 
+      if @iterate_over_categories
+        @cats = category_id == 'iterate_all' ? Category.all : Category.where(id: category_id)
+      else
+        @cats = subcategory_id == 'iterate_all' ? Subcategory.all : Subcategory.where(id: subcategory_id)
+      end
+
       results = []
 
       if sum_all_branches && sum_all_categories
         events = get_events
-        results << calculate_result('Samlet', events, events.size())
+        results << calculate_result('Samlet', 'Samlet', events)
       elsif sum_all_branches # implicit iterate categories
-        results << iterate_subcategories(nil, 'Samlet')
+        results << iterate_categories(nil, 'Samlet')
       else       # implicit iterate_branches
         branches.each do |branch|
           if sum_all_categories
             events = get_events(branch.id)
-            results << calculate_result(branch.name, events, events.size())
+            results << calculate_result(branch.name, 'Samlet', events)
           else
-            results << iterate_subcategories(branch.id, branch.name)
+            results << iterate_categories(branch.id, branch.name)
           end
         end
       end
 
-        {results: results.flatten}.to_json
-      end
+      {results: results.flatten}.to_json
+    end
 
-      #TODO BIG FIX
-    def iterate_subcategories(branch_id, branch_name)
+
+    def iterate_categories(branch_id, branch_name)
       results = []
 
-      cats = @iterate_over_categories ? Category.all : Subcategory.all
-      cats.each do |cat|
-        events = @iterate_over_categories ? get_events(branch_id, cat.id, nil) : get_events(branch_id, nil, cat.id)
-        results << calculate_result(branch_name, events, events.size())
+      @cats.each do |cat|
+        events = @iterate_over_categories ?
+          get_events(branch_id, category_id: cat.id) : get_events(branch_id, subcategory_id: cat.id)
+        results << calculate_result(branch_name, cat.name, events)
       end
+
       results
     end
 
 
-    def get_events (branch_id = nil, category_id = nil, subcategory_id = nil)
+    def get_events (branch_id = nil, category_id: nil, subcategory_id: nil)
       Event.between_dates(@from_date, @to_date)
-        .by_branch(branch_id)
-        .by_category(category_id)
-        .by_subcategory(subcategory_id)
+      .by_branch(branch_id)
+      .by_category(category_id)
+      .by_subcategory(subcategory_id)
     end
 
 
-    def calculate_result(branch_name, events, size)
+    def calculate_result(branch_name, category_name, events)
       young_ages_count = events.to_a.sum(&:sum_young_ages)
       all_ages_count = events.to_a.sum(&:sum_all_ages)
 
-      {branch_name: branch_name, all: all_ages_count, young: young_ages_count, no_of_events: events.size()}
+      {branch_name: branch_name, category_name: category_name, all: all_ages_count,
+         young: young_ages_count, no_of_events: events.size()}
     end
 
     # needed when using the Sinatra::Reloader to avoid draining the connection pool

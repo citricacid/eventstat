@@ -2,7 +2,9 @@
 
 $(function () {
 
-$("#select_branch").click(function() {
+$('#branch_selector').children().first().prop('selected', true)
+
+$("#branch_selector").click(function() {
   var branchID = $(this).val();
 
   if (branchID === '0') {

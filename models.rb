@@ -8,7 +8,8 @@ class Event < ActiveRecord::Base
   has_many :counts
   belongs_to :branch
   belongs_to :subcategory
-  #has_one :category, :through => :subcategory
+
+  scope :reverse, -> { order('id').reverse_order }
 
   validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
   validates :date, presence: true
@@ -71,7 +72,10 @@ class AgeCategory < ActiveRecord::Base
 
 end
 
+class EventType < ActiveRecord::Base
 
+
+end
 
 
 

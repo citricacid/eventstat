@@ -47,6 +47,8 @@ $(function() {
 
       $(".period").change(function() {
         isQuickpick = false;
+        var p = $("#daterange_from").val() + "/" + $("#daterange_to").val();
+        $('#period_name').val(p)
       });
 
       // not in use atm, possible remove
@@ -78,6 +80,7 @@ $(function() {
         }
 
         isQuickpick = true;
+        $('#period_name').val(quickpickString)
 
         $("#daterange_from").val(startOfPeriod);
         $("#daterange_to").val(endOfPeriod);
@@ -112,9 +115,11 @@ $(function() {
           periodString = fromDate + "/" + toDate;
         }
 
+        periodString = $('#period_name').val()
+
         var stats_parameters = {branch_id: branchID, from_date: fromDate,
            to_date: toDate, category_id: categoryID, subcategory_id: subcategoryID};
-           
+
         var request = $.ajax({
           url        : "/api/statistics",
           dataType   : "json",
@@ -130,6 +135,7 @@ $(function() {
             <tr>
             <td>${periodString}</td>
             <td>${result.branch_name}</td>
+            <td>${result.category_name}</td>
             <td>${result.young}</td>
             <td>${result.all}</td>
             <td>${result.no_of_events}</td>

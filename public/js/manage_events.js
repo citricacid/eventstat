@@ -93,7 +93,7 @@ $(function () {
     });
 
     $("#age_group_selector :enabled").first().prop("selected", true);
-
+    $('#definition_panel').hide();
 
     // event handlers
 
@@ -192,7 +192,30 @@ $(function () {
       }
     });
 
+    $('#show_definition').click(function() {
+      if ($('#definition_panel').is(':visible')) {
+        $('#definition_panel').hide()
+        return
+      }
+      var def = $("#subcategory_selector :selected").data('definition')
+      $('.panel-body', '#definition_panel').html(def)
+      $('#definition_panel').show()
+      //<span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
+      //$(this).find('span').addClass("glyphicon-user");
+    });
 
+    $('#subcategory_selector').change(function() {
+      $('#definition_panel').hide();
+
+      var def = $("#subcategory_selector :selected").data('definition')
+      if (def === '' || def === undefined) {
+        $('#show_definition').hide()
+      } else {
+        $('#show_definition').show()
+      }
+    })
+
+    $('#subcategory_selector').children().first().prop('selected', true).change()
 
     var submitData = function() {
       var eventData = convertFormToHash($('#event-form'))

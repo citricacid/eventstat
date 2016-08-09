@@ -15,8 +15,8 @@ $(".nav-view_events").addClass("active");
 
 
 
-  <label for="select_branch">Filial:</label>
-  <select id="select_branch" name="branch_id">
+  <label for="branch_selector">Sted:</label>
+  <select id="branch_selector" name="branch_id">
     <option value="0" selected>-- Alle --</option>
     <% branches.each do |branch| %>
     <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
@@ -49,4 +49,22 @@ $(".nav-view_events").addClass("active");
         </tbody>
 
       </table>
+    </div>
+
+
+    <div class="row">
+      <div class="col col-xs-4">
+        <%= "Side #{page_number} av #{number_of_pages}" %>
+      </div>
+      <div class="col col-xs-8">
+        <ul class="pagination hidden-xs pull-right">
+          <% for i in 1..number_of_pages %>
+          <%= "<li><a href='/view_events?page_number=#{i}'>#{i}</a></li>" %>
+          <% end %>
+        </ul>
+        <ul class="pagination visible-xs pull-right">
+          <li><a href="#">«</a></li>
+          <li><a href="#">»</a></li>
+        </ul>
+      </div>
     </div>
