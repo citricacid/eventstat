@@ -27,85 +27,102 @@ $(".nav-manage_events").addClass("active");
   <% end %>
 
 
-<form action="/api/event" method="post" id="event-form" name="formz">
+  <form action="/api/event" method="post" id="event-form" name="formz">
 
     <% if edit %>
     <%= "<input type='hidden' name='id' value='#{event.id}'>" %>
     <% end %>
 
-    <div class="form-group">
-      <label class="form-control-label" for="name">Tittel:</label>
-      <input type="text" class="form-control"
-      id="name" name="name" <%= "value='#{event.name}'" if edit %> >
-    </div>
 
     <div class="form-group">
-      <label for="branch_selector">Sted:</label>
-      <select id="branch_selector" class="form-control" name="branch_id">
+      <label for="event_type_selector">Type:</label>
+      <select id="event_type_selector" class="form-control" name="event_type_id">
         <option value="" disabled hidden selected>-- velg --</option>
-        <% branches.each do |branch| %>
-        <% if edit && branch.id == event.branch_id %>
-        <%= "<option value='#{branch.id}' selected>#{branch.name}</option>" %>
-        <% else %>
-        <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
-        <% end %>
-        <% end %>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="daterange">Dato:</label>
-      <input class="form-control" type="text" name="date" id="daterange" <%= value="#{event.date}" if edit%>>
-    </div>
-
-    <div class="form-group">
-      <label for="subcategory_selector">Kategori:</label>
-      <button type="button" id="show_definition" class="btn btn-default">
-        <span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
-      <select id="subcategory_selector" name="subcategory_id" class="form-control">
-        <option value="" disabled hidden selected>-- velg --</option>
-        <% subcategories.each do |subcategory| %>        
-        <%= "<option value='#{subcategory.id}' data-definition='#{subcategory.definition}' " %>
-        <%= "selected " if edit && subcategory.id == event.subcategory_id %>
-        <%= ">#{subcategory.name}</option>" %>
-        <% end %>
-      </select>
-
-      <div id="definition_panel" class="panel panel-default">
-        <div class="panel-body"></div>
+        <% event_types.each do |type| %>
+        <%= "<option value='#{type.id}' " %>
+          <%= "selected " if edit && type.id == event.event_type_id %>
+          <%= ">#{type.label}</option>" %>
+          <% end %>
+        </select>
       </div>
 
-    </div>
 
-</form>
-<form action="/event" method="post" id="count-form" name="formzz">
+      <div class="form-group">
+        <label class="form-control-label" for="name">Tittel:</label>
+        <input type="text" class="form-control"
+        id="name" name="name" <%= "value='#{event.name}'" if edit %> >
+      </div>
 
-    <div class="row">
-      <div class="form-group col-xs-12 col-sm-7 col-md-6 col-lg-5">
-        <label for="age_group_selector">Legg til aldersgruppe:</label>
-        <div class="row">
-          <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
-            <select class="form-control" id="age_group_selector">
-              <% age_groups.each do |age| %>
-              <%= "<option value='#{age.id}'>#{age.name}</option>" %>
-              <% end %>
-            </select>
-          </div>
-          <button class="btn btn-success" id="btn_add" type="button">
-            <span class="glyphicon glyphicon-plus"></span>
-          </button>
+
+      <div class="form-group">
+        <label for="branch_selector">Sted:</label>
+        <select id="branch_selector" class="form-control" name="branch_id">
+          <option value="" disabled hidden selected>-- velg --</option>
+          <% branches.each do |branch| %>
+          <%= "<option value='#{branch.id}' " %>
+            <%= "selected " if edit && branch.id == event.branch_id %>
+            <%= ">#{branch.name}</option>" %>
+            <% end %>
+          </select>
         </div>
-      </div>
-    </div>
 
-    <div id="counts">
-      <% if edit %>
-      <% event.counts.each do |count| %>
-      <%= "<div class='counts' data-age_group_id='#{count.age_group_id}'
-      data-attendants='#{count.attendants}' data-label='#{age_groups.find(count.age_group_id).name}'></div>" %>
-      <% end %>
-      <% end %>
-    </div>
+        <div class="form-group">
+          <label for="daterange">Dato:</label>
+          <input class="form-control" type="date" name="date" id="daterange" <%= " value='#{event.date}'" if edit%>>
+        </div>
 
-  </form>
-    <input type="button" id="submit_button" class="btn btn-primary" value="Lagre">
+
+        <div class="form-group">
+          <label for="subcategory_selector">Kategori:</label>
+          <button type="button" id="show_definition" class="btn btn-default">
+            <span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
+            <button type="button" id="hide_definition" class="btn btn-default">
+              <span class="glyphicon glyphicon-eye-close"></span> definisjon</button>
+          <select id="subcategory_selector" name="subcategory_id" class="form-control">
+            <option value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
+              <% subcategories.each do |subcategory| %>
+                <%= "<option value='#{subcategory.id}' " %>
+                <%= "selected " if edit && subcategory.id == event.subcategory_id %>
+                <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>
+              <% end %>
+          </select>
+
+          <div id="definition_panel" class="panel panel-default">
+            <div class="panel-body"></div>
+          </div>
+        </div>
+
+        </form>
+
+        <form action="/event" method="post" id="count-form" name="formzz">
+
+            <div class="row">
+              <div class="form-group col-xs-12 col-sm-7 col-md-6 col-lg-5">
+                <label for="age_group_selector">Legg til aldersgruppe:</label>
+                <div class="row">
+                  <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
+                    <select class="form-control" id="age_group_selector">
+                      <% age_groups.each do |age| %>
+                      <%= "<option value='#{age.id}'>#{age.name}</option>" %>
+                      <% end %>
+                    </select>
+                  </div>
+                  <button class="btn btn-success" id="btn_add" type="button">
+                    <span class="glyphicon glyphicon-plus"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="counts">
+              <% if edit %>
+              <% event.counts.each do |count| %>
+              <%= "<div class='counts' data-age_group_id='#{count.age_group_id}'
+              data-attendants='#{count.attendants}' data-label='#{age_groups.find(count.age_group_id).name}'></div>" %>
+              <% end %>
+              <% end %>
+            </div>
+
+      </form>
+
+      <input type="button" id="submit_button" class="btn btn-primary" value="Lagre">

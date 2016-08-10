@@ -56,29 +56,55 @@ $(".nav-statistics").addClass("active");
 </div>
 
 <div class="row">
-  <div class="form-group">
-    <label for="category_selector">Kategori:</label>
-    <select id="category_selector" class="category_selector">
-      <option value="none" hidden disabled>-</option>
-      <option value="sum_all">Samlet</option>
-      <option value="iterate_all">Alle</option>
-      <% categories.each do |category| %>
-      <%= "<option value='#{category.id}'>#{category.name}</option>" %>
-      <% end %>
-    </select>
+<div class="form-group">
+  <label for="event_type_selector">Type:</label>
+  <select id="event_type_selector" name="event_type_id">
+    <option value="sum_all">Samlet</option>
+    <option value="iterate_all">Alle</option>
+    <% event_maintypes.each do |type| %>
+      <%= "<option value='#{type.id}' data-foobar='#{type.name}'>#{type.label}</option>" %>
+    <% end %>
+  </select>
 
 
-    <label for="subcategory_selector">Underkategori:</label>
-    <select id="subcategory_selector" class="category_selector">
-      <option value="none">-</option>
-      <option value="sum_all">Samlet</option>
-      <option value="iterate_all">Alle</option>
-      <% subcategories.each do |subcategory| %>
-      <%= "<option value='#{subcategory.id}'>#{subcategory.name}</option>" %>
-      <% end %>
-    </select>
-  </div>
+
+  <% event_maintypes.each do |type| %>
+  <%= "<div class='subtype_radio' id='#{type.name}'>" %>
+    <%= "<label class='radio-inline'><input type='radio' value='sum_all' name='#{type.name}'>Samlet</label>" %>
+    <% type.event_types.each do |et| %>
+    <%= "<label class='radio-inline'><input type='radio' value='#{et.id}' name='#{type.name}'>#{et.event_subtype.name}</label>" %>
+    <% end %>
+    <%= "</div>" %>
+  <% end %>
 </div>
+
+</div>
+
+<div class="form-group row">
+  <label for="category_selector">Kategori:</label>
+  <select id="category_selector" class="category_selector">
+    <option value="none" hidden disabled>-</option>
+    <option value="sum_all">Samlet</option>
+    <option value="iterate_all">Alle</option>
+    <% categories.each do |category| %>
+    <%= "<option value='#{category.id}'>#{category.name}</option>" %>
+    <% end %>
+  </select>
+
+
+  <label for="subcategory_selector">Underkategori:</label>
+  <select id="subcategory_selector" class="category_selector">
+    <option value="none">-</option>
+    <option value="sum_all">Samlet</option>
+    <option value="iterate_all">Alle</option>
+    <% subcategories.each do |subcategory| %>
+    <%= "<option value='#{subcategory.id}'>#{subcategory.name}</option>" %>
+    <% end %>
+  </select>
+
+</div>
+
+
 
 
 

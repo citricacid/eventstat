@@ -82,7 +82,7 @@ get '/manage_events' do
   session[:transaction_error] = nil
 
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-    age_groups: AgeGroup.all, edit: false, error: error }
+    age_groups: AgeGroup.all, event_types: EventType.all, edit: false, error: error }
   end
 
 
@@ -112,7 +112,7 @@ get '/manage_events' do
     event_id = params['event_id']
 
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      age_groups: AgeGroup.all, event: Event.find(event_id), edit: true, error: error }
+      age_groups: AgeGroup.all, event_types: EventType.all, event: Event.find(event_id), edit: true, error: error }
 
   end
 
@@ -124,8 +124,10 @@ get '/manage_events' do
     session[:transaction_error] = nil
 
     erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      categories: Category.all, age_groups: AgeGroup.all}
+      categories: Category.all, age_groups: AgeGroup.all, event_types: EventType.all,
+      event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
     end
+
 
     get '/enable_javascript' do
       erb :enable_javascript
@@ -190,6 +192,13 @@ get '/manage_events' do
       @from_date = Date.parse(data["from_date"])
       @to_date = Date.parse(data["to_date"])
 
+      # hmm
+      @event_type_id = data["event_type_id"]
+      puts @event_type_id
+      @event_type_id = 2
+
+
+
       sum_all_branches = branch_id == 'sum_all'
       branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
 
@@ -239,6 +248,7 @@ get '/manage_events' do
 
     def get_events (branch_id = nil, category_id: nil, subcategory_id: nil)
       Event.between_dates(@from_date, @to_date)
+      .by_event_type(@event_type_id)
       .by_branch(branch_id)
       .by_category(category_id)
       .by_subcategory(subcategory_id)

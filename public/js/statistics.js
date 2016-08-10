@@ -44,6 +44,19 @@ $(function() {
         }
       });
 
+      $('.subtype_radio').hide()
+
+      // event handlers
+
+      $('#event_type_selector').change(function() {
+        var foo = $(this).data('foobar')
+        var foo = 'exhibition'
+        $('.subtype_radio').hide()
+        console.log(foo)
+        console.log($(this))
+        $('#' + foo).show();
+      })
+
 
       $(".period").change(function() {
         isQuickpick = false;
@@ -104,6 +117,7 @@ $(function() {
         var toDate = $("#daterange_to").val();
         var categoryID = $("#category_selector").val();
         var subcategoryID = $("#subcategory_selector").val();
+        var eventTypeID = 1; //$("#subcategory_selector").val();
 
         // if the dates were selected via the quickpicker, use their value
         // otherwise construct string for custom period
@@ -118,7 +132,8 @@ $(function() {
         periodString = $('#period_name').val()
 
         var stats_parameters = {branch_id: branchID, from_date: fromDate,
-           to_date: toDate, category_id: categoryID, subcategory_id: subcategoryID};
+           to_date: toDate, category_id: categoryID, subcategory_id: subcategoryID,
+           event_type_id: eventTypeID};
 
         var request = $.ajax({
           url        : "/api/statistics",

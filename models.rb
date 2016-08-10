@@ -6,6 +6,7 @@ require 'active_record'
 
 class Event < ActiveRecord::Base
   has_many :counts
+  belongs_to :event_type
   belongs_to :branch
   belongs_to :subcategory
 
@@ -20,7 +21,7 @@ class Event < ActiveRecord::Base
 
 
   def self.by_branch(id)
-    id.present? ? where(subcategory_id: id) : all
+    id.present? ? where(branch_id: id) : all
   end
 
 
@@ -31,6 +32,10 @@ class Event < ActiveRecord::Base
 
   def self.by_subcategory(id)
     id.present? ? where(subcategory_id: id) : all
+  end
+
+  def self.by_event_type(id)
+    id.present? ? where(event_type_id: id) : all
   end
 
 
@@ -73,9 +78,22 @@ class AgeCategory < ActiveRecord::Base
 end
 
 class EventType < ActiveRecord::Base
-
+  belongs_to :event_maintype
+  belongs_to :event_subtype
 
 end
+
+class EventMaintype < ActiveRecord::Base
+  has_many :event_types
+
+end
+
+class EventSubtype < ActiveRecord::Base
+  has_many :event_types
+
+end
+
+
 
 
 

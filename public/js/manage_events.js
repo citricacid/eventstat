@@ -64,7 +64,7 @@ $(function () {
     $("#counts").append(inputRow);
   };
 
-  // todo: this should no longer be called age_group_id
+  // new name? hide or show option
   var editOption = function(age_group_id, isDisabled) {
     $("#age_group_selector option[value=" + age_group_id + "]").prop("disabled", isDisabled);
     $("#age_group_selector option[value=" + age_group_id + "]").prop("hidden", isDisabled);
@@ -93,7 +93,17 @@ $(function () {
     });
 
     $("#age_group_selector :enabled").first().prop("selected", true);
+    $('#hide_definition').hide()
     $('#definition_panel').hide();
+
+
+    var def = $("#subcategory_selector :selected").data('definition')
+
+    if (def === '' || def === undefined) {
+      $('#show_definition').hide()
+    }
+    //$('#definition_div').html($('#show_definition'))
+    //$('#show_definition').clone().appendTo('#definition_div')
 
     // event handlers
 
@@ -193,29 +203,42 @@ $(function () {
     });
 
     $('#show_definition').click(function() {
-      if ($('#definition_panel').is(':visible')) {
-        $('#definition_panel').hide()
-        return
-      }
+      $('#show_definition').hide()
+      $('#hide_definition').show()
+
       var def = $("#subcategory_selector :selected").data('definition')
       $('.panel-body', '#definition_panel').html(def)
       $('#definition_panel').show()
-      //<span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
-      //$(this).find('span').addClass("glyphicon-user");
     });
 
-    $('#subcategory_selector').change(function() {
-      $('#definition_panel').hide();
 
+    $('#hide_definition').click(function() {
+      $('#hide_definition').hide()
+      $('#show_definition').show()
+
+      $('#definition_panel').hide()
+    });
+
+
+    $('#subcategory_selector').change(function() {
       var def = $("#subcategory_selector :selected").data('definition')
+      $('.panel-body', '#definition_panel').html(def)
+
+      var showPanel = true
+
       if (def === '' || def === undefined) {
         $('#show_definition').hide()
+        showPanel = false
       } else {
-        $('#show_definition').show()
+        if ($('#hide_definition').is(':hidden')) {
+            $('#show_definition').show()
+            showPanel = false
+        }
       }
+
+      $('#definition_panel').toggle(showPanel)
     })
 
-    $('#subcategory_selector').children().first().prop('selected', true).change()
 
     var submitData = function() {
       var eventData = convertFormToHash($('#event-form'))
