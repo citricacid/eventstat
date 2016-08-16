@@ -110,14 +110,21 @@ end
 
 class EventMaintype < ActiveRecord::Base
   has_many :event_types
+  has_many :categories
 
   def self.has_categories(id)
-    find(id).name == 'event'
+    find(id).name == 'event' # find(id).has_categories?
   end
 
   def has_categories?
-    name == 'event'
+    name == 'event' # TODO refactor
   end
+
+  def categories
+
+  end
+
+
 
 
 end
@@ -164,11 +171,21 @@ end
 
 class Category < ActiveRecord::Base
   has_many :subcategories
+  belongs_to :event_maintype
+
+  def type_name
+    
+  end
 end
 
 
 class Subcategory < ActiveRecord::Base
   belongs_to :category
+
+  def type_name
+    category.event_maintype.name
+  end
+
 end
 
 
@@ -192,32 +209,33 @@ class ReportBuilder
 
 
   def set_branch(branch_id)
-    @report.sum_all_branches = branch_id == 'sum_all'
-    @report.branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
+    sum_all = branch_id == 'sum_all'
+    branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
+    @report.branches = Filter.new(branches, sum_all)
   end
 
   def set_category(category_id, subcategory_id)
-    @report.sum_all_categories = category_id == 'sum_all' || subcategory_id == 'sum_all'
     @report.category_type = category_id != 'none' ? :category : :subcategory
 
+    sum_all = category_id == 'sum_all' || subcategory_id == 'sum_all'
+
     if @report.category_type == :category
-      @report.categories = category_id == 'iterate_all' ? Category.all : Category.where(id: category_id)
+      categories = category_id == 'iterate_all' ? Category.all : Category.where(id: category_id)
     else
-      @report.categories = subcategory_id == 'iterate_all' ? Subcategory.all : Subcategory.where(id: subcategory_id)
+      categories = subcategory_id == 'iterate_all' ? Subcategory.all : Subcategory.where(id: subcategory_id)
     end
+
+    @report.categories = Filter.new(categories, sum_all)
   end
 
   def set_type(maintype_id, subtype_id)
-
-    sum_all_maintypes = maintype_id == 'sum_all'
+    sum_all = maintype_id == 'sum_all'
     maintypes = maintype_id == 'iterate_all' ? EventMaintype.all : EventMaintype.where(id: maintype_id)
+    @report.maintypes = Filter.new(maintypes, sum_all)
 
-    @report.sum_all_maintypes = maintype_id == 'sum_all'
-    @report.maintypes = maintype_id == 'iterate_all' ? EventMaintype.all : EventMaintype.where(id: maintype_id)
-    #@report.maintypes = nil if maintype_id == 'sum_all'
-
-    @report.sum_all_subtypes = subtype_id == 'sum_all'
-    @report.subtypes = subtype_id == 'iterate_all' ? EventSubtype.all : EventSubtype.where(id: subtype_id)
+    sum_all_subtypes = subtype_id == 'sum_all'
+    subtypes = subtype_id == 'iterate_all' ? EventSubtype.all : EventSubtype.where(id: subtype_id)
+    @report.subtypes = Filter.new(subtypes, sum_all_subtypes)
 
   end
 
@@ -232,15 +250,11 @@ end
 
 
 
-TypeConfig = Struct.new(:collection, :sum_all)
-
+Filter = Struct.new(:collection, :sum_all)
+Foo = Struct.new(:id, :label)
 
 class Report
-  attr_accessor :from_date, :to_date, :sum_all_branches, :sum_all_categories,
-  :branches, :categories, :category_type, :maintypes, :sum_all_maintypes,
-  :subtypes, :sum_all_subtypes, :baz
-
-  Foo = Struct.new(:id, :label)
+  attr_accessor :from_date, :to_date, :branches, :categories, :category_type, :maintypes, :subtypes
 
   def get_results
     @results = []
@@ -251,10 +265,10 @@ class Report
 
 
   def traverse_maintypes
-    if @sum_all_maintypes
+    if @maintypes.sum_all
       traverse_subtypes(Foo.new(nil, 'Samlet'))
     else
-      @maintypes.each do |maintype|
+      @maintypes.collection.each do |maintype|
         traverse_subtypes(Foo.new(maintype.id, maintype.label))
       end
     end
@@ -262,10 +276,10 @@ class Report
 
 
   def traverse_subtypes(maintype)
-    if @sum_all_subtypes
+    if @subtypes.sum_all
       traverse_branches(maintype, Foo.new(nil, 'Samlet'))
     else
-      @subtypes.each do |subtype|
+      @subtypes.collection.each do |subtype|
         traverse_branches(maintype, Foo.new(subtype.id, subtype.label)) if maintype.id == nil || subtype.connected?(maintype.id)
       end
     end
@@ -273,10 +287,10 @@ class Report
 
 
   def traverse_branches(maintype, subtype)
-    if @sum_all_branches
+    if @branches.sum_all
       traverse_categories(maintype, subtype, Foo.new(nil, 'Samlet'))
     else
-      @branches.each do |branch|
+      @branches.collection.each do |branch|
         traverse_categories(maintype, subtype, Foo.new(branch.id, branch.name))
       end
     end
@@ -284,10 +298,10 @@ class Report
 
 
   def traverse_categories(maintype, subtype, branch)
-    if @sum_all_categories
+    if @categories.sum_all
       events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id)
       calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label)
-    else @categories.each do |cat|
+    else @categories.collection.each do |cat|
       events = case @category_type
         when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
         when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
