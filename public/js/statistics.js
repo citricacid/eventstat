@@ -1,5 +1,18 @@
 "use strict";
 
+
+var convertFormToHash = function($form) {
+  var hash = {}
+  var formElements = $form.serializeArray()
+
+  $.each(formElements, function() {
+    hash[this.name] = this.value || ''
+  })
+
+  return hash
+}
+
+
 var toggleOption = function($this, isDisabled) {
   var $option = $this.find("option[value='none']")
   $option.prop("disabled", isDisabled).prop("hidden", isDisabled)
@@ -13,15 +26,6 @@ var toggleOption = function($this, isDisabled) {
 
 $(function() {
 
-  var quickpickString = ""
-  var isQuickpick = false
-
-  $('.category_selector').change(function() {
-    toggleOption($(this), true)
-    toggleOption($(this).siblings(), false)
-  });
-
-
   // initialize daterange pickers
   $("#daterange_from").daterangepicker(
     {
@@ -33,138 +37,139 @@ $(function() {
       }
     });
 
-    // initialize daterange picker
-    $("#daterange_to").daterangepicker(
-      {
-        singleDatePicker: true,
-        showDropdowns: true,
-        locale: {
-          format: "DD-MM-YYYY",
-          firstDay: 1
-        }
-      });
+  $("#daterange_to").daterangepicker(
+    {
+      singleDatePicker: true,
+      showDropdowns: true,
+      locale: {
+        format: "DD-MM-YYYY",
+        firstDay: 1
+      }
+    });
 
+    // set the quickpicker to current quarter and fire change
+    $("#select_year").last().prop("selected", true);
+    var date = new Date();
+    var dateString = date.getDate() + "-" + (date.getMonth() +1 )+ "-" + date.getFullYear();
+    var currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
+    $("#select_quarter").val(currentQuarter).change();
+
+    // reset all menu options
+    $('#branch_selector option:first-child').prop('selected', true)
+    $('#category_selector option:nth-child(2)').prop('selected', true)
+    $('#subcategory_selector option:first-child').prop('selected', true)
+    $('#event_maintype_selector option:first-child').prop('selected', true)
+
+    $('.subtype_radio').hide()
+
+
+    //
+    // event handlers
+    //
+
+    $('.category_selector').change(function() {
+      toggleOption($(this), true)
+      toggleOption($(this).siblings(), false)
+    });
+
+
+    $('#event_maintype_selector').change(function() {
+      var subtypeName = $(this).find(':selected').data('subtype_name')
       $('.subtype_radio').hide()
-
-      // event handlers
-
-      $('#event_type_selector').change(function() {
-        var foo = $(this).data('foobar')
-        var foo = 'exhibition'
-        $('.subtype_radio').hide()
-        console.log(foo)
-        console.log($(this))
-        $('#' + foo).show();
-      })
+      $('#' + subtypeName).show().find('input:radio:first').prop('checked', true)
+    })
 
 
-      $(".period").change(function() {
-        isQuickpick = false;
-        var p = $("#daterange_from").val() + "/" + $("#daterange_to").val();
-        $('#period_name').val(p)
+    $(".period").change(function() {
+      var p = $("#daterange_from").val() + "/" + $("#daterange_to").val();
+      $('#period_name').val(p)
+    });
+
+    // not in use atm, possible remove
+    $("#stats_table").on("click", ".fix_row", function() {
+      var tr = $(this).parent().parent();
+      tr.toggleClass("fixed_row");
+      tr.find('span').toggleClass('glyphicon-unchecked glyphicon-check');
+    });
+
+
+    $(".quickpick").change(function() {
+      var quarter = parseInt($("#select_quarter").val(), 10);
+      var year = parseInt($("#select_year").val(), 10);
+
+      var quickpickString = ''
+
+      var startOfPeriod, endOfPeriod;
+
+      if (quarter === 5) {
+        startOfPeriod = moment(new Date(year, 0, 1)).format("DD-MM-YYYY");
+        endOfPeriod = moment(new Date(year, 7, 31)).format("DD-MM-YYYY");
+        quickpickString = "2. tertial " + year;
+      } else if (quarter === 6) {
+        startOfPeriod = moment(new Date(year, 0, 1)).format("DD-MM-YYYY");
+        endOfPeriod = moment(new Date(year + 1, 0, 1)).subtract(1, 'days').format("DD-MM-YYYY");
+        quickpickString = "Totalt " + year;
+      } else {
+        startOfPeriod = moment(new Date(year, 0, 1)).quarter(quarter).format("DD-MM-YYYY");
+        endOfPeriod = moment(new Date(year, 0, 1)).quarter(quarter + 1).subtract(1, 'days').format("DD-MM-YYYY");
+        quickpickString = quarter + ". kvartal " + year;
+      }
+
+      $('#period_name').val(quickpickString)
+
+      $("#daterange_from").val(startOfPeriod);
+      $("#daterange_to").val(endOfPeriod);
+    });
+
+
+
+    $("#clear").click(function() {
+      $("#stats_table tbody tr").remove();
+    });
+
+
+    $('#submit').click(function() {
+      var periodString = $('#period_name').val()
+
+      var form = $("#query_form")
+      var data = convertFormToHash(form)
+      console.log(data)
+
+      var request = $.ajax({
+        url        : "/api/statistics",
+        dataType   : "json",
+        contentType: "application/json; charset=UTF-8",
+        data       : JSON.stringify(data),
+        type       : "PUT"
       });
 
-      // not in use atm, possible remove
-      $("#stats_table").on("click", ".fix_row", function() {
-        var tr = $(this).parent().parent();
-        tr.toggleClass("fixed_row");
-        tr.find('span').toggleClass('glyphicon-unchecked glyphicon-check');
-      });
 
+      request.done(function(data, textStatus, xhr) {
+        var $tbody = $("#stats_table tbody")
 
-      $(".quickpick").change(function() {
-        var quarter = parseInt($("#select_quarter").val(), 10);
-        var year = parseInt($("#select_year").val(), 10);
+        data.results.forEach(result => {
+          var tableRow = `
+          <tr>
+          <td>${periodString}</td>
+          <td>${result.branch_name}</td>
+          <td>${result.category_name}</td>
+          <td>${result.young}</td>
+          <td>${result.older}</td>
+          <td>${result.all}</td>
+          <td>${result.no_of_events}</td>
+          <td>${result.maintype}</td>
+          <td>${result.subtype}</td>
+          </tr>
+          `;
 
-        var startOfPeriod, endOfPeriod;
-
-        if (quarter === 5) {
-          startOfPeriod = moment(new Date(year, 0, 1)).format("DD-MM-YYYY");
-          endOfPeriod = moment(new Date(year, 7, 31)).format("DD-MM-YYYY");
-          quickpickString = "2. tertial " + year;
-        } else if (quarter === 6) {
-          startOfPeriod = moment(new Date(year, 0, 1)).format("DD-MM-YYYY");
-          endOfPeriod = moment(new Date(year + 1, 0, 1)).subtract(1, 'days').format("DD-MM-YYYY");
-          quickpickString = "Totalt " + year;
-        } else {
-          startOfPeriod = moment(new Date(year, 0, 1)).quarter(quarter).format("DD-MM-YYYY");
-          endOfPeriod = moment(new Date(year, 0, 1)).quarter(quarter + 1).subtract(1, 'days').format("DD-MM-YYYY");
-          quickpickString = quarter + ". kvartal " + year;
-        }
-
-        isQuickpick = true;
-        $('#period_name').val(quickpickString)
-
-        $("#daterange_from").val(startOfPeriod);
-        $("#daterange_to").val(endOfPeriod);
-      });
-
-      // set the quickpicker to current quarter and fire change
-      $("#select_year").last().prop("selected", true);
-      var date = new Date();
-      var dateString = date.getDate() + "-" + (date.getMonth() +1 )+ "-" + date.getFullYear();
-      var currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
-      $("#select_quarter").val(currentQuarter).change();
-
-      $("#clear").click(function() {
-        $("#stats_table tbody tr").remove();
-      });
-
-
-      $('#submit').click(function() {
-        var branchID = $("#branch_selector").val();
-        var fromDate = $("#daterange_from").val();
-        var toDate = $("#daterange_to").val();
-        var categoryID = $("#category_selector").val();
-        var subcategoryID = $("#subcategory_selector").val();
-        var eventTypeID = 1; //$("#subcategory_selector").val();
-
-        // if the dates were selected via the quickpicker, use their value
-        // otherwise construct string for custom period
-        var periodString;
-
-        if (isQuickpick) {
-          periodString = quickpickString;
-        } else {
-          periodString = fromDate + "/" + toDate;
-        }
-
-        periodString = $('#period_name').val()
-
-        var stats_parameters = {branch_id: branchID, from_date: fromDate,
-           to_date: toDate, category_id: categoryID, subcategory_id: subcategoryID,
-           event_type_id: eventTypeID};
-
-        var request = $.ajax({
-          url        : "/api/statistics",
-          dataType   : "json",
-          contentType: "application/json; charset=UTF-8",
-          data       : JSON.stringify(stats_parameters),
-          type       : "PUT"
+          $tbody.append(tableRow);
         });
+      });
 
-
-        request.done(function(data, textStatus, xhr) {
-          data.results.forEach(result => {
-            var tableRow = `
-            <tr>
-            <td>${periodString}</td>
-            <td>${result.branch_name}</td>
-            <td>${result.category_name}</td>
-            <td>${result.young}</td>
-            <td>${result.all}</td>
-            <td>${result.no_of_events}</td>
-            </tr>
-            `;
-
-            $("#stats_table tbody").append(tableRow);
-          });
-        });
-
-        request.fail(function(xhr, textStatus, errorThrown) {
-          alert(textStatus);
-        });
-
+      request.fail(function(xhr, textStatus, errorThrown) {
+        alert(textStatus);
       });
 
     });
+
+  });

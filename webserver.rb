@@ -23,6 +23,17 @@ enable :show_exceptions if development?
 set :server, %w[thin webrick]
 set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 
+#I18n.available_locales = [:no]
+#I18n.locale = :no
+
+#I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
+#I18n.load_path = Dir['config/locales/*.yml']
+#I18n.backend.load_translations
+
+#puts I18n.t(:hello)
+#puts I18n.t(:hello_world)
+
+
 
 # -------------------------
 
@@ -192,76 +203,34 @@ get '/manage_events' do
       @from_date = Date.parse(data["from_date"])
       @to_date = Date.parse(data["to_date"])
 
-      # hmm
-      @event_type_id = data["event_type_id"]
-      puts @event_type_id
-      @event_type_id = 2
+      maintype_id = data["maintype_id"]
+      subtype_id = data["subtype_id"]
+
+
+      puts data.inspect
+      # if event_type_id == 'sum_all' then...
+      # if event_type_id == 'iterate_all'
+
+      # if event_maintype == 'sum_all' then ...
+      # if event_maintype == 'iterate_all' then ...
+
+      # if event_subtype == ' '
 
 
 
-      sum_all_branches = branch_id == 'sum_all'
-      branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
+      report_builder = ReportBuilder.new
+      report_builder.set_dates(@from_date, @to_date)
+      report_builder.set_branch(branch_id)
+      report_builder.set_category(category_id, subcategory_id)
+      report_builder.set_type(maintype_id, subtype_id)
 
-      sum_all_categories = category_id == 'sum_all' || subcategory_id == 'sum_all'
-      @iterate_over_categories = category_id != 'none'
+      report = report_builder.report
+      res = report.get_results
+      res
 
-      if @iterate_over_categories
-        @cats = category_id == 'iterate_all' ? Category.all : Category.where(id: category_id)
-      else
-        @cats = subcategory_id == 'iterate_all' ? Subcategory.all : Subcategory.where(id: subcategory_id)
-      end
 
-      results = []
-
-      if sum_all_branches && sum_all_categories
-        events = get_events
-        results << calculate_result('Samlet', 'Samlet', events)
-      elsif sum_all_branches # implicit iterate categories
-        results << iterate_categories(nil, 'Samlet')
-      else       # implicit iterate_branches
-        branches.each do |branch|
-          if sum_all_categories
-            events = get_events(branch.id)
-            results << calculate_result(branch.name, 'Samlet', events)
-          else
-            results << iterate_categories(branch.id, branch.name)
-          end
-        end
-      end
-
-      {results: results.flatten}.to_json
     end
 
-
-    def iterate_categories(branch_id, branch_name)
-      results = []
-
-      @cats.each do |cat|
-        events = @iterate_over_categories ?
-          get_events(branch_id, category_id: cat.id) : get_events(branch_id, subcategory_id: cat.id)
-        results << calculate_result(branch_name, cat.name, events)
-      end
-
-      results
-    end
-
-
-    def get_events (branch_id = nil, category_id: nil, subcategory_id: nil)
-      Event.between_dates(@from_date, @to_date)
-      .by_event_type(@event_type_id)
-      .by_branch(branch_id)
-      .by_category(category_id)
-      .by_subcategory(subcategory_id)
-    end
-
-
-    def calculate_result(branch_name, category_name, events)
-      young_ages_count = events.to_a.sum(&:sum_young_ages)
-      all_ages_count = events.to_a.sum(&:sum_all_ages)
-
-      {branch_name: branch_name, category_name: category_name, all: all_ages_count,
-         young: young_ages_count, no_of_events: events.size()}
-    end
 
     # needed when using the Sinatra::Reloader to avoid draining the connection pool
     after do

@@ -68,7 +68,7 @@ $(".nav-manage_events").addClass("active");
 
         <div class="form-group">
           <label for="daterange">Dato:</label>
-          <input class="form-control" type="date" name="date" id="daterange" <%= " value='#{event.date}'" if edit%>>
+          <input class="form-control" type="text" name="date" id="daterange" <%= " value=#{event.date.strftime('%d-%m-%Y')}" if edit%> >
         </div>
 
 

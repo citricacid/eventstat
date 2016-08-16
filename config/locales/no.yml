@@ -1,0 +1,10 @@
+---
+
+nb:
+  subtype:
+    internal: egen regi
+    external: ekstern regi
+    young: barn/unge
+    all_ages: øvrige aldre
+    kindergarten: barnehager
+    school: skoleklasser

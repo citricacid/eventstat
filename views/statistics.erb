@@ -11,7 +11,7 @@ $(".nav-statistics").addClass("active");
 <script src="/js/statistics.js"></script>
 
 
-<form class="form-inline" role="form">
+<form class="form-inline" role="form" id="query_form">
 <div class="row">
   <div class="form-group">
     <label for="select_quarter">Hurtigvelger:</label>
@@ -36,8 +36,8 @@ $(".nav-statistics").addClass("active");
 <div class="row">
   <div class="form-group">
     <label for="daterange_from">Periode:</label>
-    <input type="text" id="daterange_from" class="period">
-    <input type="text" id="daterange_to" class="period">
+    <input type="text" id="daterange_from" class="period" name="from_date">
+    <input type="text" id="daterange_to" class="period" name="to_date">
     <input type="text" id="period_name">
   </div>
 </div>
@@ -45,7 +45,7 @@ $(".nav-statistics").addClass("active");
 <div class="row">
   <div class="form-group">
     <label for="branch_selector">Sted:</label>
-    <select id="branch_selector">
+    <select id="branch_selector" name="branch_id">
       <option value="sum_all">Samlet</option>
       <option value="iterate_all">Alle</option>
       <% branches.each do |branch| %>
@@ -57,32 +57,45 @@ $(".nav-statistics").addClass("active");
 
 <div class="row">
 <div class="form-group">
-  <label for="event_type_selector">Type:</label>
-  <select id="event_type_selector" name="event_type_id">
-    <option value="sum_all">Samlet</option>
-    <option value="iterate_all">Alle</option>
+  <label for="event_maintype_selector">Type:</label>
+  <select id="event_maintype_selector" name="maintype_id">
+    <option value="sum_all" data-subtype_name='sum_all'>Samlet</option>
+    <option value="iterate_all" data-subtype_name='iterate_all'>Alle</option>
     <% event_maintypes.each do |type| %>
-      <%= "<option value='#{type.id}' data-foobar='#{type.name}'>#{type.label}</option>" %>
+      <%= "<option value='#{type.id}' data-subtype_name='#{type.name}'>#{type.label}</option>" %>
     <% end %>
   </select>
+</div>
 
 
+<div class="form-group">
+  <div class='subtype_radio' id='sum_all'>
+    <label class='radio-inline'><input type='radio' value='sum_all' name='subtype_id'>Samlet</label>
+    <label class='radio-inline'><input type='radio' value='iterate_all' name='subtype_id'>Alle</label>
+  </div>
+
+  <div class='subtype_radio' id='iterate_all'>
+    <label class='radio-inline'><input type='radio' value='sum_all' name='subtype_id'>Samlet</label>
+    <label class='radio-inline'><input type='radio' value='iterate_all' name='subtype_id'>Alle</label>
+  </div>
 
   <% event_maintypes.each do |type| %>
   <%= "<div class='subtype_radio' id='#{type.name}'>" %>
-    <%= "<label class='radio-inline'><input type='radio' value='sum_all' name='#{type.name}'>Samlet</label>" %>
+    <%= "<label class='radio-inline'><input type='radio' value='sum_all' name='subtype_id'>Samlet</label>" %>
+    <%= "<label class='radio-inline'><input type='radio' value='iterate_all' name='subtype_id'>Alle</label>" %>
     <% type.event_types.each do |et| %>
-    <%= "<label class='radio-inline'><input type='radio' value='#{et.id}' name='#{type.name}'>#{et.event_subtype.name}</label>" %>
+    <%= %Q(<label class='radio-inline'><input type='radio' value='#{et.event_subtype.id}'
+        name='subtype_id'>#{et.event_subtype.label}</label> ) %>
     <% end %>
     <%= "</div>" %>
   <% end %>
 </div>
-
 </div>
+
 
 <div class="form-group row">
   <label for="category_selector">Kategori:</label>
-  <select id="category_selector" class="category_selector">
+  <select id="category_selector" class="category_selector" name="category_id">
     <option value="none" hidden disabled>-</option>
     <option value="sum_all">Samlet</option>
     <option value="iterate_all">Alle</option>
@@ -93,7 +106,7 @@ $(".nav-statistics").addClass("active");
 
 
   <label for="subcategory_selector">Underkategori:</label>
-  <select id="subcategory_selector" class="category_selector">
+  <select id="subcategory_selector" class="category_selector" name="subcategory_id">
     <option value="none">-</option>
     <option value="sum_all">Samlet</option>
     <option value="iterate_all">Alle</option>
@@ -103,8 +116,6 @@ $(".nav-statistics").addClass("active");
   </select>
 
 </div>
-
-
 
 
 
@@ -125,8 +136,11 @@ $(".nav-statistics").addClass("active");
         <th>Sted</th>
         <th>Kategori</th>
         <th>Barn/unge</th>
+        <th>Voksne</th>
         <th>Samlet</th>
         <th>Ant. arr</th>
+        <th>Type</th>
+        <th>Undertype</th>
       </tr>
     </thead>
     <tbody></tbody>
