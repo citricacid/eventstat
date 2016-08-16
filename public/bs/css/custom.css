@@ -16,9 +16,9 @@ body  { padding-top: 55px; }
   text-overflow: ellipsis;
 }
 
-label {
+label.main {
   display:inline-block;
-  width: 100px;
+  width: 165px;
 }
 
 .row {
@@ -32,5 +32,6 @@ label {
 }
 
 .form-group {
-  padding-right: 30px;
+  //padding-right: 30px;
+  padding-left: 20px;
 }

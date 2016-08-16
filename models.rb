@@ -90,6 +90,7 @@ class AgeGroup < ActiveRecord::Base
     age_category.is_young
   end
 
+
 end
 
 
@@ -113,6 +114,12 @@ class EventMaintype < ActiveRecord::Base
   def self.has_categories(id)
     find(id).name == 'event'
   end
+
+  def has_categories?
+    name == 'event'
+  end
+
+
 end
 
 class EventSubtype < ActiveRecord::Base

@@ -26,42 +26,10 @@ var toggleOption = function($this, isDisabled) {
 
 $(function() {
 
-  // initialize daterange pickers
-  $("#daterange_from").daterangepicker(
-    {
-      singleDatePicker: true,
-      showDropdowns: true,
-      locale: {
-        format: "DD-MM-YYYY",
-        firstDay: 1
-      }
-    });
-
-  $("#daterange_to").daterangepicker(
-    {
-      singleDatePicker: true,
-      showDropdowns: true,
-      locale: {
-        format: "DD-MM-YYYY",
-        firstDay: 1
-      }
-    });
-
-    // set the quickpicker to current quarter and fire change
-    $("#select_year").last().prop("selected", true);
-    var date = new Date();
-    var dateString = date.getDate() + "-" + (date.getMonth() +1 )+ "-" + date.getFullYear();
-    var currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
-    $("#select_quarter").val(currentQuarter).change();
-
-    // reset all menu options
-    $('#branch_selector option:first-child').prop('selected', true)
-    $('#category_selector option:nth-child(2)').prop('selected', true)
-    $('#subcategory_selector option:first-child').prop('selected', true)
-    $('#event_maintype_selector option:first-child').prop('selected', true)
-
-    $('.subtype_radio').hide()
-
+    var resetCategories = function() {
+      $('#category_selector option:nth-child(2)').prop('selected', true)
+      $('#subcategory_selector option:first-child').prop('selected', true)
+    }
 
     //
     // event handlers
@@ -77,6 +45,15 @@ $(function() {
       var subtypeName = $(this).find(':selected').data('subtype_name')
       $('.subtype_radio').hide()
       $('#' + subtypeName).show().find('input:radio:first').prop('checked', true)
+
+      console.log("hmm")
+
+      var hasCategories = $(this).find(':selected').data('has_categories')
+      $('#category_row').toggle(hasCategories)
+      if (!hasCategories) {
+        resetCategories()
+      }
+
     })
 
 
@@ -171,5 +148,43 @@ $(function() {
       });
 
     });
+
+    // initialize daterange pickers
+    $("#daterange_from").daterangepicker(
+      {
+        singleDatePicker: true,
+        showDropdowns: true,
+        locale: {
+          format: "DD-MM-YYYY",
+          firstDay: 1
+        }
+      });
+
+    $("#daterange_to").daterangepicker(
+      {
+        singleDatePicker: true,
+        showDropdowns: true,
+        locale: {
+          format: "DD-MM-YYYY",
+          firstDay: 1
+        }
+      });
+
+      // set the quickpicker to current quarter and fire change
+      $("#select_year").last().prop("selected", true);
+      var date = new Date();
+      var dateString = date.getDate() + "-" + (date.getMonth() +1 )+ "-" + date.getFullYear();
+      var currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
+      $("#select_quarter").val(currentQuarter).change();
+
+
+    // reset all menu options
+    resetCategories()
+    $('#branch_selector option:first-child').prop('selected', true)
+
+    $('.subtype_radio').hide()
+    $('#event_maintype_selector option:first-child').prop('selected', true)
+    $('#event_maintype_selector').change()
+
 
   });
