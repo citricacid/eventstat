@@ -25,6 +25,14 @@ $(".nav-manage_events").addClass("active");
   <% end %>
 
 
+  <div class="alert alert-info" id="info">
+  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+  NB! Til forskjell fra tidligere skal nå alle arrangementer for skoler og barnehager
+  registreres under egen type. F.eks. skal forfattermøter for skoleklasser legges inn
+  under 'Program for klasser' i stedet for 'Arrangement'.
+  </div>
+
+
   <form action="/api/event" method="post" id="event-form" name="formz">
     <%= "<input type='hidden' name='id' value='#{event.id}'>" if edit %>
 
@@ -34,11 +42,14 @@ $(".nav-manage_events").addClass("active");
         <option value="" disabled hidden selected>-- velg --</option>
         <% event_types.each do |type| %>
         <%= "<option value='#{type.id}' "%>
+          <%= "data-age_groups='#{type.age_group_array}' " %>
+          <%= "data-subcategories='#{type.subcategory_array}' " %>
           <%= "selected " if edit && type.id == event.event_type_id %>
           <%= ">#{type.label}</option>" %>
           <% end %>
       </select>
     </div>
+
 
 
     <div class="form-group">
@@ -76,7 +87,7 @@ $(".nav-manage_events").addClass("active");
           <select id="subcategory_selector" name="subcategory_id" class="form-control">
             <option value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
             <% subcategories.each do |subcategory| %>
-            <%= "<option value='#{subcategory.id}' class='#{subcategory.maintype}' " %>
+            <%= "<option value='#{subcategory.id}' class='#{subcategory.type_name}' " %>
               <%= "selected " if edit && subcategory.id == event.subcategory_id %>
               <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>
               <% end %>
@@ -87,13 +98,9 @@ $(".nav-manage_events").addClass("active");
             </div>
     </div>
 
-  </form>
-
-  <form action="/event" method="post" id="count-form" name="formzz">
-
     <div class="row">
       <div class="form-group col-xs-12 col-sm-7 col-md-6 col-lg-5">
-        <label for="age_group_selector">Legg til aldersgruppe:</label>
+        <label for="age_group_selector">Målgruppe:</label>
         <div class="row">
           <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
             <select class="form-control" id="age_group_selector">
@@ -102,23 +109,11 @@ $(".nav-manage_events").addClass("active");
               <% end %>
             </select>
           </div>
-          <button class="btn btn-success" id="btn_add" type="button">
-            <span class="glyphicon glyphicon-plus"></span>
-          </button>
+          <input type="text">
         </div>
       </div>
     </div>
 
-    <div id="counts">
-      <% if edit %>
-        <% event.counts.each do |count| %>
-           <%= "<div class='counts' data-age_group_id='#{count.age_group_id}'
-                  data-attendants='#{count.attendants}'
-                  data-label='#{age_groups.find(count.age_group_id).name}'></div>" %>
-        <% end %>
-      <% end %>
-    </div>
 
   </form>
-
   <input type="button" id="submit_button" class="btn btn-primary" value="Lagre">

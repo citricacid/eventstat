@@ -106,6 +106,32 @@ class EventType < ActiveRecord::Base
   belongs_to :event_maintype
   belongs_to :event_subtype
 
+  has_many :age_attributes
+
+  def age_group_array
+    ary = []
+    age_attributes.each {|att| ary << att.age_group_id}
+    ary
+  end
+
+  def subcategory_array
+    categories = event_subtype.categories.present? ? event_subtype.categories : event_maintype.categories
+    ary = []
+
+    categories.each do |category|
+      category.subcategories.each {|subcat| ary << subcat.id}
+    end
+
+    ary
+  end
+
+end
+
+
+class AgeAttribute < ActiveRecord::Base
+  belongs_to :event_type
+  belongs_to :age_group
+
 end
 
 class EventMaintype < ActiveRecord::Base
@@ -120,17 +146,12 @@ class EventMaintype < ActiveRecord::Base
     name == 'event' # TODO refactor
   end
 
-  def categories
-
-  end
-
-
-
 
 end
 
 class EventSubtype < ActiveRecord::Base
   has_one :event_type
+  has_many :categories
 
   def connected?(maintype_id)
     event_type.event_maintype.id == maintype_id
@@ -173,9 +194,10 @@ class Category < ActiveRecord::Base
   has_many :subcategories
   belongs_to :event_maintype
 
-  def type_name
-    
+  def subz
+    "hello"
   end
+
 end
 
 
@@ -192,6 +214,7 @@ end
 class Group < ActiveRecord::Base
   enum status: { event: 0, exhibition: 1 }
 end
+
 
 
 

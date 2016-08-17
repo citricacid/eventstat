@@ -1,6 +1,5 @@
 "use strict";
 
-
 //
 // form helper functions
 //
@@ -43,27 +42,6 @@ $(function () {
 
   // helper functions
 
-    //<input type="number" class="form-control" name="counts[][${age_group_id}]" value="${attendants}">
-  var addInput = function (age_group_id, label, attendants) {
-    var inputRow = `
-    <div class="row" id="${age_group_id}">
-    <div class="form-group col-xs-7 col-sm-5 col-md-6 col-lg-3">
-    <label for="count">Antall ${label}:</label>
-    <div class="row">
-    <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
-    <input type="number" class="form-control" name="${age_group_id}" value="${attendants}">
-    </div>
-    <button type="button" class="btn btn-dafault btn_remove" data-id="${age_group_id}">
-    <span class="glyphicon glyphicon-minus"></span>
-    </button>
-    </div>
-    </div>
-    </div>
-    `;
-
-    $("#counts").append(inputRow);
-  };
-
   // new name? hide or show option
   var editOption = function(age_group_id, isDisabled) {
     $("#age_group_selector option[value=" + age_group_id + "]").prop("disabled", isDisabled);
@@ -82,16 +60,8 @@ $(function () {
       }
     });
 
-    // add inputs for existing values (edit mode)
-    $(".counts").each(function() {
-      var age_group_id = $(this).data("age_group_id");
-      var label = $(this).data("label");
-      var attendants = $(this).data("attendants");
 
-      addInput(age_group_id, label, attendants);
-      editOption(age_group_id, true);
-    });
-
+    // fire selector...
     $("#age_group_selector :enabled").first().prop("selected", true);
     $('#hide_definition').hide()
     $('#definition_panel').hide();
@@ -137,70 +107,16 @@ $(function () {
         $("#subcategory_selector").removeClass("invalid").addClass("valid");
       }
 
-      // ensure valid counts are added
-      var counts = $("#counts input");
-      $("#ta-alert").remove();
 
-      if (counts.size() === 0) {
-        var alarm = `
-        <div class="alert alert-danger" id="ta-alert">
-        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-        Du må legge til minst én aldersgruppe.
-        </div>
-        `;
-        $("#counts").append(alarm);
-
-        isOK = false;
-      }
-
-      counts.each(function(index, input) {
-        var attendants = $(this).val();
-
-        if (attendants > 0 && attendants <= 2147483647) {
-          $(this).removeClass("invalid").addClass("valid");
-        } else {
-          $(this).removeClass("valid").addClass("invalid");
-          isOK = false;
-        }
-      });
       // daterange?
 
       if (isOK) {
-        submitData();
-      }
-
-    });
-
-
-    $("#btn_add").click(function() {
-      var selected = $("#age_group_selector :selected");
-      var age_group_id = selected.val();
-      var label = selected.text();
-
-      if (selected.is(":disabled")) {
-        return;
-      }
-
-      editOption(age_group_id, true);
-
-      $("#age_group_selector :enabled").first().prop("selected", true);
-      $("#ta-alert").remove();
-
-      addInput(age_group_id, label, 0);
-    });
-
-
-
-    $("#counts").on("click", ".btn_remove", function() {
-      var categoryID = $(this).data("id")
-
-      editOption(categoryID, false)
-      $("#" + categoryID).remove()
-
-      if ($("#age_group_selector :enabled").size() === 1) {
-        $("#age_group_selector :enabled").prop("selected", true)
+        //submitData();
       }
     });
+
+
+
 
     $('#show_definition').click(function() {
       $('#show_definition').hide()
@@ -219,6 +135,39 @@ $(function () {
       $('#definition_panel').hide()
     });
 
+
+    $('#event_type_selector').change(function() {
+      var ageGroups = $(this).find(':selected').data('age_groups')
+      var $ageGroupSelector = $('#age_group_selector')
+
+      if (ageGroups.length == 0) {
+        $ageGroupSelector.find('option').show();
+      } else {
+        $ageGroupSelector.find('option').hide();
+        ageGroups.forEach(function(id) {
+          $("#age_group_selector option[value=" + id + "]").show()
+        })
+      }
+
+      $ageGroupSelector.find(':visible').first().prop("selected", true);
+
+      //
+      var subcategories = $(this).find(':selected').data('subcategories')
+      var $subcategorySelector = $('#subcategory_selector')
+
+      if (subcategories.length == 0) {
+        $subcategorySelector.find('option').hide();
+      } else {
+        $subcategorySelector.find('option').hide();
+        subcategories.forEach(function(id) {
+          $("#subcategory_selector option[value=" + id + "]").show()
+        })
+      }
+
+      $subcategorySelector.find(':visible').first().prop("selected", true);
+
+
+    })
 
     $('#subcategory_selector').change(function() {
       var def = $("#subcategory_selector :selected").data('definition')
@@ -242,9 +191,9 @@ $(function () {
 
     var submitData = function() {
       var eventData = convertFormToHash($('#event-form'))
-      var countData = convertFormToHash($('#count-form'))
-
-      var data = {event_data: eventData, count_data: countData}
+      var data = {event_data: eventData}
+      //var countData = convertFormToHash($('#count-form'))
+      //var data = {event_data: eventData, count_data: countData}
 
       var request = $.ajax({
         url        : "/api/event",

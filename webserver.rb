@@ -33,7 +33,11 @@ set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 #puts I18n.t(:hello)
 #puts I18n.t(:hello_world)
 
-
+etc = EventType.find(6)
+#puts etc.age_group_array
+puts etc.subcategory_array
+#etc.foo
+#etc.foo
 
 # -------------------------
 
