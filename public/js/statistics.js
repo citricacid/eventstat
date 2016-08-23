@@ -33,8 +33,13 @@ var setVisibleOptions = function($selector, data) {
     }
 
     if ($selector.find(':selected').is(':hidden')) {
-        $selector.find(':visible').first().prop("selected", true);
+        $selector.find(':visible:nth-child(2)').prop("selected", true);
     }
+};
+
+var resetCategories = function() {
+    $('#category_selector').find('option:nth-child(2)').prop('selected', true);
+    $('#subcategory_selector').find('option:first-child').prop('selected', true)
 };
 
 $(function() {
@@ -82,7 +87,7 @@ $(function() {
         || $('input[name=subtype_id]:checked').data('subcategories')
         || $('#event_maintype_selector').find(':selected').data('subcategories');
 
-      setVisibleOptions($('#subcategory_selector'), subcategories);
+      //setVisibleOptions($('#subcategory_selector'), subcategories);
     });
 
 
@@ -176,12 +181,6 @@ $(function() {
     });
 
 
-
-    var resetCategories = function() {
-        $('#category_selector').find('option:nth-child(2)').prop('selected', true);
-        $('#subcategory_selector').find('option:first-child').prop('selected', true)
-    };
-
     // initialize daterange pickers
     $("#daterange_from").daterangepicker({
         singleDatePicker: true,
@@ -210,11 +209,11 @@ $(function() {
 
 
     // reset all menu options
-    resetCategories();
-    $('#branch_selector').find('option:first-child').prop('selected', true);
+    //resetCategories();
+    //$('#branch_selector').find('option:first-child').prop('selected', true);
 
-    $('.subtype_radio').hide();
-    $('#event_maintype_selector').find('option:first-child').prop('selected', true);
-    $('#event_maintype_selector').change()
+    //$('.subtype_radio').hide();
+    //$('#event_maintype_selector').find('option:first-child').prop('selected', true);
+    $('#event_maintype_selector').change();
 
 });

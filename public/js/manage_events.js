@@ -101,6 +101,13 @@ $(function () {
       $("#subcategory_selector").removeClass("invalid").addClass("valid");
     }
 
+    // ensure event_type is selected
+    if ($("#event_type_selector :selected").val() === "") {
+      $("#event_type_selector").removeClass("valid").addClass("invalid");
+      isOK = false;
+    } else {
+      $("#event_type_selector").removeClass("invalid").addClass("valid");
+    }
 
     // daterange?
 
@@ -177,6 +184,7 @@ $(function () {
   })
 
 
+  // delete this code
   var xsubmitData = function() {
     var eventData = convertFormToHash($('#event-form'))
     var data = {event_data: eventData}
