@@ -1,0 +1,17 @@
+<div class="form-group">
+  <label for="select_quarter" class="main">Hurtigvelger:</label>
+  <select class="quickpick" id="select_quarter">
+    <option value="1" selected>1. kvartal</option>
+    <option value="2">2. kvartal</option>
+    <option value="3">3. kvartal</option>
+    <option value="4">4. kvartal</option>
+    <option value="5">2. tertial</option>
+    <option value="6">Hele</option>
+  </select>
+
+  <select class="quickpick" id="select_year">
+    <% for year in 2016..Time.now.strftime("%Y").to_i %>
+    <%= " <option value='#{year}'>#{year}</option> " %>
+    <% end %>
+  </select>
+</div>

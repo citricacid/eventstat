@@ -10,7 +10,8 @@ require 'tilt/erb' if development?
 
 require 'date'
 
-require_relative 'models'
+require_relative 'models/models'
+require_relative 'models/report'
 require_relative 'settings'
 
 ActiveRecord::Base.establish_connection(Settings::DBWEB)
@@ -23,21 +24,6 @@ enable :show_exceptions if development?
 set :server, %w[thin webrick]
 set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 
-#I18n.available_locales = [:no]
-#I18n.locale = :no
-
-#I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
-#I18n.load_path = Dir['config/locales/*.yml']
-#I18n.backend.load_translations
-
-#puts I18n.t(:hello)
-#puts I18n.t(:hello_world)
-
-etc = EventType.find(6)
-#puts etc.age_group_array
-puts etc.subcategory_array
-#etc.foo
-#etc.foo
 
 # -------------------------
 
@@ -46,7 +32,7 @@ def require_logged_in
 end
 
 def is_authenticated?
-  return session[:user_id]
+  session[:user_id]
 end
 
 def is_admin?
@@ -154,61 +140,44 @@ get '/manage_events' do
     post '/api/event' do
       require_logged_in
 
-      data = JSON.parse(request.body.read)
-      event_data = data['event_data']
-      count_data = data['count_data']
+      #puts JSON.parse(params.to_json)
+      #data = params
 
-      is_edit = event_data['id'].present?
-      event_id = event_data['id'].to_i if is_edit
+      #data = JSON.parse(request.body.read)
+      #event_data = data['event_data']
+      #count_data = data['count_data']
+
+      is_edit = params[:id].present?
+      event_id = params[:id].to_i if is_edit
 
       event = is_edit ? Event.find(event_id) : Event.new
-      event.attributes = event.attributes.merge(event_data) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
+      event.attributes = event.attributes.merge(params) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
-      success = false
+      success = true
 
-      ActiveRecord::Base.transaction do
-        event.save!
-
-        if is_edit
-          old_counts = Count.where('event_id = ?', event_id)
-          old_counts.each do |ct|
-            ct.destroy!
-          end
-        end
-
-        count_data.each do |age_group_id, attendants|
-          count = Count.new do |ct|
-            ct.event_id = event.id
-            ct.age_group_id = age_group_id
-            ct.attendants = attendants
-          end
-          count.save!
-        end
-
-        success = true
-      end
-
-      if success
+      if event.save
         session[:transaction_success] = true
-        {redirect: '/view_events'}.to_json
+        #{redirect: '/view_events'}.to_json
+        redirect '/view_events'
 
       else
         session[:transaction_error] = true
-        {redirect: '/edit_event/' + event.id.to_s}.to_json
+        #{redirect: '/edit_event/' + event.id.to_s}.to_json
+        redirect '/edit_event/' + event.id.to_s
       end
     end
 
 
     put '/api/statistics' do
       data = JSON.parse(request.body.read)
-      branch_id = data["branch_id"]
-      category_id = data["category_id"]
-      subcategory_id = data["subcategory_id"]
-      @from_date = Date.parse(data["from_date"])
-      @to_date = Date.parse(data["to_date"])
+      branch_id = data['branch_id']
+      category_id = data['category_id']
+      subcategory_id = data['subcategory_id']
+      @from_date = Date.parse(data['from_date'])
+      @to_date = Date.parse(data['to_date'])
 
-      maintype_id = data["maintype_id"]
-      subtype_id = data["subtype_id"]
+      maintype_id = data['maintype_id']
+      subtype_id = data['subtype_id']
 
 
       puts data.inspect
@@ -225,8 +194,9 @@ get '/manage_events' do
       report_builder = ReportBuilder.new
       report_builder.set_dates(@from_date, @to_date)
       report_builder.set_branch(branch_id)
-      report_builder.set_category(category_id, subcategory_id)
       report_builder.set_type(maintype_id, subtype_id)
+      report_builder.set_category(category_id, subcategory_id)
+
 
       report = report_builder.report
       res = report.get_results

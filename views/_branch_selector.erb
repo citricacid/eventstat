@@ -1,0 +1,10 @@
+<div class="form-group">
+  <label for="branch_selector" class="main">Sted:</label>
+  <select id="branch_selector" name="branch_id">
+    <option value="sum_all">Samlet</option>
+    <option value="iterate_all">Alle</option>
+    <% branches.each do |branch| %>
+    <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
+    <% end %>
+  </select>
+</div>

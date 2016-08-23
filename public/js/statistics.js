@@ -2,27 +2,40 @@
 
 
 var convertFormToHash = function($form) {
-    var hash = {}
-    var formElements = $form.serializeArray()
+    var hash = {};
+    var formElements = $form.serializeArray();
 
     $.each(formElements, function() {
-        hash[this.name] = this.value || ''
-    })
+        hash[this.name] = this.value || '';
+    });
 
-    return hash
-}
+    return hash;
+};
 
 
 var toggleOption = function($this, isDisabled) {
-    var $option = $this.find("option[value='none']")
-    $option.prop("disabled", isDisabled).prop("hidden", isDisabled)
+    var $option = $this.find("option[value='none']");
+    $option.prop("disabled", isDisabled).prop("hidden", isDisabled);
 
     if (!isDisabled) {
         $option.prop('selected', true)
     }
 };
 
+var setVisibleOptions = function($selector, data) {
+    if (data === undefined) {
+        $selector.find('option').show();
+    } else {
+        $selector.find('option:gt(2)').hide();
+        data.forEach(function(id) {
+            $selector.find("option[value=" + id + "]").show();
+        })
+    }
 
+    if ($selector.find(':selected').is(':hidden')) {
+        $selector.find(':visible').first().prop("selected", true);
+    }
+};
 
 $(function() {
 
@@ -31,33 +44,57 @@ $(function() {
     //
 
     $('.category_selector').change(function() {
-        toggleOption($(this), true)
+        toggleOption($(this), true);
         toggleOption($(this).siblings(), false)
     });
 
 
-    $('#event_maintype_selector').change(function() {
-        var subtypeName = $(this).find(':selected').data('subtype_name')
-        $('.subtype_radio').hide()
-        $('#' + subtypeName).show().find('input:radio:first').prop('checked', true)
 
-        var hasCategories = $(this).find(':selected').data('has_categories')
-        $('#category_row').toggle(hasCategories)
-        if (!hasCategories) {
-            resetCategories()
-        }
-    })
+
+    $('#event_maintype_selector').change(function() {
+        // set
+        var subtypeName = $(this).find(':selected').data('subtype_name');
+        $('.subtype_radio').hide();
+        $('#' + subtypeName).show().find('input:radio:first').prop('checked', true);
+
+        // fire change
+        $('input[name=subtype_id]:checked').change();
+    });
+
+
+    $('input[name=subtype_id]').change(function() {
+      var categories = $(this).data('categories')
+      || $('#event_maintype_selector').find(':selected').data('categories');
+
+      setVisibleOptions($('#category_selector'), categories);
+      //$('#category_selector').change();
+
+      var subcategories = $(this).data('subcategories')
+        || $('#event_maintype_selector').find(':selected').data('subcategories');
+
+      setVisibleOptions($('#subcategory_selector'), subcategories);
+
+    });
+
+
+    $('#category_selector').change(function() {
+      var subcategories = $(this).find(':selected').data('subcategories')
+        || $('input[name=subtype_id]:checked').data('subcategories')
+        || $('#event_maintype_selector').find(':selected').data('subcategories');
+
+      setVisibleOptions($('#subcategory_selector'), subcategories);
+    });
 
 
     $(".period").change(function() {
-        var periodString = $("#daterange_from").val() + "/" + $("#daterange_to").val()
+        var periodString = $("#daterange_from").val() + "/" + $("#daterange_to").val();
         $('#period_name').val(periodString)
     });
 
     // not in use atm, possible remove
     $("#stats_table").on("click", ".fix_row", function() {
-        var tr = $(this).parent().parent()
-        tr.toggleClass("fixed_row")
+        var tr = $(this).parent().parent();
+        tr.toggleClass("fixed_row");
         tr.find('span').toggleClass('glyphicon-unchecked glyphicon-check')
     });
 
@@ -66,7 +103,7 @@ $(function() {
         var quarter = parseInt($("#select_quarter").val(), 10);
         var year = parseInt($("#select_year").val(), 10);
 
-        var quickpickString = ''
+        var quickpickString = '';
         var startOfPeriod, endOfPeriod;
 
         if (quarter === 5) {
@@ -83,23 +120,23 @@ $(function() {
             quickpickString = quarter + ". kvartal " + year;
         }
 
-        $('#period_name').val(quickpickString)
+        $('#period_name').val(quickpickString);
 
-        $("#daterange_from").val(startOfPeriod)
-        $("#daterange_to").val(endOfPeriod)
+        $("#daterange_from").val(startOfPeriod);
+        $("#daterange_to").val(endOfPeriod);
     });
 
 
     $("#clear").click(function() {
-        $("#stats_table tbody tr").remove();
+        $("#stats_table").find("tbody tr").remove();
     });
 
 
     $('#submit').click(function() {
-        var periodString = $('#period_name').val()
+        var periodString = $('#period_name').val();
 
-        var form = $("#query_form")
-        var data = convertFormToHash(form)
+        var form = $("#query_form");
+        var data = convertFormToHash(form);
 
         var request = $.ajax({
             url: "/api/statistics",
@@ -111,7 +148,7 @@ $(function() {
 
 
         request.done(function(data, textStatus, xhr) {
-            var $tbody = $("#stats_table tbody")
+            var $tbody = $("#stats_table").find("tbody");
 
             data.results.forEach(result => {
                 var tableRow = `
@@ -129,7 +166,7 @@ $(function() {
           `;
 
                 $tbody.append(tableRow);
-            });
+        })
         });
 
         request.fail(function(xhr, textStatus, errorThrown) {
@@ -141,9 +178,9 @@ $(function() {
 
 
     var resetCategories = function() {
-        $('#category_selector option:nth-child(2)').prop('selected', true)
-        $('#subcategory_selector option:first-child').prop('selected', true)
-    }
+        $('#category_selector').find('option:nth-child(2)').prop('selected', true);
+        $('#subcategory_selector').find('option:first-child').prop('selected', true)
+    };
 
     // initialize daterange pickers
     $("#daterange_from").daterangepicker({
@@ -165,19 +202,19 @@ $(function() {
     });
 
     // set the quickpicker to current quarter and fire change
-    $("#select_year").last().prop("selected", true)
-    var date = new Date()
-    var dateString = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear()
-    var currentQuarter = moment(dateString, "DD-MM-YYYY").quarter()
-    $("#select_quarter").val(currentQuarter).change()
+    $("#select_year").last().prop("selected", true);
+    var date = new Date();
+    var dateString = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+    var currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
+    $("#select_quarter").val(currentQuarter).change();
 
 
     // reset all menu options
-    resetCategories()
-    $('#branch_selector option:first-child').prop('selected', true)
+    resetCategories();
+    $('#branch_selector').find('option:first-child').prop('selected', true);
 
-    $('.subtype_radio').hide()
-    $('#event_maintype_selector option:first-child').prop('selected', true)
+    $('.subtype_radio').hide();
+    $('#event_maintype_selector').find('option:first-child').prop('selected', true);
     $('#event_maintype_selector').change()
 
 });

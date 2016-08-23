@@ -17,6 +17,9 @@ $(".nav-statistics").addClass("active");
   <li><a data-toggle="tab" href="#user_guide">Veiledning</a></li>
 </ul>
 
+
+
+
 <div class="tab-content">
 
   <div id="user_guide" class="tab-pane fade">
@@ -32,23 +35,7 @@ $(".nav-statistics").addClass("active");
 
     <form class="form-inline" role="form" id="query_form">
       <div class="row">
-        <div class="form-group">
-          <label for="select_quarter" class="main">Hurtigvelger:</label>
-          <select class="quickpick" id="select_quarter">
-            <option value="1" selected>1. kvartal</option>
-            <option value="2">2. kvartal</option>
-            <option value="3">3. kvartal</option>
-            <option value="4">4. kvartal</option>
-            <option value="5">2. tertial</option>
-            <option value="6">Hele</option>
-          </select>
-
-          <select class="quickpick" id="select_year">
-            <% for year in 2016..Time.now.strftime("%Y").to_i %>
-            <%= " <option value='#{year}'>#{year}</option> " %>
-            <% end %>
-          </select>
-        </div>
+        <%= erb :_quickpick  %>
       </div>
 
 
@@ -62,29 +49,19 @@ $(".nav-statistics").addClass("active");
       </div>
 
       <div class="row">
-        <div class="form-group">
-          <label for="branch_selector" class="main">Sted:</label>
-          <select id="branch_selector" name="branch_id">
-            <option value="sum_all">Samlet</option>
-            <option value="iterate_all">Alle</option>
-            <% branches.each do |branch| %>
-            <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
-            <% end %>
-          </select>
-        </div>
+        <%= erb :_branch_selector, locals: {branches: branches}  %>
       </div>
 
       <div class="row">
         <div class="form-group">
           <label for="event_maintype_selector" class="main">Type/undertype:</label>
           <select id="event_maintype_selector" name="maintype_id">
-            <option value="sum_all" data-subtype_name='sum_all'
-              data-has_categories="true">Samlet</option>
-            <option value="iterate_all" data-subtype_name='iterate_all'
-              data-has_categories="false">Alle</option>
+            <option value="sum_all" data-subtype_name='sum_all'>Samlet</option>
+            <option value="iterate_all" data-subtype_name='iterate_all'>Alle</option>
             <% event_maintypes.each do |type| %>
             <%= %Q(<option value='#{type.id}' data-subtype_name='#{type.name}'
-                data-has_categories='#{type.has_categories?}'>#{type.label}</option>) %>
+                data-subcategories='#{type.subcategory_ids}'
+                data-categories='#{type.category_ids}'>#{type.label}</option>) %>
             <% end %>
           </select>
         </div>
@@ -98,9 +75,9 @@ $(".nav-statistics").addClass("active");
 
           <div class='subtype_radio' id='iterate_all'>
             <label class='radio-inline'><input type='radio' value='sum_all'
-              name='subtype_id'>Samlet</label>
+               name='subtype_id'>Samlet</label>
             <label class='radio-inline'><input type='radio' value='iterate_all'
-              name='subtype_id'>Alle</label>
+               name='subtype_id'>Alle</label>
           </div>
 
           <% event_maintypes.each do |type| %>
@@ -111,7 +88,7 @@ $(".nav-statistics").addClass("active");
                   name='subtype_id'>Alle</label>" %>
             <% type.event_types.each do |et| %>
             <%= "<label class='radio-inline'><input type='radio' value='#{et.event_subtype.id}'
-                  name='subtype_id'>#{et.event_subtype.label}</label>" %>
+                  name='subtype_id' data-categories='#{et.category_ids}' data-subcategories='#{et.subcategory_ids}'>#{et.event_subtype.label}</label>" %>
             <% end %>
             <%= "</div>" %>
             <% end %>
@@ -126,7 +103,7 @@ $(".nav-statistics").addClass("active");
             <option value="sum_all">Samlet</option>
             <option value="iterate_all">Alle</option>
             <% categories.each do |category| %>
-            <%= "<option value='#{category.id}'>#{category.name}</option>" %>
+            <%= "<option value='#{category.id}' data-subcategories='#{category.subcategory_ids}'>#{category.name}</option>" %>
             <% end %>
           </select>
 

@@ -1,0 +1,7 @@
+<% event_types.each do |type| %>
+<%= "<option value='#{type.id}' "%>
+  <%= "data-age_groups='#{type.age_group_array}' " %>
+  <%= "data-subcategories='#{type.subcategory_array}' " %>
+  <%= "selected " if edit && type.id == event.event_type_id %>
+  <%= ">#{type.label}</option>" %>
+<% end %>
