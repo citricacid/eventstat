@@ -10,6 +10,9 @@ $(".nav-statistics").addClass("active");
 
 <script src="/js/statistics.js"></script>
 
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script src="/js/clipboard.min.js"></script>
 
 <ul class="nav nav-tabs">
   <li class="active"><a data-toggle="tab" href="#freestyle">Egendefinert</a></li>
@@ -121,15 +124,19 @@ $(".nav-statistics").addClass("active");
         </div>
 
 
-
         <div class="row">
           <div class="form-group">
             <button type="button" class="btn btn-secondary" id="submit">Hent</button>
             <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
+            <button type="button" class="btn btn-secondary" id="copy_to_clipboard">Til utklippstavle</button>
+            <a id="demo" href="#" tabindex="0" class="btn btn-success" data-toggle="popover" title="Line Chart">Click for Chart</a>
+
           </div>
         </div>
 
       </form>
+
+      <div id='container' style='min-width: 600px;display:none; height: 600px; margin: 0 auto'></div>
 
       <div class="table-responsive">
         <table class="table table-striped" id="stats_table">
