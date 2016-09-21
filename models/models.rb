@@ -127,6 +127,7 @@ class EventMaintype < ActiveRecord::Base
   has_many :event_types
   has_many :categories
 
+  scope :ordered_view, -> { order('view_priority').reverse_order }
 
   def category_ids
     categories.pluck(:id)
@@ -185,20 +186,20 @@ class Category < ActiveRecord::Base
 end
 
 
-class Subcategory < ActiveRecord::Base
+class SubcategoryGroup < ActiveRecord::Base
   belongs_to :category
+
+  delegate :type_name, :maintype_associated?, :subtype_associated?, :to => :category, :allow_nil => true
 
   def type_name
     category.event_maintype.name
   end
 
-  def maintype_associated?(maintype_id)
-    category.event_maintype.id == maintype_id
-  end
+end
 
-  # rename / delegate?
-  def subtype_associated?(subtype_id, maintype_id)
-    category.subtype_associated?(subtype_id, maintype_id)
-  end
+class Subcategory < ActiveRecord::Base
+  belongs_to :subcategory_group
+
+  delegate :name, :subtype_associated?, :type_name, :to => :subcategory_group, :allow_nil => true
 
 end

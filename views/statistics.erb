@@ -9,10 +9,10 @@ $(".nav-statistics").addClass("active");
 <link rel="stylesheet" type="text/css" href="/css/daterangepicker.css" />
 
 <script src="/js/statistics.js"></script>
+<script src="/js/table_to_csv.js"></script>
 
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
-<script src="/js/clipboard.min.js"></script>
 
 <ul class="nav nav-tabs">
   <li class="active"><a data-toggle="tab" href="#freestyle">Egendefinert</a></li>
@@ -61,7 +61,7 @@ $(".nav-statistics").addClass("active");
           <select id="event_maintype_selector" name="maintype_id">
             <option value="sum_all" data-subtype_name='sum_all'>Samlet</option>
             <option value="iterate_all" data-subtype_name='iterate_all'>Alle</option>
-            <% event_maintypes.each do |type| %>
+            <% event_maintypes.ordered_view.each do |type| %>
             <%= %Q(<option value='#{type.id}' data-subtype_name='#{type.name}'
                 data-subcategories='#{type.subcategory_ids}'
                 data-categories='#{type.category_ids}'>#{type.label}</option>) %>
@@ -128,7 +128,7 @@ $(".nav-statistics").addClass("active");
           <div class="form-group">
             <button type="button" class="btn btn-secondary" id="submit">Hent</button>
             <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
-            <button type="button" class="btn btn-secondary" id="copy_to_clipboard">Til utklippstavle</button>
+            <a href="#" id ="copy_to_clipboard" class='btn btn-secondary'>Til utklippstavle</a>
             <a id="demo" href="#" tabindex="0" class="btn btn-success" data-toggle="popover" title="Line Chart">Click for Chart</a>
 
           </div>

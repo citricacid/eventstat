@@ -1,6 +1,8 @@
 "use strict";
 
 
+let listOfResults = [];
+
 var convertFormToHash = function($form) {
     var hash = {};
     var formElements = $form.serializeArray();
@@ -126,7 +128,17 @@ $(function() {
 
     $("#clear").click(function() {
         $("#stats_table").find("tbody tr").remove();
+
+        const len = listOfResults.length;
+
+        for (let i = 0; i < len; i++) {
+          console.log(listOfResults[i]);
+        }
+
+
+        listOfResults = [];
     });
+
 
 
     $('#submit').click(function() {
@@ -148,6 +160,8 @@ $(function() {
             var $tbody = $("#stats_table").find("tbody");
 
             data.results.forEach(result => {
+              listOfResults.push(result);
+
                 var tableRow = `
           <tr>
           <td>${periodString}</td>
@@ -237,7 +251,7 @@ $(function() {
             },
             series: [{
                 name: 'Tokyo',
-                data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
+                data: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
             }, {
                 name: 'New York',
                 data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
