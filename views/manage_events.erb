@@ -37,16 +37,17 @@ $(".nav-manage_events").addClass("active");
   <form action="/api/event" method="post" id="event-form" autocomplete="off">
     <%= "<input type='hidden' name='id' value='#{event.id}'>" if edit %>
 
+    <%# --- Dropdown and definition panel for event type                  --- %>
     <div class="form-group">
       <label for="event_type_selector">Type:</label>
       <button type="button" class="toggleDefinition btn btn-default" data-panel-is-open=false>
         <span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
       <select id="event_type_selector" class="form-control" name="event_type_id">
-        <option value="" disabled hidden selected>-- velg --</option>
+        <option class="invalid_option" value="" disabled hidden selected>-- velg --</option>
         <% event_types.each do |type| %>
         <%= "<option value='#{type.id}' "%>
           <%= "data-age_groups='#{type.age_group_ids}' " %>
-          <%= "data-subcategories='#{type.subcategory_ids}' " %>
+          <%= "data-subcategories='#{type.subcategory_group_ids}' " %>
           <%= "data-definition='#{type.label}' " if type.id % 2 == 0 %>
           <%= "selected " if edit && type.id == event.event_type_id %>
           <%= ">#{type.label}</option>" %>
@@ -60,18 +61,18 @@ $(".nav-manage_events").addClass("active");
     </div>
 
 
-
+    <%# --- Input for title                                               --- %>
     <div class="form-group">
       <label class="form-control-label" for="name">Tittel:</label>
       <input type="text" class="form-control"
         id="name" name="name" <%= " value='#{event.name}'" if edit %> >
     </div>
 
-
+    <%# --- Dropdown for branches                                         --- %>
     <div class="form-group">
       <label for="branch_selector">Sted:</label>
       <select id="branch_selector" class="form-control" name="branch_id">
-      <option value="" disabled hidden selected>-- velg --</option>
+      <option class="invalid_option" value="" disabled hidden selected>-- velg --</option>
       <% branches.each do |branch| %>
         <%= "<option value='#{branch.id}' " %>
           <%= "selected " if edit && branch.id == event.branch_id %>
@@ -80,20 +81,21 @@ $(".nav-manage_events").addClass("active");
       </select>
     </div>
 
+    <%# --- Dropdown for date picker                                      --- %>
     <div class="form-group">
       <label for="daterange">Dato:</label>
       <input class="form-control" type="text" name="date" id="daterange"
       <%= " value=#{event.date.strftime('%d-%m-%Y')}" if edit%> >
     </div>
 
-
+    <%# --- Dropdown and definition panel for subcategory selector        --- %>
     <div class="form-group">
       <label for="subcategory_selector">Kategori:</label>
       <button type="button" class="toggleDefinition btn btn-default" data-panel-is-open=false>
         <span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
           <select id="subcategory_selector" name="subcategory_id" class="form-control">
-            <option value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
-            <% subcategories.each do |subcategory| %>
+            <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
+            <% subcategory_groups.each do |subcategory| %>
             <%= "<option value='#{subcategory.id}' class='#{subcategory.type_name}' " %>
               <%= "selected " if edit && subcategory.id == event.subcategory_id %>
               <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>
@@ -105,6 +107,7 @@ $(".nav-manage_events").addClass("active");
             </div>
     </div>
 
+    <%# --- Dropdown and input for target audience and attendants         --- %>
     <div class="row">
       <div class="form-group col-xs-12 col-sm-7 col-md-6 col-lg-5">
         <label for="age_group_selector">Målgruppe:</label>
@@ -118,7 +121,7 @@ $(".nav-manage_events").addClass("active");
               <% end %>
             </select>
           </div>
-          <input type="text" name="attendants" id="#attendants" <%= " value='#{event.attendants}'" if edit %> >
+          <input type="number" type="number" min="0" name="attendants" id="attendants" <%= " value='#{event.attendants}'" if edit %> >
         </div>
       </div>
     </div>

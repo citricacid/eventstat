@@ -1,112 +1,130 @@
 "use strict";
 
+/* global $ */
+
 //
 // form helper functions
 //
-var clear = function(form) {
-  form.find(':input').not(':button, :submit, :reset, :checkbox, :radio').val('')
-  form.find(':checkbox, :radio').prop('checked', false)
-}
+const clear = function(form) {
+  form.find(':input').not(':button, :submit, :reset, :checkbox, :radio').val('');
+  form.find(':checkbox, :radio').prop('checked', false);
+};
 
-var populate = function(form, data) {
-  $.each(data, function(name, val){
-    var formElement = form.find('[name="' + name + '"]')
-    var type = formElement.prop('type')
-    switch(type){
+const populate = function(form, data) {
+  $.each(data, function(name, val) {
+    const formElement = form.find('[name="' + name + '"]');
+    const type = formElement.prop('type');
+    switch (type) {
       case 'checkbox':
-      formElement.prop('checked', val)
-      break
+        formElement.prop('checked', val);
+        break;
       case 'radio':
-      formElement.filter('[value="'+ val +'"]').prop('checked', 'checked')
-      break
+        formElement.filter('[value="' + val + '"]').prop('checked', 'checked');
+        break;
       default:
-      formElement.val(val)
+        formElement.val(val);
     }
-  })
-}
+  });
+};
 
-var convertFormToHash = function($form) {
-  var hash = {}
-  var formElements = $form.serializeArray()
+const convertFormToHash = function($form) {
+  const hash = {};
+  const formElements = $form.serializeArray();
 
   $.each(formElements, function() {
     hash[this.name] = this.value || '';
-  })
+  });
 
-  return hash
-}
+  return hash;
+};
 
 
 
-$(function () {
-
+$(function() {
   // helper functions
 
   // new name? hide or show option
-  var editOption = function(age_group_id, isDisabled) {
-    $("#age_group_selector option[value=" + age_group_id + "]").prop("disabled", isDisabled);
-    $("#age_group_selector option[value=" + age_group_id + "]").prop("hidden", isDisabled);
+  const editOption = function(ageGroupID, isDisabled) {
+    $("#age_group_selector option[value=" + ageGroupID + "]").prop("disabled", isDisabled);
+    $("#age_group_selector option[value=" + ageGroupID + "]").prop("hidden", isDisabled);
   };
 
+  const showOrHideDefinitions = function($button, definition) {
+    const $panel = $button.siblings('.panel');
+    const status = $button.data('panel-is-open');
 
-  var showOrHideDefinitions = function($button, definition) {
-    var $panel = $button.siblings('.panel');
-    var status = $button.data('panel-is-open')
-
-    var showPanel = true
-    var showButton = true
+    let showPanel = status;
+    let showButton = true;
 
     if (definition === '' || definition === undefined) {
-      showButton = false
-      showPanel = false
+      showButton = false;
+      showPanel = false;
     } else {
-      $panel.find('.panel-body').html(definition)
-      showPanel = status ? true : false;
+      $panel.find('.panel-body').html(definition);
+      // showPanel = status;
     }
 
-    $button.toggle(showButton)
-    $panel.toggle(showPanel)
-  }
+    $button.toggle(showButton);
+    $panel.toggle(showPanel);
+  };
 
-
+  //
   // event handlers
+  //
+
+  // form validation
+
+  const setValidity = function($element, isValid) {
+    if (isValid) {
+      $element.removeClass("invalid").addClass("valid");
+    } else {
+      $element.removeClass("valid").addClass("invalid");
+    }
+  };
+
+  const validateSelection = function($selector) {
+    const isValid = !$selector.find(':selected').hasClass("invalid_option");
+
+    setValidity($selector, isValid);
+    return isValid;
+  };
 
   $("form").submit(function() {
-    //e.preventDefault();
+    // e.preventDefault();
 
-    var isOK = true;
+    let isOK = true;
+
+    if (!validateSelection($('#event_type_selector'))) {
+      isOK = false;
+    }
+
+    if (!validateSelection($('#branch_selector'))) {
+      isOK = false;
+    }
+
+    if (!validateSelection($('#subcategory_selector'))) {
+      isOK = false;
+    }
 
     // validate title
-    var len = $("#name").val().trim().length;
+    const $title = $('#name');
+    const len = $title.val().trim().length;
+
     if (len > 1 && len < 100) {
-      $("#name").removeClass("invalid").addClass("valid");
+      setValidity($title, true);
     } else {
-      $("#name").removeClass("valid").addClass("invalid");
+      setValidity($title, false);
       isOK = false;
     }
 
-    // ensure branch is selected
-    if ($("#branch_selector").val() === "") {
-      $("#branch_selector").removeClass("valid").addClass("invalid");
-      isOK = false;
-    } else {
-      $("#branch_selector").removeClass("invalid").addClass("valid");
-    }
+    // validate attendants
+    const $attendantsInput = $('#attendants');
 
-    // ensure subcategory is selected
-    if ($("#subcategory_selector :selected").val() === "") {
-      $("#subcategory_selector").removeClass("valid").addClass("invalid");
-      isOK = false;
+    if (parseInt($attendantsInput.val(), 10) >= 0) {
+      setValidity($attendantsInput, true);
     } else {
-      $("#subcategory_selector").removeClass("invalid").addClass("valid");
-    }
-
-    // ensure event_type is selected
-    if ($("#event_type_selector :selected").val() === "") {
-      $("#event_type_selector").removeClass("valid").addClass("invalid");
+      setValidity($attendantsInput, false);
       isOK = false;
-    } else {
-      $("#event_type_selector").removeClass("invalid").addClass("valid");
     }
 
     // daterange?
@@ -116,39 +134,39 @@ $(function () {
 
 
   $('.toggleDefinition').click(function() {
-    var $panel = $(this).siblings('.panel');
-    var $span = $(this).find('span');
-    var status = $(this).data('panel-is-open');
+    const $panel = $(this).siblings('.panel');
+    const $span = $(this).find('span');
+    const status = $(this).data('panel-is-open');
 
-    if (!status) {
-      $span.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close')
-      $(this).data('panel-is-open', true);
-      $panel.show();
-    } else {
+    if (status) {
       $span.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
       $(this).data('panel-is-open', false);
       $panel.hide();
+    } else {
+      $span.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
+      $(this).data('panel-is-open', true);
+      $panel.show();
     }
   });
 
-
+  // possible todo: refactor the age group and subcategory handling
   $('#event_type_selector').change(function() {
     // handle definitions
-    var def = $("#event_type_selector :selected").data('definition')
-    var $button = $(this).siblings('button');
-    showOrHideDefinitions($button, def)
+    const def = $("#event_type_selector :selected").data('definition');
+    const $button = $(this).siblings('button');
+    showOrHideDefinitions($button, def);
 
     // handle age groups
-    var ageGroups = $(this).find(':selected').data('age_groups')
-    var $ageGroupSelector = $('#age_group_selector')
+    const ageGroups = $(this).find(':selected').data('age_groups');
+    const $ageGroupSelector = $('#age_group_selector');
 
-    if (!ageGroups || (ageGroups && ageGroups.length == 0)) {
+    if (!ageGroups || (ageGroups && ageGroups.length === 0)) {
       $ageGroupSelector.find('option').show();
     } else {
       $ageGroupSelector.find('option').hide();
       ageGroups.forEach(function(id) {
-        $("#age_group_selector option[value=" + id + "]").show()
-      })
+        $("#age_group_selector option[value=" + id + "]").show();
+      });
     }
 
     if ($ageGroupSelector.find(':selected').is(':hidden')) {
@@ -156,63 +174,45 @@ $(function () {
     }
 
     // handle subcategories
-    var subcategories = $(this).find(':selected').data('subcategories')
-    var $subcategorySelector = $('#subcategory_selector')
+    const subcategories = $(this).find(':selected').data('subcategories');
+    const $subcategorySelector = $('#subcategory_selector');
 
     if (!subcategories) {
       $subcategorySelector.find('option').hide();
-    } else if (subcategories.length == 0) {
+    } else if (subcategories.length === 0) {
       $subcategorySelector.find('option').show();
     } else {
       $subcategorySelector.find('option').hide();
       subcategories.forEach(function(id) {
-        $("#subcategory_selector option[value=" + id + "]").show()
-      })
+        $("#subcategory_selector option[value=" + id + "]").show();
+      });
     }
 
-    if ($subcategorySelector.find(':selected').is(':hidden')) {
-      $subcategorySelector.find(':visible').first().prop("selected", true);
+    // if the user selected a category and then changed the event type, then reset
+    // the category selector if the option is no longer applicable
+    const $selected = $subcategorySelector.find(':selected');
+    if ($selected.is(':hidden')) {
+      $subcategorySelector.find('.invalid_option').prop("selected", true);
     }
-
-  })
+  });
 
 
   $('#subcategory_selector').change(function() {
-    var def = $("#subcategory_selector :selected").data('definition')
-    var $button = $(this).siblings('button');
-    showOrHideDefinitions($button, def)
-  })
+    const def = $("#subcategory_selector :selected").data('definition');
+    const $button = $(this).siblings('button');
+    showOrHideDefinitions($button, def);
+  });
 
+  // will remove raised invalid flag upon proper selection
+  $('select').change(function() {
+    validateSelection($(this));
+  });
 
-  // delete this code
-  var xsubmitData = function() {
-    var eventData = convertFormToHash($('#event-form'))
-    var data = {event_data: eventData}
+  //
+  // initialize form
+  //
 
-    var request = $.ajax({
-      url        : "/api/event",
-      dataType   : "json",
-      contentType: "application/json; charset=UTF-8",
-      data       : JSON.stringify(data),
-      type       : "POST",
-      cache      : false
-    });
-
-
-    request.done(function(response) {
-      window.location.href = response.redirect;
-    });
-
-    request.fail(function(xhr, textStatus, errorThrown) {
-      alert(textStatus)
-    });
-
-  };
-
-
-  // initialize
-
-  $('.toggleDefinition').hide()
+  $('.toggleDefinition').hide();
 
   // initialize daterange picker
   $("input[name='date']").daterangepicker(
@@ -224,5 +224,4 @@ $(function () {
         firstDay: 1
       }
     });
-
-  })
+});

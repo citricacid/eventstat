@@ -83,7 +83,8 @@ get '/manage_events' do
   session[:transaction_error] = nil
 
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-    age_groups: AgeGroup.all, event_types: EventType.all, edit: false, error: error }
+    subcategory_groups: SubcategoryGroup.all, age_groups: AgeGroup.all,
+    event_types: EventType.all, edit: false, error: error }
   end
 
 

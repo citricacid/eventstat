@@ -120,12 +120,19 @@ class EventType < ActiveRecord::Base
     event_subtype.subcategory_ids.present? ? event_subtype.subcategory_ids : event_maintype.subcategory_ids
   end
 
+  # NEW
+  def subcategory_group_ids
+    subcats = event_subtype.subcategories.present? ? event_subtype.subcategories : event_maintype.subcategories
+    subcats.map {|subcategory| subcategory.subcategory_group.id}.flatten
+  end
+
 end
 
 
 class EventMaintype < ActiveRecord::Base
   has_many :event_types
   has_many :categories
+  has_many :subcategories, through: :categories
 
   scope :ordered_view, -> { order('view_priority').reverse_order }
 
@@ -144,6 +151,7 @@ end
 class EventSubtype < ActiveRecord::Base
   has_one :event_type
   has_many :categories
+  has_many :subcategories, through: :categories
 
   def associated?(maintype_id)
     event_type.event_maintype.id == maintype_id
@@ -167,8 +175,14 @@ end
 
 class Category < ActiveRecord::Base
   has_many :subcategories
+  has_many :subcategory_groups
+
   belongs_to :event_maintype
   belongs_to :event_subtype
+
+  def type_name
+    event_maintype.name
+  end
 
   def maintype_associated?(maintype_id)
     event_maintype.id == maintype_id
@@ -191,15 +205,11 @@ class SubcategoryGroup < ActiveRecord::Base
 
   delegate :type_name, :maintype_associated?, :subtype_associated?, :to => :category, :allow_nil => true
 
-  def type_name
-    category.event_maintype.name
-  end
-
 end
 
 class Subcategory < ActiveRecord::Base
   belongs_to :subcategory_group
 
-  delegate :name, :subtype_associated?, :type_name, :to => :subcategory_group, :allow_nil => true
+  delegate :name, :definition, :subtype_associated?, :type_name, :to => :subcategory_group, :allow_nil => true
 
 end
