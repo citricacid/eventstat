@@ -84,7 +84,7 @@ get '/manage_events' do
 
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
     subcategory_groups: SubcategoryGroup.all, age_groups: AgeGroup.all,
-    event_types: EventType.all, edit: false, error: error }
+    event_types: EventType.ordered_view.all, edit: false, error: error }
   end
 
 
@@ -114,7 +114,8 @@ get '/manage_events' do
     event_id = params['event_id']
 
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      age_groups: AgeGroup.all, event_types: EventType.all, event: Event.find(event_id), edit: true, error: error }
+      subcategory_groups: SubcategoryGroup.all, age_groups: AgeGroup.all,
+      event_types: EventType.ordered_view.all, event: Event.find(event_id), edit: true, error: error }
 
   end
 
