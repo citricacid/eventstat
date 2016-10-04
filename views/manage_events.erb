@@ -47,7 +47,7 @@ $(".nav-manage_events").addClass("active");
         <% event_types.each do |type| %>
         <%= "<option value='#{type.id}' "%>
           <%= "data-age_groups='#{type.age_group_ids}' " %>
-          <%= "data-subcategories='#{type.subcategory_group_ids}' " %>
+          <%= "data-subcategories='#{type.linked_subcategory_ids}' " %>
           <%= "data-definition='#{type.label}' " if type.id % 2 == 0 %>
           <%= "selected " if edit && type.id == event.event_type_id %>
           <%= ">#{type.label}</option>" %>
@@ -95,7 +95,7 @@ $(".nav-manage_events").addClass("active");
         <span class="glyphicon glyphicon-eye-open"></span> definisjon</button>
           <select id="subcategory_selector" name="subcategory_id" class="form-control">
             <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
-            <% subcategory_groups.each do |subcategory| %>
+            <% subcategories.each do |subcategory| %>
             <%= "<option value='#{subcategory.id}' class='#{subcategory.type_name}' " %>
               <%= "selected " if edit && subcategory.id == event.subcategory_id %>
               <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>
@@ -114,6 +114,7 @@ $(".nav-manage_events").addClass("active");
         <div class="row">
           <div class="form-group col-xs-7 col-sm-7 col-md-6 col-lg-5">
             <select class="form-control" id="age_group_selector" name="age_group_id">
+              <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
               <% age_groups.each do |age| %>
                 <%= "<option value=#{age.id} " %>
                 <%= ' selected' if edit && age.id == event.age_group_id %>

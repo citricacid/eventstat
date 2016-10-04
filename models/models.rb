@@ -123,9 +123,9 @@ class EventType < ActiveRecord::Base
   end
 
   # NEW
-  def subcategory_group_ids
-    subcats = event_subtype.subcategories.present? ? event_subtype.subcategories : event_maintype.subcategories
-    subcats.map {|subcategory| subcategory.subcategory_group.id}.flatten
+  def linked_subcategory_ids
+    subcats = event_subtype.subcategory_link_ids.present? ? event_subtype.subcategory_link_ids : event_maintype.subcategory_link_ids
+    subcats.map {|subcategory| subcategory}.flatten
   end
 
 end
@@ -135,6 +135,7 @@ class EventMaintype < ActiveRecord::Base
   has_many :event_types
   has_many :categories
   has_many :subcategories, through: :categories
+  has_many :subcategory_links, through: :categories
 
   scope :ordered_view, -> { order('view_priority').reverse_order }
 
@@ -145,6 +146,10 @@ class EventMaintype < ActiveRecord::Base
 
   def subcategory_ids
     categories.map {|category| category.subcategory_ids}.flatten
+  end
+
+  def subcategory_link_ids
+    categories.map {|category| category.subcategory_link_ids}.flatten
   end
 
 end
@@ -171,17 +176,23 @@ class EventSubtype < ActiveRecord::Base
     categories.map {|category| category.subcategory_ids}.flatten
   end
 
+  def subcategory_link_ids
+    categories.map {|category| category.subcategory_link_ids}.flatten
+  end
+
+
 end
 
 
 
 class Category < ActiveRecord::Base
   has_many :subcategories
-  has_many :subcategory_groups
+  has_many :subcategory_links
 
   belongs_to :event_maintype
   belongs_to :event_subtype
 
+  # todo: replace with delegate
   def type_name
     event_maintype.name
   end
@@ -199,19 +210,25 @@ class Category < ActiveRecord::Base
     subcategories.pluck(:id)
   end
 
+  # TODO rename
+  def subcategory_link_ids
+    subcategory_links.pluck(:subcategory_id)
+  end
+
+
 end
 
 
-class SubcategoryGroup < ActiveRecord::Base
+class Subcategory < ActiveRecord::Base
   belongs_to :category
 
   delegate :type_name, :maintype_associated?, :subtype_associated?, :to => :category, :allow_nil => true
 
 end
 
-class Subcategory < ActiveRecord::Base
-  belongs_to :subcategory_group
+class SubcategoryLink < ActiveRecord::Base
+  belongs_to :subcategory
 
-  delegate :name, :definition, :subtype_associated?, :type_name, :to => :subcategory_group, :allow_nil => true
+  delegate :name, :definition, :subtype_associated?, :type_name, :to => :subcategor, :allow_nil => true
 
 end

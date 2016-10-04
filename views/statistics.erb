@@ -55,6 +55,8 @@ $(".nav-statistics").addClass("active");
         <%= erb :_branch_selector, locals: {branches: branches}  %>
       </div>
 
+
+      <%# --- Dropdown and radio buttons for event types                  --- %>
       <div class="row">
         <div class="form-group">
           <label for="event_maintype_selector" class="main">Type/undertype:</label>
@@ -63,7 +65,7 @@ $(".nav-statistics").addClass("active");
             <option value="iterate_all" data-subtype_name='iterate_all'>Alle</option>
             <% event_maintypes.ordered_view.each do |type| %>
             <%= %Q(<option value='#{type.id}' data-subtype_name='#{type.name}'
-                data-subcategories='#{type.subcategory_ids}'
+                data-subcategories='#{type.linked_subcategory_ids}'
                 data-categories='#{type.category_ids}'>#{type.label}</option>) %>
             <% end %>
           </select>
@@ -99,31 +101,21 @@ $(".nav-statistics").addClass("active");
         </div>
 
 
+      <%# --- Dropdowns for categories and subcategories                 --- %>
         <div class="form-group row" id="category_row">
           <label for="category_selector" class="main">Kategori/underkategori:</label>
+
           <select id="category_selector" class="category_selector" name="category_id">
-            <option value="none" hidden disabled>-</option>
-            <option value="sum_all">Samlet</option>
-            <option value="iterate_all">Alle</option>
-            <% categories.each do |category| %>
-            <%= "<option value='#{category.id}' data-subcategories='#{category.subcategory_ids}'>#{category.name}</option>" %>
-            <% end %>
+            <%= erb :_category_options, locals: {cats: categories}  %>
           </select>
-
-
 
           <select id="subcategory_selector" class="category_selector" name="subcategory_id">
-            <option value="none">-</option>
-            <option value="sum_all">Samlet</option>
-            <option value="iterate_all">Alle</option>
-            <% subcategories.each do |subcategory| %>
-            <%= "<option value='#{subcategory.id}'>#{subcategory.name}</option>" %>
-            <% end %>
+            <%= erb :_category_options, locals: {cats: subcategories}  %>
           </select>
-
         </div>
 
 
+        <%# --- Buttons                --- %>
         <div class="row">
           <div class="form-group">
             <button type="button" class="btn btn-secondary" id="submit">Hent</button>
