@@ -229,6 +229,6 @@ end
 class SubcategoryLink < ActiveRecord::Base
   belongs_to :subcategory
 
-  delegate :name, :definition, :subtype_associated?, :type_name, :to => :subcategor, :allow_nil => true
+  delegate :name, :definition, :subtype_associated?, :type_name, :to => :subcategory, :allow_nil => true
 
 end

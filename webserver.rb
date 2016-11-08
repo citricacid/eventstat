@@ -120,6 +120,13 @@ get '/manage_events' do
   end
 
 
+  get '/manage_categories' do
+    erb :manage_categories, :locals => {success: nil, id: nil, branches: Branch.all, subcategories: Subcategory.all,
+      categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
+      event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
+  end
+
+
   get '/view_statistics' do
     require_logged_in
 
@@ -138,6 +145,22 @@ get '/manage_events' do
 
 
     # CRUDS
+
+    post '/api/subcategory_definition' do
+      #require_logged_in  #superadmin
+
+      id = params[:id].to_i
+      definition = params[:definition]
+
+      subcategory = Subcategory.find(id)
+      subcategory.definition = definition
+
+      success = subcategory.save
+
+      erb :manage_categories, :locals => {success: success, id: id, branches: Branch.all, subcategories: Subcategory.all,
+        categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
+        event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
+    end
 
     post '/api/event' do
       require_logged_in

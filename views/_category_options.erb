@@ -1,0 +1,7 @@
+
+<option value="none">-</option>
+<option value="sum_all">Samlet</option>
+<option value="iterate_all">Alle</option>
+<% cats.each do |cat| %>
+<%= "<option value='#{cat.id}'>#{cat.name}</option>" %>
+<% end %>

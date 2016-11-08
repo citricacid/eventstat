@@ -1,0 +1,39 @@
+<script>
+$(".nav-admin").addClass("active");
+</script>
+
+<script src="/js/manage_categories.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/custom.css" />
+
+<div class="row limit">
+  <div class="col-sm-4 list-group">
+      <% subcategories.each do |subcat| %>
+      <%= "<button type='button' class='my_button list-group-item list-group-item-action' " %>
+        <%= "id='active' " if !id.nil? && id == subcat.id %>
+       <%= "data-id='#{subcat.id}' data-definition='#{subcat.definition}'>#{subcat.name}</button>" %>
+      <% end %>
+  </div>
+
+  <div class="col-sm-8">
+    <h4>Definisjon</h4>
+    <form action="/api/subcategory_definition" method="post">
+      <input hidden name="id" id="subcategory_id_input"></input>
+    <p><textarea rows="6" cols="60" name="definition" id="definition_area">
+    </textarea></p>
+     <p><input type="submit" class="btn btn-primary" value="Lagre">
+     <% if !success.nil? && success %>
+     <%= '<div class="alert alert-success">' %>
+       <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
+       <%=   'Lagring OK' %>
+       <%=  '</div>' %>
+       <% elsif !success.nil? %></p>
+       <%= '<div class="alert alert-danger">' %>
+         <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
+         <%=   'OBS! Kunne ikke lagre.' %>
+         <%=  '</div>' %>
+         <% end %></p>
+
+   </form>
+
+  </div>
+</div>
