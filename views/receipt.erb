@@ -1,0 +1,15 @@
+<h3>Kvittering</h3>
+
+<p>Arrangementet ble lagret med følgende data:</p>
+<table class="table table-sm table-striped">
+  <%= "<tr><td>Tittel:</td><td>#{event.name}</td></tr>" %>
+  <%= "<tr><td>Sted:</td><td>#{event.branch.name}</td></tr>" %>
+  <%= "<tr><td>Dato:</td><td>#{event.date.strftime('%m/%d/%Y')}</td></tr>" %>
+  <%= "<tr><td>Kategori:</td><td>#{event.event_type.name}</td></tr>" %>
+  <%= "<tr><td>Underkategori:</td><td>#{event.subcategory.name}</td></tr>" %>
+  <%= "<tr><td>Målgruppe:</td><td>#{event.age_group.name}</td></tr>" %>
+  <%= "<tr><td>Antall:</td><td>#{event.attendants}</td></tr>" %>
+</table>
+
+<a class='btn btn-success btn-md' href='/' role='button'>OK <span class='glyphicon glyphicon-ok'></span></a>
+<%= "<a class='btn btn-danger btn-md' href='/edit_event/#{event.id}' role='button'>Endre <span class='glyphicon glyphicon-edit'></span></a>" %>

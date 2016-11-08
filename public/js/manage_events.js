@@ -149,7 +149,10 @@ $(function() {
 
 
   $('#subcategory_selector').change(function() {
-    showOrHideDefinitions($("#subcategory_selector"));
+    const has_comment = $(this).find(":selected").data('has_comment');
+    $('#comment').toggle(has_comment);
+
+    showOrHideDefinitions($(this));
   });
 
   // remove raised invalid flag upon proper selection/input

@@ -16,7 +16,6 @@ I18n.load_path = Dir['config/locales/*.yml']
 
 
 class Event < ActiveRecord::Base
-  has_many :counts
   belongs_to :age_group
   belongs_to :event_type
   belongs_to :branch
@@ -179,7 +178,6 @@ class EventSubtype < ActiveRecord::Base
   def subcategory_link_ids
     categories.map {|category| category.subcategory_link_ids}.flatten
   end
-
 
 end
 

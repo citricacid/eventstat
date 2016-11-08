@@ -121,10 +121,18 @@ get '/manage_events' do
 
 
   get '/manage_categories' do
-    erb :manage_categories, :locals => {success: nil, id: nil, branches: Branch.all, subcategories: Subcategory.all,
+    erb :manage_categories, :locals => {url: "/api/subcategory_definition", success: nil, id: nil, collection: Subcategory.all, branches: Branch.all, subcategories: Subcategory.all,
       categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
       event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
   end
+
+  get '/manage_event_types' do
+    erb :manage_categories, :locals => {url: "/api/event_type_definition", success: nil, id: nil, collection: EventType.all}
+  end
+
+
+
+
 
 
   get '/view_statistics' do
@@ -157,20 +165,29 @@ get '/manage_events' do
 
       success = subcategory.save
 
-      erb :manage_categories, :locals => {success: success, id: id, branches: Branch.all, subcategories: Subcategory.all,
+      erb :manage_categories, :locals => {url: "/api/subcategory_definition", success: success, id: id, collection: Subcategory.all, branches: Branch.all, subcategories: Subcategory.all,
         categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
         event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
     end
 
+    post '/api/event_type_definition' do
+      #require_logged_in  #superadmin
+
+      id = params[:id].to_i
+      definition = params[:definition]
+
+      item = EventType.find(id)
+      item.definition = definition
+
+      success = item.save
+
+      erb :manage_categories, :locals => {url: "/api/event_type_definition", success: success, id: id, collection: EventType.all}
+    end
+
+
+
     post '/api/event' do
       require_logged_in
-
-      #puts JSON.parse(params.to_json)
-      #data = params
-
-      #data = JSON.parse(request.body.read)
-      #event_data = data['event_data']
-      #count_data = data['count_data']
 
       is_edit = params[:id].present?
       event_id = params[:id].to_i if is_edit
@@ -178,16 +195,11 @@ get '/manage_events' do
       event = is_edit ? Event.find(event_id) : Event.new
       event.attributes = event.attributes.merge(params) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
-      success = true
-
       if event.save
         session[:transaction_success] = true
-        #{redirect: '/view_events'}.to_json
-        redirect '/view_events'
-
+        erb :receipt, :locals => {event: event}
       else
         session[:transaction_error] = true
-        #{redirect: '/edit_event/' + event.id.to_s}.to_json
         redirect '/edit_event/' + event.id.to_s
       end
     end

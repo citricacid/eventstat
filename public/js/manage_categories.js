@@ -20,7 +20,7 @@ $(function() {
     $button.addClass('active');
 
     $("#definition_area").val($button.data('definition'));
-    $("#subcategory_id_input").val($button.data('id'));
+    $("#id_input").val($button.data('id'));
 
     if (removeAlert) {
       $('.alert').remove();
@@ -40,5 +40,6 @@ $(function() {
   // initializing page
   let editedItem = $('.my_button').filter("#active");
   let foo = editedItem.length > 0 ? editedItem : $('.my_button').first();
+
   adjustView(foo, false);
 });

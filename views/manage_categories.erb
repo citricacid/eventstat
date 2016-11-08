@@ -7,17 +7,17 @@ $(".nav-admin").addClass("active");
 
 <div class="row limit">
   <div class="col-sm-4 list-group">
-      <% subcategories.each do |subcat| %>
+      <% collection.each do |item| %>
       <%= "<button type='button' class='my_button list-group-item list-group-item-action' " %>
-        <%= "id='active' " if !id.nil? && id == subcat.id %>
-       <%= "data-id='#{subcat.id}' data-definition='#{subcat.definition}'>#{subcat.name}</button>" %>
+        <%= "id='active' " if !id.nil? && id == item.id %>
+       <%= "data-id='#{item.id}' data-definition='#{item.definition}'>#{item.name}</button>" %>
       <% end %>
   </div>
 
   <div class="col-sm-8">
     <h4>Definisjon</h4>
-    <form action="/api/subcategory_definition" method="post">
-      <input hidden name="id" id="subcategory_id_input"></input>
+    <%= "<form action='#{url}' method='post'>" %>
+      <input hidden name="id" id="id_input"></input>
     <p><textarea rows="6" cols="60" name="definition" id="definition_area">
     </textarea></p>
      <p><input type="submit" class="btn btn-primary" value="Lagre">
