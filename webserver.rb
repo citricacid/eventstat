@@ -70,9 +70,9 @@ post '/sessions' do
     session[:user_id] = params[:username]
   end
 
-  if params["pw"] == Settings::PWADMIN
-    session[:user_id] = params["user_id"]
-    session[:admin] = params["user_id"]
+  if params[:password] == Settings::PWADMIN
+    session[:user_id] = params[:username]
+    session[:admin] = params[:username]
   end
 
   session.options[:expire_after] = 60*60*24*60 if session[:user_id].present? && params[:remember].present?
