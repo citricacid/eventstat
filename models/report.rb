@@ -62,6 +62,7 @@ class Report
   attr_accessor :from_date, :to_date, :branches, :categories, :category_type, :maintypes, :subtypes
 
   def get_results
+    puts @report.inspect # delete
     @results = []
     traverse_branches
 
@@ -97,6 +98,7 @@ class Report
     else
       @subtypes.collection.each do |subtype|
         next unless maintype.id == nil || subtype.associated?(maintype.id)
+        #next unless subtype.associated?(maintype.id) # not tested, new attempt
 
         traverse_categories(branch, maintype, Foo.new(subtype.id, subtype.label))
       end
@@ -110,13 +112,15 @@ class Report
       calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label)
     else @categories.collection.each do |cat|
       next unless cat.subtype_associated?(subtype.id, maintype.id) ||
-       #(subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
+       # (subtype.id == nil && cat.maintype_associated?(maintype.id)) || # hmmmm
        (subtype.id == nil && maintype.id == nil)
 
       events = case @category_type
         when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
         when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
       end
+
+      puts events.inspect
 
       calculate_result(branch_name: branch.label, category_name: cat.name,
       events: events, subtype: subtype.label, maintype: maintype.label)
@@ -140,7 +144,8 @@ def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil
 
   def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
     maintype_id: nil, subtype_id: nil)
-
+    puts "maintype: " + maintype_id.to_s
+    puts "subtype: " + subtype_id.to_s
     Event.between_dates(@from_date, @to_date)
     .by_branch(branch_id)
     .by_maintype(maintype_id)

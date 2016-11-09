@@ -1,0 +1,34 @@
+<script>
+//$(".nav").find(".active").removeClass("active");
+$(".nav-schema").addClass("active");
+$(".nav-admin").addClass("active");
+</script>
+
+
+
+
+<h3>Skjema</h3>
+
+<table class="table table-striped table-hover table-sm">
+  <thead class="thead-inverse">
+    <tr>
+      <th>Underkategori</th>
+      <% event_types.each do |type| %>
+      <%= "<th>#{type.name}</th>" %>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% subcategories.each do |cat| %>
+      <%= "<tr><td>#{cat.name}</td>" %>
+      <% event_types.each do |type| %>
+        <% if type.is_linked?(cat.id) %>
+          <%= "<td><span class='glyphicon glyphicon-ok'></span></td>" %>
+        <% else %>
+          <%= "<td></td>" %>
+        <% end %>
+      <% end %>
+      <%= "</tr>" %>
+    <% end %>
+  </tbody>
+</table>

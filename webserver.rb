@@ -31,6 +31,11 @@ def require_logged_in
   redirect('/login') unless is_authenticated?
 end
 
+def require_admin
+  redirect('/login') unless is_admin?
+end
+
+
 def is_authenticated?
   session[:user_id]
 end
@@ -47,7 +52,7 @@ end
 
 
 get '/' do
-  redirect('/manage_events')
+  erb :index
 end
 
 get '/login' do
@@ -131,7 +136,13 @@ get '/manage_events' do
   end
 
 
+  get '/schema' do
+    require_logged_in
 
+    erb :schema, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+      categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
+      event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
+    end
 
 
 
@@ -241,6 +252,8 @@ get '/manage_events' do
 
 
     end
+
+
 
 
     # needed when using the Sinatra::Reloader to avoid draining the connection pool

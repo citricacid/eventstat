@@ -37,8 +37,11 @@ class Event < ActiveRecord::Base
   end
 
 
-  def self.by_category(id)
-    id.present? ? joins(:subcategory).where(subcategories: {category_id: id}) : all
+  def self.by_category(id) # and event_type = ????
+    subcats = SubcategoryLink.where(category_id: id).pluck(:subcategory_id)
+    #id.present? ? joins(:subcategory_link).where(subcategory_links: {category_id: id}) : all
+    id.present? ? where(subcategory_id: subcats) : all
+    #all
   end
 
 
@@ -122,6 +125,11 @@ class EventType < ActiveRecord::Base
   end
 
   # NEW
+  def is_linked?(subcategory_id)
+    linked_subcategory_ids.include?(subcategory_id)
+  end
+
+  # NEW
   def linked_subcategory_ids
     subcats = event_subtype.subcategory_link_ids.present? ? event_subtype.subcategory_link_ids : event_maintype.subcategory_link_ids
     subcats.map {|subcategory| subcategory}.flatten
@@ -133,7 +141,7 @@ end
 class EventMaintype < ActiveRecord::Base
   has_many :event_types
   has_many :categories
-  has_many :subcategories, through: :categories
+  # has_many :subcategories, through: :categories
   has_many :subcategory_links, through: :categories
 
   scope :ordered_view, -> { order('view_priority').reverse_order }
@@ -157,7 +165,7 @@ end
 class EventSubtype < ActiveRecord::Base
   has_one :event_type
   has_many :categories
-  has_many :subcategories, through: :categories
+  # has_many :subcategories, through: :categories
 
   def associated?(maintype_id)
     event_type.event_maintype.id == maintype_id
@@ -184,7 +192,7 @@ end
 
 
 class Category < ActiveRecord::Base
-  has_many :subcategories
+  #has_many :subcategories
   has_many :subcategory_links
 
   belongs_to :event_maintype
@@ -204,8 +212,9 @@ class Category < ActiveRecord::Base
     (event_subtype && event_subtype.id == subtype_id) || (event_subtype == nil && event_maintype.id == maintype_id )
   end
 
-  def subcategory_ids
-    subcategories.pluck(:id)
+  def subcategory_ids # !!!!!!!!!!!!!!!!!!!!!
+    #subcategories.pluck(:id)
+    subcategory_links.pluck(:subcategory_id)
   end
 
   # TODO rename
@@ -226,7 +235,8 @@ end
 
 class SubcategoryLink < ActiveRecord::Base
   belongs_to :subcategory
+  belongs_to :category
 
-  delegate :name, :definition, :subtype_associated?, :type_name, :to => :subcategory, :allow_nil => true
+  delegate :name, :definition, :subtype_associated?, :type_name, :to => :category, :allow_nil => true
 
 end

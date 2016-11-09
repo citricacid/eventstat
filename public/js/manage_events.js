@@ -97,15 +97,15 @@ $(function() {
       isOK = false;
     }
 
-    if (!validateTitle()) {
-      isOK = false;
-    }
-
     if (!validateAttendants()) {
       isOK = false;
     }
 
     // daterange?
+
+    if (!validateTitle()) {
+      isOK = false;
+    }
 
     return isOK;
   });
