@@ -52,7 +52,11 @@ end
 
 
 get '/' do
-  erb :index
+  if is_authenticated?
+    erb :index
+  else
+    erb :login
+  end
 end
 
 get '/login' do
