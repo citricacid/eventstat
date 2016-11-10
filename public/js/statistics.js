@@ -1,5 +1,5 @@
 "use strict";
-/* global $ */
+/* global $ moment */
 
 let listOfResults = [];
 
@@ -135,7 +135,6 @@ $(function() {
     for (let i = 0; i < len; i++) {
       console.log(listOfResults[i]);
     }
-
 
     listOfResults = [];
   });

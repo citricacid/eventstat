@@ -69,12 +69,12 @@ const setVisibleOptions = function($selector, visibleValues) {
 };
 
 const determineSelectedOption = function($selector) {
-  const $selected = $selector.find(':selected');
+  const $selected = $selector.find(':selected').first();
   const visibleOptions = $selector.find(':visible');
 
   if (visibleOptions.length === 1) {
     visibleOptions.prop("selected", true);
-  } else if ($selected.is(':hidden')) {
+  } else if ($selected.css('display') === 'none') {
     $selector.find('.invalid_option').prop("selected", true);
   }
 };
@@ -180,7 +180,7 @@ $(function() {
 
   $('#event_type_selector').change(); // fire change to set up dependent selectors
   showOrHideDefinitions($("#subcategory_selector"));
-
+  // $('#subcategory_selector').change();
   // initialize daterange picker
   $("input[name='date']").daterangepicker(
     {

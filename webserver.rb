@@ -117,7 +117,7 @@ get '/manage_events' do
   get '/edit_event/:event_id' do
     require_logged_in
 
-    error = session[:transaction_error] == true
+    error = session[:transaction_error] # .delete ?!
     session[:transaction_error] = nil
 
     event_id = params['event_id']
@@ -153,7 +153,7 @@ get '/manage_events' do
   get '/view_statistics' do
     require_logged_in
 
-    error = session[:transaction_error] == true
+    error = session[:transaction_error]
     session[:transaction_error] = nil
 
     erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,

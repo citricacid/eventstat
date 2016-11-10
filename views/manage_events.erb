@@ -131,13 +131,14 @@ $(".nav-manage_events").addClass("active");
                 <%= " value=#{event.date.strftime('%d-%m-%Y')}" if edit%> >
               </div>
 
+
               <%# --- Dropdown and definition panel for subcategory selector        --- %>
               <div class="form-group">
                 <label for="subcategory_selector">Kategori:</label>
                 <button type="button" class="toggleDefinition btn btn-default btn-sm" data-panel-is-open=false>
                   <span class="glyphicon glyphicon-eye-open"></span></button>
                   <select id="subcategory_selector" name="subcategory_id" class="form-control">
-                    <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
+                    <option class="invalid_option" value="" disabled hidden<%= " selected" if !edit %> >-- velg --</option>
                     <% subcategories.each do |subcategory| %>
                     <%= "<option value='#{subcategory.id}' class='#{subcategory.type_name}' " %>
                       <%= "selected " if edit && subcategory.id == event.subcategory_id %>
@@ -152,11 +153,12 @@ $(".nav-manage_events").addClass("active");
                     </div>
                   </div>
 
+
                   <%# --- Special: Toggled comment section for select subcategories        --- %>
                   <div class="form-group" id="comment" <%= "style='display: none;'" unless edit && event.subcategory.has_comment %>  >
                     <label class="form-control-label" for="comment">Beskrivelse(valgfri):</label>
                     <input type="text"
-                    id="name" name="comment" <%= " value='#{event.comment}'" if edit %> >
+                    name="comment" <%= " value='#{event.comment}'" if edit %> >
                   </div>
 
 
@@ -165,19 +167,20 @@ $(".nav-manage_events").addClass("active");
                   <div class="form-group">
                     <label for="age_group_selector">Målgruppe:</label>
                     <div class="row">
-                      <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                        <select class="form-control" id="age_group_selector" name="age_group_id">
+                      <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        <select class="form-control input-group-md" id="age_group_selector" name="age_group_id">
                           <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
                           <% age_groups.each do |age| %>
-                          <%= "<option value=#{age.id} " %>
+                          <%= "<option value=#{age.id}" %>
                             <%= ' selected' if edit && age.id == event.age_group_id %>
                             <%= ">#{age.name}</option>" %>
                             <% end %>
                           </select>
                         </div>
-                        <input type="number" type="number" min="0" name="attendants" id="attendants" <%= " value='#{event.attendants}'" if edit %> >
+                        <div class="form-group col-xs-3 col-sm-3 col-md-2 col-lg-2">
+                        <input class="form-control input-group-md" type="number" min="0" name="attendants" id="attendants" <%= " value='#{event.attendants}'" if edit %> >
                       </div>
-
+                      </div>
                     </div>
 
                     <div class="form-group">
