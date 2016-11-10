@@ -22,6 +22,7 @@ set :port, 5100 if development?
 enable :show_exceptions if development?
 
 set :server, %w[thin webrick]
+set :session_secret, "328479283uf923fu8932fu923uf9832f23f232"
 set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 
 
@@ -254,10 +255,7 @@ get '/manage_events' do
       res = report.get_results
       res
 
-
     end
-
-
 
 
     # needed when using the Sinatra::Reloader to avoid draining the connection pool
