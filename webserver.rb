@@ -25,6 +25,8 @@ set :server, %w[thin webrick]
 set :session_secret, "328479283uf923fu8932fu923uf9832f23f232"
 set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 
+enable :logging, :dump_errors, :raise_errors, :show_exceptions
+
 
 # -------------------------
 
