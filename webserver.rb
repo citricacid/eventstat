@@ -22,12 +22,15 @@ set :port, 5100 if development?
 enable :show_exceptions if development?
 
 set :server, %w[thin webrick]
-set :session_secret, "328479283uf923fu8932fu923uf9832f23f232"
-set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
+#set :session_secret, "328479283uf923fu8932fu923uf9832f23f232"
+#set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
 
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
 
-
+use Rack::Session::Cookie, :key => 'rack.session',
+                           :path => '/',
+                           :secret => 'your_secret'
+                           
 # -------------------------
 
 def require_logged_in
