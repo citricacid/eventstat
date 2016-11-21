@@ -29,7 +29,7 @@ enable :logging, :dump_errors, :raise_errors, :show_exceptions
 
 use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',
-                           :secret => 'your_secret'
+                           :secret => Settings::SECRET
 
 # -------------------------
 
@@ -51,7 +51,7 @@ def is_admin?
 end
 
 def protected!
-  halt 401, "You are not authorized to see this page!" unless admin?
+  halt 401, "Beklager. Det kreves admin-rettigheter for å benytte denne siden." unless is_admin?
 end
 
 # -------------------------
@@ -136,18 +136,18 @@ get '/manage_events' do
 
 
   get '/manage_categories' do
-    erb :manage_categories, :locals => {url: "/api/subcategory_definition", success: nil, id: nil, collection: Subcategory.all, branches: Branch.all, subcategories: Subcategory.all,
-      categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
-      event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
+    protected!
+    erb :manage_categories, :locals => {url: "/api/subcategory_definition", success: nil, id: nil, collection: Subcategory.all}
   end
 
   get '/manage_event_types' do
+    protected!
     erb :manage_categories, :locals => {url: "/api/event_type_definition", success: nil, id: nil, collection: EventType.all}
   end
 
 
   get '/schema' do
-    require_logged_in
+    protected!
 
     erb :schema, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
@@ -169,14 +169,14 @@ get '/manage_events' do
 
 
     get '/enable_javascript' do
-      erb :enable_javascript
+      erb :enable_javascript, :layout => false
     end
 
 
     # CRUDS
 
     post '/api/subcategory_definition' do
-      #require_logged_in  #superadmin
+      protected!
 
       id = params[:id].to_i
       definition = params[:definition]
@@ -192,7 +192,7 @@ get '/manage_events' do
     end
 
     post '/api/event_type_definition' do
-      #require_logged_in  #superadmin
+      protected!
 
       id = params[:id].to_i
       definition = params[:definition]
@@ -230,6 +230,8 @@ get '/manage_events' do
 
 
     put '/api/statistics' do
+      require_logged_in
+
       data = JSON.parse(request.body.read)
       branch_id = data['branch_id']
       category_id = data['category_id']
@@ -240,17 +242,7 @@ get '/manage_events' do
       maintype_id = data['maintype_id']
       subtype_id = data['subtype_id']
 
-
       puts data.inspect
-      # if event_type_id == 'sum_all' then...
-      # if event_type_id == 'iterate_all'
-
-      # if event_maintype == 'sum_all' then ...
-      # if event_maintype == 'iterate_all' then ...
-
-      # if event_subtype == ' '
-
-
 
       report_builder = ReportBuilder.new
       report_builder.set_dates(@from_date, @to_date)

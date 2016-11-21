@@ -129,6 +129,10 @@ class EventType < ActiveRecord::Base
     supercat
   end
 
+  def is_linked?(subcategory_id)
+    subcategory_ids.include?(subcategory_id) 
+  end
+
   def category_ids
     event_subtype.categories.present? ? event_subtype.category_ids : event_maintype.category_ids
   end
@@ -138,18 +142,6 @@ class EventType < ActiveRecord::Base
     event_subtype.subcategory_ids.present? ? event_subtype.subcategory_ids : event_maintype.subcategory_ids
   end
 
-  # NEW
-  def is_linked?(subcategory_id)
-    linked_subcategory_ids.include?(subcategory_id)
-  end
-
-  # NEW
-  def linked_subcategory_ids
-    #subcats = event_subtype.subcategory_link_ids.present? ? event_subtype.subcategory_link_ids : event_maintype.subcategory_link_ids
-    subcats = event_subtype.subcategories.present? ? event_subtype.subcategories : event_maintype.subcategories
-    subcats.pluck(:id)# }.flatten
-    #subcats.map {|subcategory| subcategory}.flatten
-  end
 
 end
 
@@ -158,7 +150,6 @@ class EventMaintype < ActiveRecord::Base
   has_many :event_types
   has_many :categories
   has_many :subcategories, through: :categories
-  # has_many :subcategory_links, through: :categories
 
   scope :ordered_view, -> { order('view_priority').reverse_order }
 
@@ -166,13 +157,7 @@ class EventMaintype < ActiveRecord::Base
     categories.pluck(:id)
   end
 
-
   def subcategory_ids
-    #categories.map {|category| category.subcategory_ids}.flatten
-    categories.map {|category| category.subcategories.pluck(:id)}.flatten
-  end
-
-  def subcategory_link_ids
     categories.map {|category| category.subcategories.pluck(:id)}.flatten
   end
 
@@ -197,14 +182,9 @@ class EventSubtype < ActiveRecord::Base
   end
 
   def subcategory_ids
-    #categories.map {|category| category.subcategory_ids}.flatten
     categories.map {|category| category.subcategories.pluck(:id)}.flatten
   end
 
-  def subcategory_link_ids
-    #categories.map {|category| category.subcategory_link_ids}.flatten
-    categories.map {|category| category.subcategories.pluck(:id)}.flatten
-  end
 
 end
 
@@ -217,10 +197,6 @@ class Category < ActiveRecord::Base
   belongs_to :event_maintype
   belongs_to :event_subtype
 
-  # todo: replace with delegate - remove completely?
-  #def type_name
-  #  event_maintype.name
-  #end
 
   def subcategory_associated?(subcategory_id)
       subcategories.pluck(:id).include?(subcategory_id)
@@ -234,17 +210,6 @@ class Category < ActiveRecord::Base
   def subtype_associated?(subtype_id, maintype_id)
     (event_subtype && event_subtype.id == subtype_id) || (event_subtype == nil && event_maintype.id == maintype_id )
   end
-
-  #def subcategory_ids # !!!!!!!!!!!!!!!!!!!!!
-    #subcategories.pluck(:id)
-  #  subcategory_links.pluck(:subcategory_id)
-  #end
-
-  # TODO rename
-  #def subcategory_link_ids
-  #  subcategory_links.pluck(:subcategory_id)
-  #end
-
 
 end
 
@@ -267,8 +232,5 @@ end
 class SubcategoryLink < ActiveRecord::Base
   belongs_to :subcategory
   belongs_to :category
-
-  # likely remove these...
-  #delegate :name, :definition, :subtype_associated?, :type_name, :to => :category, :allow_nil => true
 
 end
