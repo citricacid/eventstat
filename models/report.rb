@@ -146,6 +146,7 @@ def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil
     maintype_id: nil, subtype_id: nil)
     puts "maintype: " + maintype_id.to_s
     puts "subtype: " + subtype_id.to_s
+    puts "kategori: " + category_id.to_s
     Event.between_dates(@from_date, @to_date)
     .by_branch(branch_id)
     .by_maintype(maintype_id)

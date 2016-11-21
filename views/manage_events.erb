@@ -140,7 +140,7 @@ $(".nav-manage_events").addClass("active");
                   <select id="subcategory_selector" name="subcategory_id" class="form-control">
                     <option class="invalid_option" value="" disabled hidden<%= " selected" if !edit %> >-- velg --</option>
                     <% subcategories.each do |subcategory| %>
-                    <%= "<option value='#{subcategory.id}' class='#{subcategory.type_name}' " %>
+                    <%= "<option value='#{subcategory.id}' " %>
                       <%= "selected " if edit && subcategory.id == event.subcategory_id %>
                       <%= "data-has_comment='#{subcategory.has_comment}' " %>
                       <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>

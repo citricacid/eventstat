@@ -30,7 +30,7 @@ enable :logging, :dump_errors, :raise_errors, :show_exceptions
 use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',
                            :secret => 'your_secret'
-                           
+
 # -------------------------
 
 def require_logged_in
@@ -215,6 +215,9 @@ get '/manage_events' do
 
       event = is_edit ? Event.find(event_id) : Event.new
       event.attributes = event.attributes.merge(params) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
+
+      category = event.event_type.get_category_id_by(event.subcategory_id)
+      event.category_id = category.id
 
       if event.save
         session[:transaction_success] = true
