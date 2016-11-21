@@ -112,7 +112,7 @@ class Report
       calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label)
     else @categories.collection.each do |cat|
       next unless cat.subtype_associated?(subtype.id, maintype.id) ||
-       # (subtype.id == nil && cat.maintype_associated?(maintype.id)) || # hmmmm
+       (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
        (subtype.id == nil && maintype.id == nil)
 
       events = case @category_type
