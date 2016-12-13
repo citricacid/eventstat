@@ -19,6 +19,7 @@ class Event < ActiveRecord::Base
   belongs_to :age_group
   belongs_to :event_type
   belongs_to :branch
+  belongs_to :category
   belongs_to :subcategory
 
   scope :reverse, -> { order('id').reverse_order }
@@ -38,10 +39,7 @@ class Event < ActiveRecord::Base
 
 
   def self.by_category(id) # and event_type = ????
-    subcats = SubcategoryLink.where(category_id: id).pluck(:subcategory_id)
-    #id.present? ? joins(:subcategory_link).where(subcategory_links: {category_id: id}) : all
-    id.present? ? where(subcategory_id: subcats) : all
-    #all
+    id.present? ? where(category_id: id) : all
   end
 
 
@@ -114,6 +112,26 @@ class EventType < ActiveRecord::Base
     age_attributes.map {|attribute| attribute.age_group_id}.flatten
   end
 
+  # TODO: cleanup
+  def get_category_id_by(subcategory_id)
+    supercat = nil
+    categories =   event_subtype.categories.present? ? event_subtype.categories : event_maintype.categories
+    categories.each do |cat|
+      puts "kategori: " + cat.id.to_s
+      puts "subkat: " + subcategory_id.to_s
+      if cat.subcategory_associated?(subcategory_id)
+        puts "--------"
+        puts "LOKALISERT!!: " + cat.name
+        puts "--------"
+        supercat = cat
+      end
+    end
+    supercat
+  end
+
+  def is_linked?(subcategory_id)
+    subcategory_ids.include?(subcategory_id) 
+  end
 
   def category_ids
     event_subtype.categories.present? ? event_subtype.category_ids : event_maintype.category_ids
@@ -124,16 +142,6 @@ class EventType < ActiveRecord::Base
     event_subtype.subcategory_ids.present? ? event_subtype.subcategory_ids : event_maintype.subcategory_ids
   end
 
-  # NEW
-  def is_linked?(subcategory_id)
-    linked_subcategory_ids.include?(subcategory_id)
-  end
-
-  # NEW
-  def linked_subcategory_ids
-    subcats = event_subtype.subcategory_link_ids.present? ? event_subtype.subcategory_link_ids : event_maintype.subcategory_link_ids
-    subcats.map {|subcategory| subcategory}.flatten
-  end
 
 end
 
@@ -141,8 +149,7 @@ end
 class EventMaintype < ActiveRecord::Base
   has_many :event_types
   has_many :categories
-  # has_many :subcategories, through: :categories
-  has_many :subcategory_links, through: :categories
+  has_many :subcategories, through: :categories
 
   scope :ordered_view, -> { order('view_priority').reverse_order }
 
@@ -150,13 +157,8 @@ class EventMaintype < ActiveRecord::Base
     categories.pluck(:id)
   end
 
-
   def subcategory_ids
-    categories.map {|category| category.subcategory_ids}.flatten
-  end
-
-  def subcategory_link_ids
-    categories.map {|category| category.subcategory_link_ids}.flatten
+    categories.map {|category| category.subcategories.pluck(:id)}.flatten
   end
 
 end
@@ -165,7 +167,7 @@ end
 class EventSubtype < ActiveRecord::Base
   has_one :event_type
   has_many :categories
-  # has_many :subcategories, through: :categories
+  has_many :subcategories, through: :categories
 
   def associated?(maintype_id)
     event_type.event_maintype.id == maintype_id
@@ -180,27 +182,24 @@ class EventSubtype < ActiveRecord::Base
   end
 
   def subcategory_ids
-    categories.map {|category| category.subcategory_ids}.flatten
+    categories.map {|category| category.subcategories.pluck(:id)}.flatten
   end
 
-  def subcategory_link_ids
-    categories.map {|category| category.subcategory_link_ids}.flatten
-  end
 
 end
 
 
 
 class Category < ActiveRecord::Base
-  #has_many :subcategories
   has_many :subcategory_links
+  has_many :subcategories, through: :subcategory_links
 
   belongs_to :event_maintype
   belongs_to :event_subtype
 
-  # todo: replace with delegate
-  def type_name
-    event_maintype.name
+
+  def subcategory_associated?(subcategory_id)
+      subcategories.pluck(:id).include?(subcategory_id)
   end
 
   def maintype_associated?(maintype_id)
@@ -212,31 +211,26 @@ class Category < ActiveRecord::Base
     (event_subtype && event_subtype.id == subtype_id) || (event_subtype == nil && event_maintype.id == maintype_id )
   end
 
-  def subcategory_ids # !!!!!!!!!!!!!!!!!!!!!
-    #subcategories.pluck(:id)
-    subcategory_links.pluck(:subcategory_id)
-  end
-
-  # TODO rename
-  def subcategory_link_ids
-    subcategory_links.pluck(:subcategory_id)
-  end
-
-
 end
 
 
 class Subcategory < ActiveRecord::Base
-  belongs_to :category
+  has_many :subcategory_links
+  has_many :categories, through: :subcategory_links
 
-  delegate :type_name, :maintype_associated?, :subtype_associated?, :to => :category, :allow_nil => true
+  def maintype_associated?(maintype_id)
+    categories.map {|cat| cat.maintype_associated?(maintype_id)}.present?
+  end
+
+  def subtype_associated?(subtype_id, maintype_id)
+    categories.map {|cat| cat.subtype_associated?(subtype_id, maintype_id)}.present?
+  end
+
 
 end
 
 class SubcategoryLink < ActiveRecord::Base
   belongs_to :subcategory
   belongs_to :category
-
-  delegate :name, :definition, :subtype_associated?, :type_name, :to => :category, :allow_nil => true
 
 end

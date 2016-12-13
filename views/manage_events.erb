@@ -87,11 +87,11 @@ $(".nav-manage_events").addClass("active");
           <button type="button" class="toggleDefinition btn btn-default btn-sm" data-panel-is-open=false>
             <span class="glyphicon glyphicon-eye-open"></span></button>
             <select id="event_type_selector" class="form-control" name="event_type_id">
-              <option class="invalid_option" value="" disabled hidden selected>-- velg --</option>
+              <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %>>-- velg --</option>
               <% event_types.each do |type| %>
               <%= "<option value='#{type.id}' "%>
                 <%= "data-age_groups='#{type.age_group_ids}' " %>
-                <%= "data-subcategories='#{type.linked_subcategory_ids}' data-definition='#{type.definition}' " %>
+                <%= "data-subcategories='#{type.subcategory_ids}' data-definition='#{type.definition}' " %>
                 <%= "selected " if edit && type.id == event.event_type_id %>
                 <%= ">#{type.name}</option>" %>
                 <% end %>
@@ -115,7 +115,7 @@ $(".nav-manage_events").addClass("active");
             <div class="form-group">
               <label for="branch_selector">Sted:</label>
               <select id="branch_selector" class="form-control" name="branch_id">
-                <option class="invalid_option" value="" disabled hidden selected>-- velg --</option>
+                <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %>>-- velg --</option>
                 <% branches.each do |branch| %>
                 <%= "<option value='#{branch.id}' " %>
                   <%= "selected " if edit && branch.id == event.branch_id %>
@@ -140,7 +140,7 @@ $(".nav-manage_events").addClass("active");
                   <select id="subcategory_selector" name="subcategory_id" class="form-control">
                     <option class="invalid_option" value="" disabled hidden<%= " selected" if !edit %> >-- velg --</option>
                     <% subcategories.each do |subcategory| %>
-                    <%= "<option value='#{subcategory.id}' class='#{subcategory.type_name}' " %>
+                    <%= "<option value='#{subcategory.id}' " %>
                       <%= "selected " if edit && subcategory.id == event.subcategory_id %>
                       <%= "data-has_comment='#{subcategory.has_comment}' " %>
                       <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>
@@ -156,9 +156,9 @@ $(".nav-manage_events").addClass("active");
 
                   <%# --- Special: Toggled comment section for select subcategories        --- %>
                   <div class="form-group" id="comment" <%= "style='display: none;'" unless edit && event.subcategory.has_comment %>  >
-                    <label class="form-control-label" for="comment">Beskrivelse(valgfri):</label>
+                    <label class="form-control-label" for="comment_field">Beskrivelse(valgfri):</label>
                     <input type="text"
-                    name="comment" <%= " value='#{event.comment}'" if edit %> >
+                    name="comment" id="comment_field" <%= " value='#{event.comment}'" if edit %> >
                   </div>
 
 

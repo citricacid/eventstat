@@ -155,7 +155,6 @@ $(function() {
       type: "PUT"
     });
 
-
     request.done(function(data, textStatus, xhr) {
       var $tbody = $("#stats_table").find("tbody");
 
@@ -183,7 +182,6 @@ $(function() {
     request.fail(function(xhr, textStatus, errorThrown) {
       alert(textStatus);
     });
-
   });
 
 
@@ -215,12 +213,16 @@ $(function() {
 
   $('#event_maintype_selector').change();
 
+  // reset category selectors
+  resetCategories();
+  $('#category_selector').change();
+
   // higcharts
 
   $('#container').highcharts({
     title: {
       text: 'Monthly Average Temperature',
-      x: -20 //center
+      x: -20 // center
     },
     subtitle: {
       text: 'Source: WorldClimate.com',
@@ -269,8 +271,6 @@ $(function() {
   }).click(function() {
     $(this).popover('show');
   });
-
-
 
   // end hc
 });

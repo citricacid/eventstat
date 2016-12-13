@@ -1,6 +1,6 @@
 "use strict";
 
-/* global $ */
+/* global $ moment */
 
 let validationActive = false; // validation will only be activated after user has tried to submit
 
@@ -38,6 +38,14 @@ const validateAttendants = function() {
   const isOK = parseInt($attendantsInput.val(), 10) >= 0;
 
   setValidity($attendantsInput, isOK);
+  return isOK;
+};
+
+const validateDate = function() {
+  const $dateInput = $('#daterange');
+  const isOK = moment($dateInput.val()).isValid();
+
+  setValidity($dateInput, isOK);
   return isOK;
 };
 
@@ -101,7 +109,16 @@ $(function() {
       isOK = false;
     }
 
-    // daterange?
+    if (!validateDate) {
+      isOK = false;
+    }
+
+    if (isOK && !validateTitle()) {
+      const branchName = $('#branch_selector option:selected').text();
+      const dateString = $('#daterange').val();
+
+      $('#name').val(branchName + ' ' + dateString);
+    }
 
     if (!validateTitle()) {
       isOK = false;
@@ -109,7 +126,6 @@ $(function() {
 
     return isOK;
   });
-
 
 
   $('.toggleDefinition').click(function() {
@@ -149,8 +165,8 @@ $(function() {
 
 
   $('#subcategory_selector').change(function() {
-    const has_comment = $(this).find(":selected").data('has_comment');
-    $('#comment').toggle(has_comment);
+    const hasComment = $(this).find(":selected").data('has_comment');
+    $('#comment').toggle(hasComment);
 
     showOrHideDefinitions($(this));
   });
