@@ -57,14 +57,14 @@ const showOrHideDefinitions = function($selector) {
 
 const setVisibleOptions = function($selector, visibleValues) {
   if (!visibleValues) {
-    $selector.find('option').hide();
+    $selector.find('option').css('display','none');
   } else if (visibleValues.length > 0) {
-    $selector.find('option').hide();
+    $selector.find('option').css('display','none');
     visibleValues.forEach(function(id) {
-      $($selector).find("option[value=" + id + "]").show();
+      $($selector).find("option[value=" + id + "]").css('display','block');
     });
   } else { // check: is this really the desired outcome?
-    $selector.find('option').show();
+    $selector.find('option').css('display','block');
   }
 };
 
@@ -120,7 +120,7 @@ $(function() {
     if (status) {
       $span.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
       $(this).data('panel-is-open', false);
-      $panel.hide();
+      $panel.css('display','none');
     } else {
       $span.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
       $(this).data('panel-is-open', true);
