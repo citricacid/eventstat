@@ -65,14 +65,14 @@ const showOrHideDefinitions = function($selector) {
 
 const setVisibleOptions = function($selector, visibleValues) {
   if (!visibleValues) {
-    $selector.find('option').css('display','none');
+    $selector.find('option').attr('disabled', 'disabled').hide();  //css('display','none');
   } else if (visibleValues.length > 0) {
-    $selector.find('option').css('display','none');
+    $selector.find('option').attr('disabled', 'disabled').hide();  //  css('display','none');
     visibleValues.forEach(function(id) {
-      $($selector).find("option[value=" + id + "]").css('display','block');
+      $($selector).find("option[value=" + id + "]").removeAttr('disabled').show();     //css('display','block');
     });
   } else { // check: is this really the desired outcome?
-    $selector.find('option').css('display','block');
+    $selector.find('option').removeAttr('disabled').show(); // css('display','block');
   }
 };
 
