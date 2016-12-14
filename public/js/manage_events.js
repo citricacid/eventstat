@@ -76,13 +76,12 @@ const setVisibleOptions = function($selector, allOptions, visibleValues) {
     visibleValues.forEach(function(id) {
       $selector.append(allOptions.filter("option[value=" + id + "]"));
     });
-  } else { // check: is this really the desired outcome?
+  } else {
     $selector.find('option').detach();
     $selector.append(allOptions);
   }
 
   const reselectOption = $selector.find('option[value=' + selectedValue + ']');
-  var bar = reselectOption.hasClass('invalid_option') ? 'velg' : 'noe annet';
 
   // is previously selected option viable?
   if (reselectOption.length === 1 && !reselectOption.hasClass('invalid_option')) {
@@ -97,6 +96,7 @@ const setVisibleOptions = function($selector, allOptions, visibleValues) {
 
 };
 
+// no longer needed?!
 const determineSelectedOption = function($selector) {
   const $selected = $selector.find(':selected').first();
   const visibleOptions = $selector.find(':visible');
