@@ -138,7 +138,7 @@ $(".nav-manage_events").addClass("active");
                 <button type="button" class="toggleDefinition btn btn-default btn-sm" data-panel-is-open=false>
                   <span class="glyphicon glyphicon-eye-open"></span></button>
                   <select id="subcategory_selector" name="subcategory_id" class="form-control">
-                    <option class="invalid_option" value="" disabled hidden<%= " selected" if !edit %> >-- velg --</option>
+                    <option class="invalid_option" value="0" disabled hidden<%= " selected" if !edit %> >-- velg --</option>
                     <% subcategories.each do |subcategory| %>
                     <%= "<option value='#{subcategory.id}' " %>
                       <%= "selected " if edit && subcategory.id == event.subcategory_id %>
@@ -169,7 +169,7 @@ $(".nav-manage_events").addClass("active");
                     <div class="row">
                       <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
                         <select class="form-control input-group-md" id="age_group_selector" name="age_group_id">
-                          <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
+                          <option class="invalid_option" value="0" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
                           <% age_groups.each do |age| %>
                           <%= "<option value=#{age.id}" %>
                             <%= ' selected' if edit && age.id == event.age_group_id %>

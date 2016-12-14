@@ -63,17 +63,38 @@ const showOrHideDefinitions = function($selector) {
   $panel.toggle(isOpen && hasDefinition);
 };
 
-const setVisibleOptions = function($selector, visibleValues) {
+
+
+
+const setVisibleOptions = function($selector, allOptions, visibleValues) {
+  const selectedValue = $selector.find(':selected').first().val();
+
   if (!visibleValues) {
-    $selector.find('option').attr('disabled', 'disabled').hide();  //css('display','none');
+    $selector.find('option').not('.invalid_option').detach();
   } else if (visibleValues.length > 0) {
-    $selector.find('option').attr('disabled', 'disabled').hide();  //  css('display','none');
+    $selector.find('option').not('.invalid_option').detach();
     visibleValues.forEach(function(id) {
-      $($selector).find("option[value=" + id + "]").removeAttr('disabled').show();     //css('display','block');
+      $selector.append(allOptions.filter("option[value=" + id + "]"));
     });
   } else { // check: is this really the desired outcome?
-    $selector.find('option').removeAttr('disabled').show(); // css('display','block');
+    $selector.find('option').detach();
+    $selector.append(allOptions);
   }
+
+  const reselectOption = $selector.find('option[value=' + selectedValue + ']');
+  var bar = reselectOption.hasClass('invalid_option') ? 'velg' : 'noe annet';
+
+  // is previously selected option viable?
+  if (reselectOption.length === 1 && !reselectOption.hasClass('invalid_option')) {
+    reselectOption.prop('selected', 'true');
+  // if not, check if there is only one viable
+  } else if ($selector.find('option').length === 2 ) {
+    $selector.find('option').last().prop('selected', true);
+  // failing that, fall back to original option
+  } else {
+    $selector.find('option').first().prop('selected', true);
+  }
+
 };
 
 const determineSelectedOption = function($selector) {
@@ -152,15 +173,15 @@ $(function() {
     const ageGroups = $(this).find(':selected').data('age_groups');
     const $ageGroupSelector = $('#age_group_selector');
 
-    setVisibleOptions($ageGroupSelector, ageGroups);
-    determineSelectedOption($ageGroupSelector);
+    setVisibleOptions($ageGroupSelector, ageValues, ageGroups);
+    //determineSelectedOption($ageGroupSelector);
 
     // handle subcategories
     const subcategories = $(this).find(':selected').data('subcategories');
     const $subcategorySelector = $('#subcategory_selector');
 
-    setVisibleOptions($subcategorySelector, subcategories);
-    determineSelectedOption($subcategorySelector);
+    setVisibleOptions($subcategorySelector, subcategoryValues, subcategories);
+    //determineSelectedOption($subcategorySelector);
   });
 
 
@@ -193,6 +214,9 @@ $(function() {
   //
   // initialize form
   //
+
+  let subcategoryValues = $('#subcategory_selector').find("option")
+  let ageValues = $('#age_group_selector').find("option")
 
   $('#event_type_selector').change(); // fire change to set up dependent selectors
   showOrHideDefinitions($("#subcategory_selector"));
