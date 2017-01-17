@@ -66,7 +66,7 @@ $(".nav-statistics").addClass("active");
             <% event_maintypes.ordered_view.each do |type| %>
             <%= %Q(<option value='#{type.id}' data-subtype_name='#{type.name}'
                 data-subcategories='#{type.subcategory_ids}'
-                data-categories='#{type.category_ids}'>#{type.name}</option>) %>
+                data-categories='#{type.category_ids}'>#{type.label}</option>) %>
             <% end %>
           </select>
         </div>

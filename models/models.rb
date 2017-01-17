@@ -81,11 +81,14 @@ end
 class Branch < ActiveRecord::Base
   has_many :events
   has_many :counts, :through => :events
+
+  default_scope { order(:name => :asc) }
 end
 
 
 
 class AgeGroup < ActiveRecord::Base
+  default_scope { order(:view_priority => :asc) }
   enum age_category: { adult: 0, non_adult: 1 }
 
 end
