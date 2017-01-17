@@ -11,7 +11,7 @@ $.fn.isVisible = function() {
     rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
     rect.left <= (window.innerWidth || document.documentElement.clientWidth)
   );
-}.bind(this);
+};
 
 $(function() {
   const showDefinition = function($item, removeAlert) {
