@@ -13,33 +13,76 @@ $.fn.isVisible = function() {
   );
 };
 
-// document ready
 $(function() {
-  const adjustView = function($button, removeAlert) {
-    $('.my_button').removeClass('active');
-    $button.addClass('active');
+  const showDefinition = function($item, removeAlert) {
+    $('.items_list').removeClass('active');
+    $item.addClass('active');
 
-    $("#definition_area").val($button.data('definition'));
-    $("#id_input").val($button.data('id'));
+    $("#definition_area").val($item.data('definition'));
+    $("#definition_id").val($item.data('id'));
 
     if (removeAlert) {
-      $('.alert').remove();
+      $('.alert').hide();
     }
 
-    if (!$button.isVisible()) {
-      let offset = $button.offset().top;
-      $('.list-group').scrollTop(offset);
+    // If item is not in visible part of list, scroll down to it
+    if (!$item.isVisible()) {
+      const offset = $item.offset().top;
+      $('.items_list').scrollTop(offset);
     }
   };
 
-  // button handler
-  $('.my_button').click(function() {
-    adjustView($(this), true);
+  $('.items_list').click(function() {
+    showDefinition($(this), true);
   });
 
-  // initializing page
-  let editedItem = $('.my_button').filter("#active");
-  let foo = editedItem.length > 0 ? editedItem : $('.my_button').first();
+  $('#toggle_sortable').click(function() {
+    const toggleSwitch = $('#sortable').sortable('option', 'disabled');
 
-  adjustView(foo, false);
+    $('#save_priority_list').toggle(toggleSwitch);
+    $('#sortable').sortable('option', 'disabled', !toggleSwitch);
+
+    if (toggleSwitch) {
+      $('#toggle_sortable').removeClass().addClass('btn btn-success');
+      $('#status_text')
+      .html('Endre rekkefølgen ved å dra elementene opp eller ned')
+      .removeClass().addClass('text-info').show();
+    } else {
+      $('#toggle_sortable').removeClass().addClass('btn btn-info');
+      $('#status_text').html('');
+    }
+  });
+
+  $('#save_priority_list').click(function() {
+    const url = $(this).data('post-to');
+    const priorityList = {};
+    $('.items_list').each(function(index) {
+      priorityList[$(this).data('id')] = index;
+    });
+
+    $.ajax({
+      url: url,
+      dataType: "json",
+      contentType: "application/json; charset=UTF-8",
+      data: JSON.stringify({priority_list: priorityList}),
+      type: "POST"
+    }).done(function(data) {
+      $('#status_text').removeClass().addClass('text-success')
+      .html(data.message).show().fadeOut(5000);
+    }).fail(function(data, textStatus, xhr) {
+      $('#status_text').removeClass().addClass('text-danger')
+      .html("Beklager. Teknisk feil: " + xhr).show().fadeOut(10000);
+    });
+  });
+
+  // initialize page
+  const editedItem = $('.items_list').filter("#active");
+  if (editedItem.length) {
+    showDefinition(editedItem, false);
+  } else {
+    showDefinition($('.items_list').first(), false);
+  }
+
+  $('#sortable').sortable({axis: 'y'});
+  $('#toggle_sortable').click();
 });

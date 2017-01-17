@@ -5,19 +5,28 @@ $(".nav-admin").addClass("active");
 <script src="/js/manage_categories.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/custom.css" />
 
+<div class="row">
+  <button type="button" id="toggle_sortable" class="btn btn-info">Rediger rekkefølge</button>
+  <button type="button" id="save_priority_list" class="btn btn-success"
+    <%= " data-post-to='#{pri_url}'" %>>Lagre rekkefølge</button>
+  <span id="status_text"></span>
+</div>
+
 <div class="row limit">
   <div class="col-sm-4 list-group">
+    <ul id="sortable" class="list-unstyled">
       <% collection.each do |item| %>
-      <%= "<button type='button' class='my_button list-group-item list-group-item-action' " %>
+      <%= "<li><a class='items_list list-group-item list-group-item-action' " %>
         <%= "id='active' " if !id.nil? && id == item.id %>
-       <%= "data-id='#{item.id}' data-definition='#{item.definition}'>#{item.name}</button>" %>
+       <%= "data-id='#{item.id}' data-definition='#{item.definition}'>#{item.name}</a></li>" %>
       <% end %>
+    </ul>
   </div>
 
   <div class="col-sm-8">
     <h4>Definisjon</h4>
-    <%= "<form action='#{url}' method='post'>" %>
-      <input hidden name="id" id="id_input">
+    <%= "<form action='#{def_url}' method='post'>" %>
+      <input hidden name="id" id="definition_id">
     <p><textarea rows="6" cols="60" name="definition" id="definition_area">
     </textarea></p>
      <p><input type="submit" class="btn btn-primary" value="Lagre">

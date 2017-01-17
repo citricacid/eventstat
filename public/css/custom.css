@@ -2,3 +2,9 @@
   max-height:600px;
   overflow-y:scroll;
 }
+
+.summation_row {
+  display: block;
+  border-top: 5px solid #000;
+  filter: invert(100%);
+}

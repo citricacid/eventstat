@@ -2,8 +2,6 @@
 
 /* global $ moment */
 
-let validationActive = false; // validation will only be activated after user has tried to submit
-
 //
 // helper functions
 //
@@ -35,7 +33,13 @@ const validateTitle = function() {
 
 const validateAttendants = function() {
   const $attendantsInput = $('#attendants');
-  const isOK = parseInt($attendantsInput.val(), 10) >= 0;
+  let isOK = true;
+
+  if ($attendantsInput.data('is_countable')) {
+    isOK = parseInt($attendantsInput.val(), 10) >= 0;
+  } else {
+    $attendantsInput.val(0);
+  }
 
   setValidity($attendantsInput, isOK);
   return isOK;
@@ -52,7 +56,7 @@ const validateDate = function() {
 // selector handling
 const showOrHideDefinitions = function($selector) {
   const definition = $selector.find(":selected").data('definition');
-  const $button = $selector.siblings('button');
+  const $button = $selector.closest('.panel_group').find('.toggleDefinition').first();
   const isOpen = $button.data('panel-is-open');
   const $panel = $button.siblings('.panel');
   $panel.find('.panel-body').html(definition);
@@ -62,9 +66,6 @@ const showOrHideDefinitions = function($selector) {
   $button.toggle(hasDefinition);
   $panel.toggle(isOpen && hasDefinition);
 };
-
-
-
 
 const setVisibleOptions = function($selector, allOptions, visibleValues) {
   const selectedValue = $selector.find(':selected').first().val();
@@ -87,67 +88,48 @@ const setVisibleOptions = function($selector, allOptions, visibleValues) {
   if (reselectOption.length === 1 && !reselectOption.hasClass('invalid_option')) {
     reselectOption.prop('selected', 'true');
   // if not, check if there is only one viable
-  } else if ($selector.find('option').length === 2 ) {
+  } else if ($selector.find('option').length === 2) {
     $selector.find('option').last().prop('selected', true);
-  // failing that, fall back to original option
+  // failing that, fall back to default option
   } else {
     $selector.find('option').first().prop('selected', true);
-  }
-
-};
-
-// no longer needed?!
-const determineSelectedOption = function($selector) {
-  const $selected = $selector.find(':selected').first();
-  const visibleOptions = $selector.find(':visible');
-
-  if (visibleOptions.length === 1) {
-    visibleOptions.prop("selected", true);
-  } else if ($selected.css('display') === 'none') {
-    $selector.find('.invalid_option').prop("selected", true);
   }
 };
 
 // document ready
 $(function() {
+  const $ageGroupSelector = $('#age_group_selector');
+  const $subcategorySelector = $('#subcategory_selector');
+  const $eventTypeSelector = $('#event_type_selector');
+  const $branchSelector = $('#branch_selector');
+
+  let validationActive = false; // validation will only be activated after user has tried to submit
+  let subcategoryValues = $subcategorySelector.find("option");
+  let ageValues = $ageGroupSelector.find("option");
+
   $("form").submit(function() {
     validationActive = true;
-    let isOK = true;
+    let isValid = true;
 
-    if (!validateSelection($('#event_type_selector'))) {
-      isOK = false;
-    }
+    isValid = validateSelection($eventTypeSelector) && isValid;
+    isValid = validateSelection($branchSelector) && isValid;
+    isValid = validateSelection($subcategorySelector) && isValid;
+    isValid = validateSelection($ageGroupSelector) && isValid;
+    isValid = validateAttendants() && isValid;
+    isValid = validateDate && isValid;
 
-    if (!validateSelection($('#branch_selector'))) {
-      isOK = false;
-    }
-
-    if (!validateSelection($('#subcategory_selector'))) {
-      isOK = false;
-    }
-
-    if (!validateAttendants()) {
-      isOK = false;
-    }
-
-    if (!validateDate) {
-      isOK = false;
-    }
-
-    if (isOK && !validateTitle()) {
+    // If only title is invalid, generate a default one
+    if (isValid && !validateTitle()) {
       const branchName = $('#branch_selector option:selected').text();
       const dateString = $('#daterange').val();
 
       $('#name').val(branchName + ' ' + dateString);
     }
 
-    if (!validateTitle()) {
-      isOK = false;
-    }
+    isValid = validateTitle() && isValid;
 
-    return isOK;
+    return isValid;
   });
-
 
   $('.toggleDefinition').click(function() {
     const $panel = $(this).siblings('.panel');
@@ -157,7 +139,7 @@ $(function() {
     if (status) {
       $span.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
       $(this).data('panel-is-open', false);
-      $panel.css('display','none');
+      $panel.css('display', 'none');
     } else {
       $span.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
       $(this).data('panel-is-open', true);
@@ -165,30 +147,33 @@ $(function() {
     }
   });
 
-
-  $('#event_type_selector').change(function() {
-    showOrHideDefinitions($("#event_type_selector"));
+  $eventTypeSelector.change(function() {
+    showOrHideDefinitions($(this));
 
     // handle age groups
     const ageGroups = $(this).find(':selected').data('age_groups');
-    const $ageGroupSelector = $('#age_group_selector');
-
     setVisibleOptions($ageGroupSelector, ageValues, ageGroups);
-    //determineSelectedOption($ageGroupSelector);
 
     // handle subcategories
     const subcategories = $(this).find(':selected').data('subcategories');
-    const $subcategorySelector = $('#subcategory_selector');
-
     setVisibleOptions($subcategorySelector, subcategoryValues, subcategories);
-    //determineSelectedOption($subcategorySelector);
+
+    // handle counts
+    const isCountable = $subcategorySelector.find(":selected").data('is_countable');
+    $('#attendants').data('is_countable', isCountable).toggle(isCountable);
   });
 
-
-  $('#subcategory_selector').change(function() {
+  $subcategorySelector.change(function() {
     const hasComment = $(this).find(":selected").data('has_comment');
     $('#comment').toggle(hasComment);
 
+    const isCountable = $subcategorySelector.find(":selected").data('is_countable');
+    $('#attendants').data('is_countable', isCountable).toggle(isCountable);
+
+    showOrHideDefinitions($(this));
+  });
+
+  $ageGroupSelector.change(function() {
     showOrHideDefinitions($(this));
   });
 
@@ -215,12 +200,10 @@ $(function() {
   // initialize form
   //
 
-  let subcategoryValues = $('#subcategory_selector').find("option")
-  let ageValues = $('#age_group_selector').find("option")
+  $eventTypeSelector.change(); // fire change to set up dependent selectors
+  showOrHideDefinitions($subcategorySelector);
+  showOrHideDefinitions($ageGroupSelector);
 
-  $('#event_type_selector').change(); // fire change to set up dependent selectors
-  showOrHideDefinitions($("#subcategory_selector"));
-  // $('#subcategory_selector').change();
   // initialize daterange picker
   $("input[name='date']").daterangepicker(
     {

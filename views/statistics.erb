@@ -11,8 +11,8 @@ $(".nav-statistics").addClass("active");
 <script src="/js/statistics.js"></script>
 <script src="/js/table_to_csv.js"></script>
 
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
 
 <ul class="nav nav-tabs">
   <li class="active"><a data-toggle="tab" href="#freestyle">Egendefinert</a></li>
@@ -121,7 +121,6 @@ $(".nav-statistics").addClass("active");
             <button type="button" class="btn btn-secondary" id="submit">Hent</button>
             <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
             <a href="#" id ="copy_to_clipboard" class='btn btn-secondary'>Til utklippstavle</a>
-            <a id="demo" href="#" tabindex="0" class="btn btn-success" data-toggle="popover" title="Line Chart">Click for Chart</a>
 
           </div>
         </div>
@@ -137,12 +136,13 @@ $(".nav-statistics").addClass("active");
               <th>Periode</th>
               <th>Sted</th>
               <th>Kategori</th>
-              <th>Barn/unge</th>
-              <th>Voksne</th>
-              <th>Samlet</th>
-              <th>Ant. arr</th>
+              <th data-is-accumulative=true>Barn/unge</th>
+              <th data-is-accumulative=true>Voksne</th>
+              <th data-is-accumulative=true>Samlet</th>
+              <th data-is-accumulative=true>Ant. arr</th>
               <th>Type</th>
               <th>Undertype</th>
+              <th></th>
             </tr>
           </thead>
           <tbody></tbody>

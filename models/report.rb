@@ -1,4 +1,5 @@
 # encoding: utf-8
+require 'csv'
 
 class ReportBuilder
   def initialize
@@ -56,15 +57,30 @@ end
 
 
 Filter = Struct.new(:collection, :sum_all)
-Foo = Struct.new(:id, :label)
+Foo = Struct.new(:id, :label) # TODO FIX ME
 
 class Report
   attr_accessor :from_date, :to_date, :branches, :categories, :category_type, :maintypes, :subtypes
 
   def get_results
-    puts @report.inspect # delete
     @results = []
     traverse_branches
+
+    puts @results.inspect # delete
+
+    attributes = %w{id email name}
+
+    # remove this
+    csv_string = CSV.generate(headers: true) do |csv|
+      csv << attributes
+
+      @results.flatten.each do |row|
+        csv << row.values
+      end
+    end
+
+    puts csv_string
+
 
     {results: @results.flatten}.to_json
   end
@@ -98,7 +114,6 @@ class Report
     else
       @subtypes.collection.each do |subtype|
         next unless maintype.id == nil || subtype.associated?(maintype.id)
-        #next unless subtype.associated?(maintype.id) # not tested, new attempt
 
         traverse_categories(branch, maintype, Foo.new(subtype.id, subtype.label))
       end
@@ -119,8 +134,6 @@ class Report
         when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
         when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
       end
-
-      puts events.inspect
 
       calculate_result(branch_name: branch.label, category_name: cat.name,
       events: events, subtype: subtype.label, maintype: maintype.label)

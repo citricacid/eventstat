@@ -28,6 +28,7 @@ set :server, %w[thin webrick]
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
 
 use Rack::Session::Cookie, :key => 'rack.session',
+                           :secure => true,
                            :path => '/',
                            :secret => Settings::SECRET
 
@@ -137,14 +138,21 @@ get '/manage_events' do
 
   get '/manage_categories' do
     protected!
-    erb :manage_categories, :locals => {url: "/api/subcategory_definition", success: nil, id: nil, collection: Subcategory.all}
+    erb :manage_categories, :locals => {def_url: "/api/subcategory_definition",
+      pri_url: "/api/subcategory_priority_list",success: nil, id: nil, collection: Subcategory.all}
   end
 
   get '/manage_event_types' do
     protected!
-    erb :manage_categories, :locals => {url: "/api/event_type_definition", success: nil, id: nil, collection: EventType.all}
+    erb :manage_categories, :locals => {def_url: "/api/event_type_definition",
+       pri_url: "/api/event_type_priority_list", success: nil, id: nil, collection: EventType.all}
   end
 
+  get '/manage_age_groups' do
+    protected!
+    erb :manage_categories, :locals => {def_url: "/api/age_group_definition",
+       pri_url: "/api/age_group_priority_list", success: nil, id: nil, collection: AgeGroup.all}
+  end
 
   get '/schema' do
     protected!
@@ -186,10 +194,10 @@ get '/manage_events' do
 
       success = subcategory.save
 
-      erb :manage_categories, :locals => {url: "/api/subcategory_definition", success: success, id: id, collection: Subcategory.all, branches: Branch.all, subcategories: Subcategory.all,
-        categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
-        event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
+      erb :manage_categories, :locals => {def_url: "/api/subcategory_definition",
+         pri_url: "/api/subcategory_priority_list", success: success, id: id, collection: Subcategory.all}
     end
+
 
     post '/api/event_type_definition' do
       protected!
@@ -202,9 +210,68 @@ get '/manage_events' do
 
       success = item.save
 
-      erb :manage_categories, :locals => {url: "/api/event_type_definition", success: success, id: id, collection: EventType.all}
+      erb :manage_categories, :locals => {def_url: "/api/event_type_definition",
+         pri_url: "/api/event_type_priority_list", success: success, id: id, collection: EventType.all}
     end
 
+    post '/api/age_group_definition' do
+      protected!
+
+      id = params[:id].to_i
+      definition = params[:definition]
+
+      item = AgeGroup.find(id)
+      item.definition = definition
+
+      success = item.save
+
+      erb :manage_categories, :locals => {def_url: "/api/age_group_definition",
+         pri_url: "/api/age_group_priority_list", success: success, id: id, collection: AgeGroup.all}
+    end
+
+
+    post '/api/subcategory_priority_list' do
+      protected!
+
+      priority_list = JSON.parse( request.body.read)["priority_list"]
+      update_priority_list("Subcategory", priority_list)
+    end
+
+
+    post '/api/event_type_priority_list' do
+      protected!
+
+      priority_list = JSON.parse( request.body.read)["priority_list"]
+      update_priority_list("EventType", priority_list)
+    end
+
+    post '/api/age_group_priority_list' do
+      protected!
+
+      priority_list = JSON.parse( request.body.read)["priority_list"]
+      update_priority_list("AgeGroup", priority_list)
+    end
+
+
+    def update_priority_list(model_name, priority_list)
+      model = model_name.constantize
+      success = false
+
+      ActiveRecord::Base.transaction do
+        priority_list.each do |id, priority|
+          model.find(id).update!(view_priority: priority)
+        end
+        success = true
+      end
+
+      if success
+        status 200
+        {message: "OK. Lagret"}.to_json
+      else
+        status 400
+        {message: "Beklager, det oppsto en feil"}.to_json
+      end
+    end
 
 
     post '/api/event' do
@@ -220,6 +287,8 @@ get '/manage_events' do
       event.category_id = category.id
 
       if event.save
+        type = is_edit ? "MODIFY EVENT: " : "ADD EVENT: "
+        logger.info type + event.inspect
         session[:transaction_success] = true
         erb :receipt, :locals => {event: event}
       else
@@ -242,18 +311,14 @@ get '/manage_events' do
       maintype_id = data['maintype_id']
       subtype_id = data['subtype_id']
 
-      puts data.inspect
-
       report_builder = ReportBuilder.new
       report_builder.set_dates(@from_date, @to_date)
       report_builder.set_branch(branch_id)
       report_builder.set_type(maintype_id, subtype_id)
       report_builder.set_category(category_id, subcategory_id)
 
-
       report = report_builder.report
-      res = report.get_results
-      res
+      report.get_results
 
     end
 
@@ -261,4 +326,5 @@ get '/manage_events' do
     # needed when using the Sinatra::Reloader to avoid draining the connection pool
     after do
       ActiveRecord::Base.clear_active_connections!
+      # puts request.inspect
     end

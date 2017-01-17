@@ -106,6 +106,7 @@ class EventType < ActiveRecord::Base
 
   has_many :age_attributes
 
+  default_scope { order(:view_priority => :asc) }
   scope :ordered_view, -> { joins(:event_maintype).order('event_maintypes.view_priority').reverse_order }
 
   def age_group_ids
@@ -114,15 +115,10 @@ class EventType < ActiveRecord::Base
 
   # TODO: cleanup
   def get_category_id_by(subcategory_id)
-    supercat = nil
+    supercat = nil # rename this
     categories =   event_subtype.categories.present? ? event_subtype.categories : event_maintype.categories
     categories.each do |cat|
-      puts "kategori: " + cat.id.to_s
-      puts "subkat: " + subcategory_id.to_s
       if cat.subcategory_associated?(subcategory_id)
-        puts "--------"
-        puts "LOKALISERT!!: " + cat.name
-        puts "--------"
         supercat = cat
       end
     end
@@ -130,7 +126,7 @@ class EventType < ActiveRecord::Base
   end
 
   def is_linked?(subcategory_id)
-    subcategory_ids.include?(subcategory_id) 
+    subcategory_ids.include?(subcategory_id)
   end
 
   def category_ids
@@ -185,7 +181,6 @@ class EventSubtype < ActiveRecord::Base
     categories.map {|category| category.subcategories.pluck(:id)}.flatten
   end
 
-
 end
 
 
@@ -217,6 +212,8 @@ end
 class Subcategory < ActiveRecord::Base
   has_many :subcategory_links
   has_many :categories, through: :subcategory_links
+
+  default_scope { order(:view_priority => :asc) }
 
   def maintype_associated?(maintype_id)
     categories.map {|cat| cat.maintype_associated?(maintype_id)}.present?
