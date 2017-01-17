@@ -26,8 +26,59 @@ $(".nav-statistics").addClass("active");
 <div class="tab-content">
 
   <div id="user_guide" class="tab-pane fade">
-    <h2>Kommer snart</h2>
+    <div class="panel panel-default">
+  <div class="panel-body" style="width: 60%;">
+
+
+    <h2>Typer og kategorier</h2>
+    <ul>
+
+<li><b>Type og undertype:</b>
+  Vi skiller mellom tre (hoved)typer: Arrangement, Arrangement for klasser og barnehager,
+   og Utstillinger. Disse inndeles så i undertyper, som feks Arrangement i egen regi
+    og Arrangement i ekstern regi.</li>
+<p></p>
+<li><b>Kategori og underkategori:</b>
+ Kategorier gir en bred inndeling tilpasset kommunens krav til rapportering,
+  mens underkategorier er en fininndeling tilpasset våre interne behov.
+   Brukere som legger inn et arrangement oppgir kun undertype og underkategori,
+    og systemet avleder så kategorien på bakgrunn av disse opplysningene.</li>
+</ul>
+
+<h2>Generering av rapporter</h2>
+
+<p>Statistikkgeneratoren er fleksibel, men kanskje ikke veldig intuitiv...
+   Her kommer et forsøk på å forklare:</p>
+
+<p>Når periode er valgt, kan rapport-tilfanget tilpasses gjennom valg av sted,
+   type, undertype, og kategori eller underkategori. For hver av disse kan man velge:</p>
+
+<ul>
+<li><b>Samlet</b> - alt legges sammen under ett (Eks: alle filialer regnes som en)</li>
+<li><b>Alle</b> - lager en linje for hver oppføring (Eks: en linje for hver filial)</li>
+<li><b>Individuell</b> - lager kun linje for valgte (Eks: Smestad)</li>
+</ul>
+<p>Bemerk at man må velge type før valg av undertype blir synlig.</p>
+
+<p>Ved å kombinere disse, kan man få dekket de fleste rapportbehov.
+   Man kan ikke ødelegge noe ved å søke, så det er bare å prøve seg frem.</p>
+
+<p>Noen eksempler:</p>
+
+<ul><li><b>Arrangement for barnehager:</b>
+ Velg type: 'Arrangement for klasser og barnehager', deretter 'Barnehager'
+  fra radio-menyen som dukker opp til høyre. Velg deretter
+   Alle fra kategori og trykk på "Hent".</li>
+<p></p>
+<li><b>Alle arrangement utenom klassebesøk og bibliotekinfo/omvisning:</b>
+ Velg type: 'Arrangement' og kategori: 'Alle', trykk deretter på 'Hent'.
+ Deretter kan klassebesøk og bibliotekinfo klikkes bort fra resultatlisten
+ vha den røde fjerningsknappen.</li>
+ </ul>
   </div>
+</div>
+</div>
+
 
   <div id="predefined" class="tab-pane fade">
     <h2>Kommer snart</h2>
