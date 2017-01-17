@@ -28,7 +28,7 @@ set :server, %w[thin webrick]
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
 
 use Rack::Session::Cookie, :key => 'rack.session',
-                           :secure => true,
+                           #:secure => true,
                            :path => '/',
                            :secret => Settings::SECRET
 

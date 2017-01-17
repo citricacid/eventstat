@@ -235,7 +235,7 @@ $(function() {
   });
 
   // set the quickpicker to current quarter and fire change
-  $("#select_year").last().prop("selected", true);
+  $("#select_year").children().last().prop("selected", true);
   const date = new Date();
   const dateString = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
   const currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
