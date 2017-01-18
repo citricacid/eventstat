@@ -66,7 +66,7 @@ class Report
     @results = []
     traverse_branches
 
-    puts @results.inspect # delete
+    # puts @results.inspect # delete
 
     attributes = %w{id email name}
 
@@ -79,7 +79,7 @@ class Report
       end
     end
 
-    puts csv_string
+    #puts csv_string
 
 
     {results: @results.flatten}.to_json
@@ -157,9 +157,6 @@ def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil
 
   def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
     maintype_id: nil, subtype_id: nil)
-    puts "maintype: " + maintype_id.to_s
-    puts "subtype: " + subtype_id.to_s
-    puts "kategori: " + category_id.to_s
     Event.between_dates(@from_date, @to_date)
     .by_branch(branch_id)
     .by_maintype(maintype_id)

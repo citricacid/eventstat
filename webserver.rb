@@ -13,6 +13,7 @@ require 'date'
 require_relative 'models/models'
 require_relative 'models/report'
 require_relative 'settings'
+require_relative 'log'
 
 ActiveRecord::Base.establish_connection(Settings::DBWEB)
 
@@ -21,9 +22,7 @@ set :bind, '0.0.0.0' if development?
 set :port, 5100 if development?
 enable :show_exceptions if development?
 
-set :server, %w[thin webrick]
-#set :session_secret, "328479283uf923fu8932fu923uf9832f23f232"
-#set :sessions, key: Settings::SESSION_KEY, secret: Settings::SECRET
+set :server, %w[thin webrick] if development?
 
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
 
@@ -31,6 +30,20 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            #:secure => true,
                            :path => '/',
                            :secret => Settings::SECRET
+
+dev = development?
+
+# Sets up logging of uncaught errors
+error_logger = ::File.new(::File.join(::File.dirname(::File.expand_path(__FILE__)),'logs','error.log'),"a+")
+error_logger.sync = true
+
+before {
+  error_logger << "hola" if dev
+  env["rack.errors"] = error_logger
+}
+
+
+
 
 # -------------------------
 
@@ -95,8 +108,8 @@ end
 get '/manage_events' do
   require_logged_in
 
-  error = session[:transaction_error] == true
-  session[:transaction_error] = nil
+  error = session.delete(:transaction_error)
+  #session[:transaction_error] = nil
 
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
@@ -107,8 +120,8 @@ get '/manage_events' do
   get '/view_events' do
     require_logged_in
 
-    success = session[:transaction_success] == true
-    session[:transaction_success] = nil
+    success = session.delete(:transaction_success) # == true
+    #session[:transaction_success] = nil
 
     page_number = params[:page_number].present? ? params[:page_number].to_i : 1
     limit = params[:viev_all].present? ? Event.all.size : 10
@@ -124,8 +137,8 @@ get '/manage_events' do
   get '/edit_event/:event_id' do
     require_logged_in
 
-    error = session[:transaction_error] # .delete ?!
-    session[:transaction_error] = nil
+    error = session.delete(:transaction_error) # .delete ?!
+    #session[:transaction_error] = nil
 
     event_id = params['event_id']
 
@@ -167,8 +180,8 @@ get '/manage_events' do
   get '/view_statistics' do
     require_logged_in
 
-    error = session[:transaction_error]
-    session[:transaction_error] = nil
+    error = session.delete(:transaction_error)
+    #session[:transaction_error] = nil
 
     erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
@@ -289,6 +302,8 @@ get '/manage_events' do
       if event.save
         type = is_edit ? "MODIFY EVENT: " : "ADD EVENT: "
         logger.info type + event.inspect
+        Log.log.info type + event.inspect
+
         session[:transaction_success] = true
         erb :receipt, :locals => {event: event}
       else
@@ -326,5 +341,4 @@ get '/manage_events' do
     # needed when using the Sinatra::Reloader to avoid draining the connection pool
     after do
       ActiveRecord::Base.clear_active_connections!
-      # puts request.inspect
     end
