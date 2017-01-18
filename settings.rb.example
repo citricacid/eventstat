@@ -8,7 +8,7 @@ SECRET = 'wooden shoe'
 USERNAME = 'bibstat'
 PW = 'secret'
 
-ADMINNAME = 'bibadmin'
+ADMINNAME = ''
 PWADMIN = 'secret2'
 
 

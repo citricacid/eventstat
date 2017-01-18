@@ -31,18 +31,14 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',
                            :secret => Settings::SECRET
 
-dev = development?
 
 # Sets up logging of uncaught errors
 error_logger = ::File.new(::File.join(::File.dirname(::File.expand_path(__FILE__)),'logs','error.log'),"a+")
 error_logger.sync = true
 
 before {
-  error_logger << "hola" if dev
   env["rack.errors"] = error_logger
 }
-
-
 
 
 # -------------------------
@@ -90,11 +86,11 @@ end
 
 
 post '/sessions' do
-  if params[:password] == Settings::PW
+  if params[:password] == Settings::PW && params[:username] == Settings::USERNAME
     session[:user_id] = params[:username]
   end
 
-  if params[:password] == Settings::PWADMIN
+  if params[:password] == Settings::PWADMIN && params[:username] == Settings::ADMINNAME
     session[:user_id] = params[:username]
     session[:admin] = params[:username]
   end
@@ -109,7 +105,6 @@ get '/manage_events' do
   require_logged_in
 
   error = session.delete(:transaction_error)
-  #session[:transaction_error] = nil
 
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
@@ -120,8 +115,7 @@ get '/manage_events' do
   get '/view_events' do
     require_logged_in
 
-    success = session.delete(:transaction_success) # == true
-    #session[:transaction_success] = nil
+    success = session.delete(:transaction_success) # why is this here?
 
     page_number = params[:page_number].present? ? params[:page_number].to_i : 1
     limit = params[:viev_all].present? ? Event.all.size : 10
@@ -137,8 +131,7 @@ get '/manage_events' do
   get '/edit_event/:event_id' do
     require_logged_in
 
-    error = session.delete(:transaction_error) # .delete ?!
-    #session[:transaction_error] = nil
+    error = session.delete(:transaction_error)
 
     event_id = params['event_id']
 
@@ -181,7 +174,6 @@ get '/manage_events' do
     require_logged_in
 
     error = session.delete(:transaction_error)
-    #session[:transaction_error] = nil
 
     erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
@@ -336,7 +328,6 @@ get '/manage_events' do
       report.get_results
 
     end
-
 
     # needed when using the Sinatra::Reloader to avoid draining the connection pool
     after do
