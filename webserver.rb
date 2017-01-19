@@ -5,6 +5,7 @@ require 'bundler/setup'
 
 require 'sinatra'
 require 'sinatra/flash'
+require 'rack/ssl'
 require "sinatra/reloader" if development?
 require 'tilt/erb' if development?
 
@@ -25,6 +26,9 @@ enable :show_exceptions if development?
 set :server, %w[thin webrick] if development?
 
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
+
+
+use Rack::SSL
 
 use Rack::Session::Cookie, :key => 'rack.session',
                            #:secure => true,
