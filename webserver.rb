@@ -26,6 +26,7 @@ enable :show_exceptions if development?
 set :server, %w[thin webrick] if development?
 
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
+disable :absolute_redirects
 
 
 # use Rack::SSL unless development?
