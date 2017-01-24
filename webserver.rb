@@ -100,7 +100,7 @@ post '/sessions' do
     session[:user_id] = params[:username].downcase
   end
 
-  if params[:password].downcase == Settings::PWADMIN && params[:username].downcase == Settings::ADMINNAME
+  if params[:password] == Settings::PWADMIN && params[:username].downcase == Settings::ADMINNAME
     session[:user_id] = params[:username].downcase
     session[:admin] = params[:username].downcase
   end
