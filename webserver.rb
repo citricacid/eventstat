@@ -5,6 +5,7 @@ require 'bundler/setup'
 
 require 'sinatra'
 require 'sinatra/flash'
+# require 'rack/ssl'
 require "sinatra/reloader" if development?
 require 'tilt/erb' if development?
 
@@ -25,6 +26,10 @@ enable :show_exceptions if development?
 set :server, %w[thin webrick] if development?
 
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
+disable :absolute_redirects
+
+
+# use Rack::SSL unless development?
 
 use Rack::Session::Cookie, :key => 'rack.session',
                            #:secure => true,
@@ -40,8 +45,13 @@ before {
   env["rack.errors"] = error_logger
 }
 
+# needed when using the Sinatra::Reloader to avoid draining the connection pool
+after do
+  ActiveRecord::Base.clear_active_connections!
+end
 
-# -------------------------
+
+# ------------ helpers  -------------
 
 def require_logged_in
   redirect('/login') unless is_authenticated?
@@ -64,7 +74,7 @@ def protected!
   halt 401, "Beklager. Det kreves admin-rettigheter for å benytte denne siden." unless is_admin?
 end
 
-# -------------------------
+# ------------ routes  -------------
 
 
 get '/' do
@@ -327,9 +337,4 @@ get '/manage_events' do
       report = report_builder.report
       report.get_results
 
-    end
-
-    # needed when using the Sinatra::Reloader to avoid draining the connection pool
-    after do
-      ActiveRecord::Base.clear_active_connections!
     end
