@@ -86,13 +86,13 @@ end
 
 
 post '/sessions' do
-  if params[:password] == Settings::PW && params[:username] == Settings::USERNAME
-    session[:user_id] = params[:username]
+  if params[:password].downcase == Settings::PW && params[:username].downcase == Settings::USERNAME
+    session[:user_id] = params[:username].downcase
   end
 
-  if params[:password] == Settings::PWADMIN && params[:username] == Settings::ADMINNAME
-    session[:user_id] = params[:username]
-    session[:admin] = params[:username]
+  if params[:password].downcase == Settings::PWADMIN && params[:username].downcase == Settings::ADMINNAME
+    session[:user_id] = params[:username].downcase
+    session[:admin] = params[:username].downcase
   end
 
   session.options[:expire_after] = 60*60*24*60 if session[:user_id].present? && params[:remember].present?
