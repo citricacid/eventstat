@@ -188,7 +188,9 @@ $(".nav-manage_events").addClass("active");
                       </div>
                     </div>
 
+
                     <div class="form-group">
                       <input type="submit" class="btn btn-primary" value="Lagre">
+                      <%= "<a class='btn btn-danger' href='/delete_event/#{event.id}'>Slette</a>" if edit && is_admin %>
                     </div>
                   </form>

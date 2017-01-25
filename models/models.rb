@@ -150,7 +150,7 @@ class EventMaintype < ActiveRecord::Base
   has_many :categories
   has_many :subcategories, through: :categories
 
-  scope :ordered_view, -> { order('view_priority').reverse_order }
+  scope :ordered_view, -> { order('view_priority') }
 
   def category_ids
     categories.pluck(:id)

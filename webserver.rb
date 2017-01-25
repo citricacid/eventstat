@@ -41,9 +41,9 @@ use Rack::Session::Cookie, :key => 'rack.session',
 error_logger = ::File.new(::File.join(::File.dirname(::File.expand_path(__FILE__)),'logs','error.log'),"a+")
 error_logger.sync = true
 
-before {
+before do
   env["rack.errors"] = error_logger
-}
+end
 
 # needed when using the Sinatra::Reloader to avoid draining the connection pool
 after do
@@ -147,10 +147,21 @@ get '/manage_events' do
 
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-      event_types: EventType.ordered_view.all, event: Event.find(event_id), edit: true, error: error }
-
+      event_types: EventType.ordered_view.all, event: Event.find(event_id), edit: true, error: error, is_admin: is_admin? }
   end
 
+  get '/delete_event/:event_id' do
+    protected!
+    event = Event.find(params['event_id'])
+
+    log_message = "DELETED EVENT: " + event.inspect
+    logger.info log_message
+    Log.log.info log_message
+
+    event.destroy!
+
+    redirect('/view_events')
+  end
 
   get '/manage_categories' do
     protected!
@@ -244,6 +255,7 @@ get '/manage_events' do
          pri_url: "/api/age_group_priority_list", success: success, id: id, collection: AgeGroup.all}
     end
 
+    # ---------------------------------------------------------------------------
 
     post '/api/subcategory_priority_list' do
       protected!
@@ -288,6 +300,7 @@ get '/manage_events' do
       end
     end
 
+    # --------------------------------------------------------------------------
 
     post '/api/event' do
       require_logged_in
