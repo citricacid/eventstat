@@ -94,6 +94,10 @@ get '/logout' do
   redirect('/')
 end
 
+get '/info' do
+  require_logged_in
+  erb :information
+end
 
 post '/sessions' do
   if params[:password].downcase == Settings::PW && params[:username].downcase == Settings::USERNAME
