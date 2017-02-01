@@ -6,12 +6,13 @@ $(".nav-view_events").addClass("active");
 
 <script src="/js/view_events.js"></script>
 
-
   <label for="branch_selector">Sted:</label>
   <select id="branch_selector" name="branch_id">
-    <option value="0" selected>-- Alle --</option>
+    <option value="" selected >-- Alle --</option>
     <% branches.each do |branch| %>
-    <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
+    <%= "<option value='#{branch.id}'"%>
+    <%= " selected='selected'" if branch.id == @branch_id.to_i %>
+    <%= ">#{branch.name}</option>" %>
     <% end %>
   </select>
 
@@ -47,14 +48,53 @@ $(".nav-view_events").addClass("active");
         <%= "Side #{page_number} av #{number_of_pages}" %>
       </div>
       <div class="col col-xs-8">
-        <ul class="pagination hidden-xs pull-right">
-          <% for i in 1..number_of_pages %>
-          <%= "<li><a href='/view_events?page_number=#{i}'>#{i}</a></li>" %>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination hidden-xs pull-left">
+
+            <li class="page-item">
+          <%= "<a class='page-link' href='#{@link}1' aria-label='Første'>"%>
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Første</span>
+              </a>
+            </li>
+
+
+          <% if page_number > 1 %>
+          <%= "<li class='page-item'>" %>
+          <%= "<a class='page-link' href='#{@link}#{(page_number - 1)}' aria-label='Forrige'>" %>
+          <%= "<span aria-hidden='true'><</span>" %>
+          <%= "<span class='sr-only'>Forrige</span>" %>
+          <%= "</a></li>" %>
           <% end %>
+
+          <% @page_array.each do |i| %>
+          <%= "<li class='page-item'><a href='#{@link}#{i}'>#{i}</a></li>" unless i == page_number  %>
+          <%= "<li class='page-item active'><a href='#{@link}#{i}'>#{i}</a></li>" if i == page_number  %>
+          <% end %>
+
+
+            <% if page_number < number_of_pages %>
+            <%= "<li class='page-item'>" %>
+            <%= "<a class='page-link' href='#{@link}#{(page_number + 1)}' aria-label='Neste'>" %>
+            <%= "<span aria-hidden='true'>></span>" %>
+            <%= "<span class='sr-only'>Neste</span>" %>
+            <%= "</a></li>" %>
+            <% end %>
+
+
+            <li class="page-item">
+          <%= "<a class='page-link' href='#{@link}#{number_of_pages}' aria-label='Siste'>"%>
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Siste</span>
+              </a>
+            </li>
+
+
         </ul>
         <ul class="pagination visible-xs pull-right">
           <li><a href="#">«</a></li>
           <li><a href="#">»</a></li>
         </ul>
+      </nav>
       </div>
     </div>

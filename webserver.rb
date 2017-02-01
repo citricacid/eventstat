@@ -131,13 +131,27 @@ get '/manage_events' do
 
     success = session.delete(:transaction_success) # why is this here?
 
-    page_number = params[:page_number].present? ? params[:page_number].to_i : 1
-    limit = params[:viev_all].present? ? Event.all.size : 10
-    offset = (page_number - 1) * limit
-    number_of_pages = Event.all.size / limit
-    number_of_pages += 1 if Event.all.size % limit > 0
+    @is_filtered = params[:branch_id].present?
+    events = @is_filtered ? Branch.find(params[:branch_id]).events : Event.all
+    @branch_id = params[:branch_id] if @is_filtered
 
-    erb :view_events, :locals => {events: Event.reverse.limit(limit).offset(offset), branches: Branch.all,
+    page_number = params[:page_number].present? ? params[:page_number].to_i : 1
+    limit = params[:view_all].present? ? events : 10
+    offset = (page_number - 1) * limit
+    number_of_pages = events.size / limit
+    number_of_pages += 1 if events.size % limit > 0
+
+    page_start = page_number > 2 ? page_number - 2 : 1
+    page_end = number_of_pages - page_number > 2 ? page_number + 2 : number_of_pages
+
+    @page_array = (page_start..page_end).to_a
+
+    @link = @is_filtered ? "/view_events?branch_id=#{@branch_id}&page_number=" : "/view_events?page_number="
+
+    start = (page_number.to_i - 1) * limit
+    events = @is_filtered ? events.to_a.reverse.slice(start, limit) : Event.reverse.limit(limit).offset(offset)
+
+    erb :view_events, :locals => {events: events, branches: Branch.all,
        success: success, page_number: page_number, number_of_pages: number_of_pages}
   end
 

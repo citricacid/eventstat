@@ -2,16 +2,8 @@
 /* global $ */
 
 $(function() {
-  $('#branch_selector').children().first().prop('selected', true);
-
-  $("#branch_selector").click(function() {
+  $("#branch_selector").change(function() {
     var branchID = $(this).val();
-
-    if (branchID === '0') {
-      $("#event_table tr").show();
-    } else {
-      $("#event_table tr:not(:first)").hide();
-      $("#event_table ." + branchID).show();
-    }
+    window.location.href = "/view_events?page_number=1&branch_id=" + branchID;
   });
 });
