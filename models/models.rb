@@ -110,7 +110,7 @@ class EventType < ActiveRecord::Base
   has_many :age_attributes
 
   default_scope { order(:view_priority => :asc) }
-  scope :ordered_view, -> { joins(:event_maintype).order('event_maintypes.view_priority').reverse_order }
+  scope :ordered_view, -> { joins(:event_maintype).order('event_maintypes.view_priority') }
 
   def age_group_ids
     age_attributes.map {|attribute| attribute.age_group_id}.flatten
