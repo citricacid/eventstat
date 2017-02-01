@@ -165,9 +165,16 @@ $(".nav-manage_events").addClass("active");
 
                   <%# --- Dropdown and input for target audience and attendants         --- %>
                   <div class="form-group panel_group">
+                    <div class="row">
+                      <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
                     <label for="age_group_selector">Målgruppe:</label>
                     <button type="button" class="toggleDefinition btn btn-default btn-sm" data-panel-is-open=false>
                       <span class="glyphicon glyphicon-eye-open"></span></button>
+                    </div>
+                    <div class="form-group col-xs-3 col-sm-3 col-md-2 col-lg-2">
+                      <label for="attendants" id="attendants_label">Antall frammøtte:</label>
+                    </div>
+                    </div>
                     <div class="row">
                       <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
                         <select class="form-control input-group-md" id="age_group_selector" name="age_group_id">

@@ -159,8 +159,10 @@ $(function() {
     setVisibleOptions($subcategorySelector, subcategoryValues, subcategories);
 
     // handle counts
-    const isCountable = $subcategorySelector.find(":selected").data('is_countable');
+    const isCountable = $subcategorySelector.find(":selected").data('is_countable') || false;
     $('#attendants').data('is_countable', isCountable).toggle(isCountable);
+    $('#attendants_label').toggle(isCountable);
+    console.log("hmmf " + isCountable)
   });
 
   $subcategorySelector.change(function() {
@@ -169,6 +171,7 @@ $(function() {
 
     const isCountable = $subcategorySelector.find(":selected").data('is_countable');
     $('#attendants').data('is_countable', isCountable).toggle(isCountable);
+    $('#attendants_label').toggle(isCountable);
 
     showOrHideDefinitions($(this));
   });
