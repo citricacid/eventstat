@@ -159,25 +159,47 @@ get '/manage_events' do
 
     success = session.delete(:transaction_success) # why is this here?
 
+    @per_page = params[:per_page] || '10'
+    @audience = params[:audience] || 'all'
+    @sort_by = params[:sort_by] || 'reg'
+    @month = params[:month] || ''
+    @branch = params[:branch] || ''
+    @show_filters = params[:show_filters].present? && params[:show_filters] == 'true'
+
     @is_filtered = params[:branch_id].present?
-    events = @is_filtered ? Branch.find(params[:branch_id]).events : Event.all
     @branch_id = params[:branch_id] if @is_filtered
 
+
+
+    events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
+    events = events.by_age_group(@audience) unless @audience == 'all'
+    events = events.by_branch(@branch)
+
+    if @month.present?
+      start = Date.new(2017, @month.to_i ,1)
+      stop = start.next_month.prev_day
+      events = events.between_dates(start, stop)
+    end
+
     page_number = params[:page_number].present? ? params[:page_number].to_i : 1
-    limit = params[:view_all].present? ? events : 10
+    limit = @per_page.to_i == 0 ? events.size : @per_page.to_i
     offset = (page_number - 1) * limit
     number_of_pages = events.size / limit
-    number_of_pages += 1 if events.size % limit > 0
+    number_of_pages += 1 if events.size % limit > 0 && events.size != limit
 
     page_start = page_number > 2 ? page_number - 2 : 1
     page_end = number_of_pages - page_number > 2 ? page_number + 2 : number_of_pages
 
     @page_array = (page_start..page_end).to_a
+    @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Okt", "Nov", "Des"]
 
-    @link = @is_filtered ? "/view_events?branch_id=#{@branch_id}&page_number=" : "/view_events?page_number="
+    #@link = @is_filtered ? "/view_events?branch_id=#{@branch_id}&page_number=" : "/view_events?page_number="
+    @link = "/view_events?per_page=#{@per_page}&audience=#{@audience}&sort_by=#{@sort_by}&month=#{@month}&branch=#{@branch}&page_number="
 
     start = (page_number.to_i - 1) * limit
-    events = @is_filtered ? events.to_a.reverse.slice(start, limit) : Event.reverse.limit(limit).offset(offset)
+
+    #events = @is_filtered ? events.to_a.reverse.slice(start, limit) : Event.reverse.limit(limit).offset(offset)
+    events = events.to_a.reverse.slice(start, limit)
 
     erb :view_events, :locals => {events: events, branches: Branch.all,
        success: success, page_number: page_number, number_of_pages: number_of_pages}

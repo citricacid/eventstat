@@ -23,6 +23,8 @@ class Event < ActiveRecord::Base
   belongs_to :subcategory
 
   scope :reverse, -> { order('id').reverse_order }
+  scope :order_by_event_date, -> { order('date') }
+  scope :order_by_registration_date, -> { order('id').reverse_order }
 
   validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
   validates :date, presence: true
@@ -58,6 +60,15 @@ class Event < ActiveRecord::Base
 
   def self.by_maintype(id)
     id.present? ? joins(:event_type).where('event_types.event_maintype_id' => id) : all
+  end
+
+  def self.by_age_group(group)
+    if group.present?
+      id = group == 'adult' ? 0 : 1
+      joins(:age_group).where('age_groups.age_category': id)
+    else
+      all
+    end
   end
 
 

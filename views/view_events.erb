@@ -11,12 +11,40 @@ $(".nav-view_events").addClass("active");
     <option value="" selected >-- Alle --</option>
     <% branches.each do |branch| %>
     <%= "<option value='#{branch.id}'"%>
-    <%= " selected='selected'" if branch.id == @branch_id.to_i %>
+    <%= " selected='selected'" if branch.id.to_s == @branch.to_s %>
     <%= ">#{branch.name}</option>" %>
     <% end %>
   </select>
 
+  <label>Vis filtre</label>
+  <input type="checkbox" input="show_filters" id="filter_switch" <%= "checked" if @show_filters %>>
 
+  <div class="row" id="filter_bar" <%= "hidden" unless @show_filters %>>
+  <label for="month_selector">Periode:</label>
+  <select id="month_selector">
+    <option value="" selected >--</option>
+    <% for value in 1..12 %>
+    <%= "<option value='#{value}'"%>
+    <%= " selected='selected'" if value == @month.to_i %>
+    <%= ">#{@month_names[value]}</option>" %>
+    <% end %>
+  </select>
+
+  <label>Sorter etter:</label>
+  <input type="radio" name="sort_by" value="reg" <%= "checked" if @sort_by == 'reg'%>>Reg.dato
+  <input type="radio" name="sort_by" value="event" <%= "checked" if @sort_by == 'event'%>>Arr.dato
+
+  <label>Målgruppe:</label>
+  <input type="radio" name="audience" value="all" <%= "checked" if @audience == 'all'%>>Alle
+  <input type="radio" name="audience" value="adult" <%= "checked" if @audience == 'adult'%>>Voksne
+  <input type="radio" name="audience" value="young" <%= "checked" if @audience == 'young'%>>Barn/unge
+
+  <label>Per side:</label>
+  <input type="radio" name="per_page" value="10" <%= "checked" if @per_page == '10'%>>10
+  <input type="radio" name="per_page" value="20" <%= "checked" if @per_page == '20'%>>20
+  <input type="radio" name="per_page" value="50" <%= "checked" if @per_page == '50'%>>50
+  <input type="radio" name="per_page" value="0" <%= "checked" if @per_page == '0'%>>Alle
+</div>
 
   <div class="table-responsive">
     <table class="fw_table table table-striped" id="event_table">

@@ -2,6 +2,7 @@
 /* global $ moment */
 
 let listOfResults = [];
+let tables;
 
 const convertFormToHash = function($form) {
   const hash = {};
@@ -176,6 +177,7 @@ $(function() {
       });
 
       processSummationRow($("#stats_table"));
+      tables.update();
     });
 
     request.fail(function(xhr, textStatus, errorThrown) {
@@ -246,4 +248,6 @@ $(function() {
   // reset category selectors
   resetCategories();
   $('#category_selector').change();
+
+  tables = $("#stats_table").tableExport({position: "top"});
 });

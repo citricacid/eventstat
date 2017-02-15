@@ -11,6 +11,11 @@ $(".nav-statistics").addClass("active");
 <script src="/js/statistics.js"></script>
 <script src="/js/table_to_csv.js"></script>
 
+<link rel="stylesheet" type="text/css" href="/css/tableexport.min.css" />
+<script src="/js/FileSaver.js"></script>
+<script src="/js/tableexport.min.js"></script>
+
+
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
@@ -171,8 +176,6 @@ $(".nav-statistics").addClass("active");
           <div class="form-group">
             <button type="button" class="btn btn-secondary" id="submit">Hent</button>
             <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
-            <a href="#" id ="copy_to_clipboard" class='btn btn-secondary'>Til utklippstavle</a>
-
           </div>
         </div>
 
