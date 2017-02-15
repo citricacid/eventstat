@@ -5,6 +5,7 @@ require 'bundler/setup'
 
 require 'sinatra'
 require 'sinatra/flash'
+require 'sinatra/cross_origin'
 # require 'rack/ssl'
 require "sinatra/reloader" if development?
 require 'tilt/erb' if development?
@@ -28,6 +29,8 @@ set :server, %w[thin webrick] if development?
 enable :logging, :dump_errors, :raise_errors, :show_exceptions
 disable :absolute_redirects
 
+enable :cross_origin
+register Sinatra::CrossOrigin
 
 # use Rack::SSL unless development?
 
@@ -37,13 +40,38 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :secret => Settings::SECRET
 
 
+
+
 # Sets up logging of uncaught errors
 error_logger = ::File.new(::File.join(::File.dirname(::File.expand_path(__FILE__)),'logs','error.log'),"a+")
 error_logger.sync = true
 
+configure do
+  enable :cross_origin
+end
+
+set :allow_origin, :any
+set :allow_methods, [:get, :post, :put, :options]
+set :allow_credentials, true
+set :max_age, "1728000"
+set :expose_headers, ['Content-Type']
+
+
 before do
   env["rack.errors"] = error_logger
+
+   # content_type :json
+   #headers 'Access-Control-Allow-Origin' => '*',
+    #        'Access-Control-Allow-Methods' => ['OPTIONS', 'GET', 'POST', 'PUT']
 end
+
+options "*" do
+  response.headers["Allow"] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
+  response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+
+  200
+end
+
 
 # needed when using the Sinatra::Reloader to avoid draining the connection pool
 after do
@@ -320,6 +348,71 @@ get '/manage_events' do
 
     # --------------------------------------------------------------------------
 
+    get '/api/basics' do
+      event_types = []
+      EventType.all.each do |et|
+        event_types << {
+          value: et.id,
+          text: et.name,
+          maintype_id: et.event_maintype_id,
+          subtype_id: et.event_subtype_id,
+          subcategories: et.subcategory_ids,
+          categories: et.category_ids,
+          age_groups: et.age_group_ids
+        }
+      end
+
+      categories = []
+      Category.all.each do |cat|
+        categories << {
+          value: cat.id,
+          text: cat.name
+        }
+      end
+
+      subcategories = []
+      Subcategory.all.each do |cat|
+        subcategories << {
+          value: cat.id,
+          text: cat.name
+        }
+      end
+
+      subtypes = []
+      EventSubtype.all.each do |type|
+        subtypes << {
+          value: type.id,
+          text: type.name,
+          subcategories: type.event_type.subcategory_ids,
+          categories: type.event_type.category_ids,
+        }
+      end
+
+      maintypes = []
+      EventMaintype.all.each do |type|
+        maintypes << {
+          value: type.id,
+          text: type.label,
+          subcategories: type.subcategory_ids,
+          categories: type.category_ids,
+          subtypes: type.event_subtype_ids
+        }
+      end
+
+      branches = []
+      Branch.all.each do |branch|
+        branches << {
+          value: branch.id,
+          text: branch.name
+        }
+      end
+
+      {types: event_types, maintypes: maintypes, subtypes: subtypes, categories: categories,
+        subcategories: subcategories, branches: branches}.to_json
+
+      #  {maintypes: maintypes}.to_json
+    end
+
     post '/api/event' do
       require_logged_in
 
@@ -347,7 +440,7 @@ get '/manage_events' do
 
 
     put '/api/statistics' do
-      require_logged_in
+      # require_logged_in
 
       data = JSON.parse(request.body.read)
       branch_id = data['branch_id']

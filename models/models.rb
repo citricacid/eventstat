@@ -141,7 +141,6 @@ class EventType < ActiveRecord::Base
     event_subtype.subcategory_ids.present? ? event_subtype.subcategory_ids : event_maintype.subcategory_ids
   end
 
-
 end
 
 
@@ -151,6 +150,14 @@ class EventMaintype < ActiveRecord::Base
   has_many :subcategories, through: :categories
 
   scope :ordered_view, -> { order('view_priority') }
+
+  def event_subtype_ids
+    subtype_ids = []
+    EventSubtype.all.each do |type|
+      subtype_ids << type.id if type.associated?(id)
+    end
+    subtype_ids
+  end
 
   def category_ids
     categories.pluck(:id)
