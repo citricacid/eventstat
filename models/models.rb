@@ -36,36 +36,38 @@ class Event < ActiveRecord::Base
 
 
   def self.by_branch(id)
-    id.present? ? where(branch_id: id) : all
+    id.present? ? where("branch_id = ?", id) : all
   end
 
 
   def self.by_category(id) # and event_type = ????
-    id.present? ? where(category_id: id) : all
+    id.present? ? where("category_id = ?", id) : all
   end
 
 
   def self.by_subcategory(id)
-    id.present? ? where(subcategory_id: id) : all
+    id.present? ? where("subcategory_id = ?", id) : all
   end
 
   def self.by_event_type(id)
-    id.present? ? where(event_type_id: id) : all
+    id.present? ? where("event_type_id = ?", id) : all
   end
 
   def self.by_subtype(id)
-    id.present? ? joins(:event_type).where('event_types.event_subtype_id' => id) : all
+    #id.present? ? joins(:event_type).where('event_types.event_subtype_id' => id) : all
+    id.present? ? joins(:event_type).where('event_types.event_subtype_id = ?', id) : all
   end
 
 
   def self.by_maintype(id)
-    id.present? ? joins(:event_type).where('event_types.event_maintype_id' => id) : all
+    #id.present? ? joins(:event_type).where('event_types.event_maintype_id' => id) : all
+    id.present? ? joins(:event_type).where('event_types.event_maintype_id = ?', id) : all
   end
 
   def self.by_age_group(group)
     if group.present?
       id = group == 'adult' ? 0 : 1
-      joins(:age_group).where('age_groups.age_category': id)
+      joins(:age_group).where('age_groups.age_category = ?', id)
     else
       all
     end

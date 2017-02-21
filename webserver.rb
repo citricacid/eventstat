@@ -6,7 +6,6 @@ require 'bundler/setup'
 require 'sinatra'
 require 'sinatra/flash'
 require 'sinatra/cross_origin'
-# require 'rack/ssl'
 require "sinatra/reloader" if development?
 require 'tilt/erb' if development?
 
@@ -32,20 +31,16 @@ disable :absolute_redirects
 enable :cross_origin
 register Sinatra::CrossOrigin
 
-# use Rack::SSL unless development?
-
 use Rack::Session::Cookie, :key => 'rack.session',
-                           #:secure => true,
                            :path => '/',
                            :secret => Settings::SECRET
-
-
 
 
 # Sets up logging of uncaught errors
 error_logger = ::File.new(::File.join(::File.dirname(::File.expand_path(__FILE__)),'logs','error.log'),"a+")
 error_logger.sync = true
 
+# Set up CORS support
 configure do
   enable :cross_origin
 end
@@ -66,9 +61,8 @@ before do
 end
 
 options "*" do
-  response.headers["Allow"] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
+  response.headers["Allow"] = "HEAD,GET,PUT,POST,OPTIONS"
   response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
-
   200
 end
 
@@ -78,6 +72,8 @@ after do
   ActiveRecord::Base.clear_active_connections!
 end
 
+# for use by the 'settings' modal in layout.erb
+set :branches, Branch.all
 
 # ------------ helpers  -------------
 
@@ -104,12 +100,11 @@ end
 
 # ------------ routes  -------------
 
-
 get '/' do
   if is_authenticated?
     erb :index
   else
-    erb :login
+    redirect('/login') #erb :login
   end
 end
 
@@ -139,38 +134,61 @@ post '/sessions' do
 
   session.options[:expire_after] = 60*60*24*60 if session[:user_id].present? && params[:remember].present?
 
-  redirect('/')
+  session[:user_id] ? redirect('/settings') : redirect('/')
 end
 
+get '/settings' do
+  require_logged_in
+  erb :get_settings
+end
 
 get '/manage_events' do
   require_logged_in
 
   error = session.delete(:transaction_error)
 
+  @edit = false
+  @selected_branch = session[:default_branch] || '0'
+
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-    event_types: EventType.ordered_view.all, edit: false, error: error }
+    event_types: EventType.ordered_view.all, error: error }
   end
+
+
+  get '/edit_event/:event_id' do
+    require_logged_in
+
+    error = session.delete(:transaction_error)
+    event_id = params['event_id']
+
+    @edit = true
+    @selected_branch = params['event_id']
+
+    erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+      subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
+      event_types: EventType.ordered_view.all, event: Event.find(event_id), error: error, is_admin: is_admin? }
+    end
 
 
   get '/view_events' do
     require_logged_in
 
-    success = session.delete(:transaction_success) # why is this here?
+    # success = session.delete(:transaction_success) # why is this here?
 
-    @per_page = params[:per_page] || '10'
+    # TODO: sanitize input
+    # parse parameters
+    @per_page = params[:per_page] || session[:default_per_page] || '10'
+    @per_page = '10' if @per_page.to_i < 1 ||  @per_page.to_i > 200
+
     @audience = params[:audience] || 'all'
     @sort_by = params[:sort_by] || 'reg'
+    @sort_order = params[:sort_order] || 'desc'
     @month = params[:month] || ''
-    @branch = params[:branch] || ''
+    @branch = params[:branch] || session[:default_branch] || ''
     @show_filters = params[:show_filters].present? && params[:show_filters] == 'true'
 
-    @is_filtered = params[:branch_id].present?
-    @branch_id = params[:branch_id] if @is_filtered
-
-
-
+    # filter result set
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
     events = events.by_age_group(@audience) unless @audience == 'all'
     events = events.by_branch(@branch)
@@ -181,11 +199,13 @@ get '/manage_events' do
       events = events.between_dates(start, stop)
     end
 
+    # prepare page links
     page_number = params[:page_number].present? ? params[:page_number].to_i : 1
     limit = @per_page.to_i == 0 ? events.size : @per_page.to_i
     offset = (page_number - 1) * limit
     number_of_pages = events.size / limit
     number_of_pages += 1 if events.size % limit > 0 && events.size != limit
+    page_number = 1 if page_number < 1 || page_number > number_of_pages
 
     page_start = page_number > 2 ? page_number - 2 : 1
     page_end = number_of_pages - page_number > 2 ? page_number + 2 : number_of_pages
@@ -193,30 +213,18 @@ get '/manage_events' do
     @page_array = (page_start..page_end).to_a
     @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Okt", "Nov", "Des"]
 
-    #@link = @is_filtered ? "/view_events?branch_id=#{@branch_id}&page_number=" : "/view_events?page_number="
-    @link = "/view_events?per_page=#{@per_page}&audience=#{@audience}&sort_by=#{@sort_by}&month=#{@month}&branch=#{@branch}&page_number="
+    @link = "/view_events?per_page=#{@per_page}&audience=#{@audience}"
+      + "&sort_by=#{@sort_by}&sort_order=#{@sort_order}&month=#{@month}&branch=#{@branch}&page_number="
 
     start = (page_number.to_i - 1) * limit
 
-    #events = @is_filtered ? events.to_a.reverse.slice(start, limit) : Event.reverse.limit(limit).offset(offset)
+    # final cut
     events = events.to_a.reverse.slice(start, limit)
 
     erb :view_events, :locals => {events: events, branches: Branch.all,
-       success: success, page_number: page_number, number_of_pages: number_of_pages}
+       page_number: page_number, number_of_pages: number_of_pages}
   end
 
-
-  get '/edit_event/:event_id' do
-    require_logged_in
-
-    error = session.delete(:transaction_error)
-
-    event_id = params['event_id']
-
-    erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-      event_types: EventType.ordered_view.all, event: Event.find(event_id), edit: true, error: error, is_admin: is_admin? }
-  end
 
   get '/delete_event/:event_id' do
     protected!
@@ -263,6 +271,7 @@ get '/manage_events' do
     require_logged_in
 
     error = session.delete(:transaction_error)
+    @selected_branch = session[:default_branch] || '0'
 
     erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
@@ -435,6 +444,7 @@ get '/manage_events' do
       #  {maintypes: maintypes}.to_json
     end
 
+
     post '/api/event' do
       require_logged_in
 
@@ -460,9 +470,15 @@ get '/manage_events' do
       end
     end
 
+    put '/api/settings' do
+      data = JSON.parse(request.body.read)
+      session[:default_branch] = data['defaultBranch']
+      session[:default_per_page] = data['defaultPerPage']
+    end
 
     put '/api/statistics' do
       # require_logged_in
+      # TODO sanitize input
 
       data = JSON.parse(request.body.read)
       branch_id = data['branch_id']

@@ -4,7 +4,9 @@
     <option value="sum_all">Samlet</option>
     <option value="iterate_all">Alle</option>
     <% branches.each do |branch| %>
-    <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
+    <%= "<option value='#{branch.id}'" %>
+    <%= " selected" if branch.id.to_s == @selected_branch.to_s %>
+    <%= ">#{branch.name}</option>" %>
     <% end %>
   </select>
 </div>

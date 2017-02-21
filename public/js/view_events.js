@@ -20,7 +20,7 @@ $(function() {
     $("#filter_bar").toggle(this.checked);
   })
 
-  $("#branch_selector, #month_selector, input:radio").change(function() {
+  $("#branch_selector, #month_selector, .filter_radio").change(function() {
     activateFilter();
   });
 

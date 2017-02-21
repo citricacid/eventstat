@@ -28,6 +28,8 @@
   <script src="/js/jquery-ui.sortable.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="/bs/js/bootstrap.min.js"></script>
+
+  <script src="/js/layout.js"></script>
 </head>
 <body>
 
@@ -63,6 +65,7 @@
         </ul>
         <ul class='nav navbar-nav navbar-right'>
           <% if is_authenticated? %>
+          <%= "<li class='nav-settings'><a href='#settings_modal' data-toggle='modal' data-backdrop='static' data-keyboard='false'  ><span class='glyphicon glyphicon-cog'></span></a></li>" %>
           <%= "<li class='nav-logout'><a href='/logout'><span class='glyphicon glyphicon-log-out'></span> Logg ut</a></li>" %>
           <% else %>
           <%= "<li class='nav-login'><a href='/login'><span class='glyphicon glyphicon-log-in'></span> Logg inn</a></li>" %>
@@ -73,6 +76,40 @@
   </nav>
 
   <div class="container-fluid">
+
+    <div class="modal fade" id="settings_modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Innstillinger</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h5>Generelt</h5>
+        <label>Sted:</label>
+        <select id="settings_branch">
+          <option value="0">---</option>
+          <% settings.branches.each do |branch| %>
+          <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
+          <% end %>
+        </select>
+        <h5>Oversikt</h5>
+        <label>Per side</label>
+        <input type="radio" name="settings_per_page" value="10">10
+        <input type="radio" name="settings_per_page" value="20">20
+        <input type="radio" name="settings_per_page" value="50">50
+        <input type="radio" name="settings_per_page" value="0">Maks
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="save_settings" class="btn btn-primary">Lagre</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Lukk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
     <div id="main">
       <%= yield %>
     </div>

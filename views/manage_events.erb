@@ -1,8 +1,3 @@
-<script>
-$(".nav").find(".active").removeClass("active");
-$(".nav-manage_events").addClass("active");
-</script>
-
 <script src="/js/moment.min.js"></script>
 <!-- Include Date Range Picker -->
 <script src="/js/daterangepicker.js"></script>
@@ -55,10 +50,10 @@ $(".nav-manage_events").addClass("active");
 
 
   <form action="/api/event" method="post" id="event-form" autocomplete="off">
-    <%= "<input type='hidden' name='id' value='#{event.id}'>" if edit %>
+    <%= "<input type='hidden' name='id' value='#{event.id}'>" if @edit %>
 
     <div class="form-group">
-      <% if edit %>
+      <% if @edit %>
       <%= "<h3>Redigere arrangement " %>
         <% else %>
         <%= "<h3>Legg til arrangement " %>
@@ -87,12 +82,12 @@ $(".nav-manage_events").addClass("active");
           <button type="button" class="toggleDefinition btn btn-default btn-sm" data-panel-is-open=false>
             <span class="glyphicon glyphicon-eye-open"></span></button>
             <select id="event_type_selector" class="form-control" name="event_type_id">
-              <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %>>-- velg --</option>
+              <option class="invalid_option" value="" disabled hidden <%= "selected" if !@edit %>>-- velg --</option>
               <% event_types.each do |type| %>
               <%= "<option value='#{type.id}' "%>
                 <%= "data-age_groups='#{type.age_group_ids}' " %>
                 <%= "data-subcategories='#{type.subcategory_ids}' data-definition='#{type.definition}' " %>
-                <%= "selected " if edit && type.id == event.event_type_id %>
+                <%= "selected " if @edit && type.id == event.event_type_id %>
                 <%= ">#{type.name}</option>" %>
                 <% end %>
               </select>
@@ -108,17 +103,18 @@ $(".nav-manage_events").addClass("active");
             <div class="form-group">
               <label class="form-control-label" for="name">Tittel:</label>
               <input type="text" class="form-control"
-              id="name" name="name" <%= " value='#{event.name}'" if edit %> >
+              id="name" name="name" <%= " value='#{event.name}'" if @edit %> >
             </div>
 
             <%# --- Dropdown for branches                                         --- %>
             <div class="form-group">
               <label for="branch_selector">Sted:</label>
               <select id="branch_selector" class="form-control" name="branch_id">
-                <option class="invalid_option" value="" disabled hidden <%= "selected" if !edit %>>-- velg --</option>
+                <option class="invalid_option" value="0" disabled hidden
+                  <%= "selected" if @selected_branch == '0' %>>-- velg --</option>
                 <% branches.each do |branch| %>
                 <%= "<option value='#{branch.id}' " %>
-                  <%= "selected " if edit && branch.id == event.branch_id %>
+                  <%= "selected " if branch.id == @selected_branch %>
                   <%= ">#{branch.name}</option>" %>
                   <% end %>
                 </select>
@@ -128,7 +124,7 @@ $(".nav-manage_events").addClass("active");
               <div class="form-group">
                 <label for="daterange">Dato:</label>
                 <input class="form-control" type="text" name="date" id="daterange"
-                <%= " value=#{event.date.strftime('%d-%m-%Y')}" if edit%> >
+                <%= " value=#{event.date.strftime('%d-%m-%Y')}" if @edit%> >
               </div>
 
 
@@ -138,10 +134,10 @@ $(".nav-manage_events").addClass("active");
                 <button type="button" class="toggleDefinition btn btn-default btn-sm" data-panel-is-open=false>
                   <span class="glyphicon glyphicon-eye-open"></span></button>
                   <select id="subcategory_selector" name="subcategory_id" class="form-control">
-                    <option class="invalid_option" value="0" disabled hidden<%= " selected" if !edit %> >-- velg --</option>
+                    <option class="invalid_option" value="0" disabled hidden<%= " selected" if !@edit %> >-- velg --</option>
                     <% subcategories.each do |subcategory| %>
                     <%= "<option value='#{subcategory.id}' " %>
-                      <%= "selected " if edit && subcategory.id == event.subcategory_id %>
+                      <%= "selected " if @edit && subcategory.id == event.subcategory_id %>
                       <%= "data-has_comment='#{subcategory.has_comment}' " %>
                       <%= "data-is_countable='#{subcategory.is_countable}' " %>
                       <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>
@@ -155,10 +151,10 @@ $(".nav-manage_events").addClass("active");
 
 
                   <%# --- Special: Toggled comment section for select subcategories        --- %>
-                  <div class="form-group" id="comment" <%= "style='display: none;'" unless edit && event.subcategory.has_comment %>  >
+                  <div class="form-group" id="comment" <%= "style='display: none;'" unless @edit && event.subcategory.has_comment %>  >
                     <label class="form-control-label" for="comment_field">Beskrivelse(valgfri):</label>
                     <input type="text"
-                    name="comment" id="comment_field" <%= " value='#{event.comment}'" if edit %> >
+                    name="comment" id="comment_field" <%= " value='#{event.comment}'" if @edit %> >
                   </div>
 
 
@@ -178,16 +174,16 @@ $(".nav-manage_events").addClass("active");
                     <div class="row">
                       <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
                         <select class="form-control input-group-md" id="age_group_selector" name="age_group_id">
-                          <option class="invalid_option" value="0" disabled hidden <%= "selected" if !edit %> >-- velg --</option>
+                          <option class="invalid_option" value="0" disabled hidden <%= "selected" if !@edit %> >-- velg --</option>
                           <% age_groups.each do |age| %>
                           <%= "<option value=#{age.id} data-definition='#{age.definition}'" %>
-                            <%= ' selected' if edit && age.id == event.age_group_id %>
+                            <%= ' selected' if @edit && age.id == event.age_group_id %>
                             <%= ">#{age.name}</option>" %>
                             <% end %>
                           </select>
                         </div>
                         <div class="form-group col-xs-3 col-sm-3 col-md-2 col-lg-2">
-                        <input class="form-control input-group-md" type="number" min="0" name="attendants" id="attendants" <%= " value='#{event.attendants}'" if edit %> >
+                        <input class="form-control input-group-md" type="number" min="0" name="attendants" id="attendants" <%= " value='#{event.attendants}'" if @edit %> >
                       </div>
                       </div>
                       <div class="panel panel-default" hidden>
@@ -198,6 +194,6 @@ $(".nav-manage_events").addClass("active");
 
                     <div class="form-group">
                       <input type="submit" class="btn btn-primary" value="Lagre">
-                      <%= "<a class='btn btn-danger' href='/delete_event/#{event.id}'>Slette</a>" if edit && is_admin %>
+                      <%= "<a class='btn btn-danger' href='/delete_event/#{event.id}'>Slette</a>" if @edit && is_admin %>
                     </div>
                   </form>

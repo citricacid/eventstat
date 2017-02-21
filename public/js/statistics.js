@@ -132,7 +132,7 @@ $(function() {
     const form = $("#query_form");
     const data = convertFormToHash(form);
 
-    var request = $.ajax({
+    const request = $.ajax({
       url: "/api/statistics",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
@@ -249,5 +249,15 @@ $(function() {
   resetCategories();
   $('#category_selector').change();
 
-  tables = $("#stats_table").tableExport({position: "top"});
+  // set parameters for tableExport plugin
+
+
+  /* default filename if "id" attribute is set and undefined */
+  // $.fn.tableExport.defaultFileName = "myDownload";
+
+  // formats: ["xls", "csv", "txt"],
+  $.fn.tableExport.xls.buttonContent = '-> excel'
+
+  tables = $("#stats_table").tableExport({bootstrap: false, position: "top", formats: ['xls']});
+
 });
