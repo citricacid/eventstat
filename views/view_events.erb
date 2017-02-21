@@ -1,3 +1,4 @@
+<link href="/css/custom.css" rel="stylesheet">
 <script src="/js/view_events.js"></script>
 
   <label for="branch_selector">Sted:</label>
@@ -12,44 +13,53 @@
 
   <label>Vis filtre</label>
   <input type="checkbox" input="show_filters" id="filter_switch" <%= "checked" if @show_filters %>>
+  <div id="filter_bar" <%= "hidden" unless @show_filters %>>
+    <div class="input-group">
+      <label for="month_selector">Periode:</label>
+      <select id="month_selector">
+        <option value="" selected >--</option>
+        <% for value in 1..12 %>
+        <%= "<option value='#{value}'"%>
+          <%= " selected='selected'" if value == @month.to_i %>
+          <%= ">#{@month_names[value]}</option>" %>
+        <% end %>
+      </select>
 
-  <div class="row" id="filter_bar" <%= "hidden" unless @show_filters %>>
-  <label for="month_selector">Periode:</label>
-  <select id="month_selector">
-    <option value="" selected >--</option>
-    <% for value in 1..12 %>
-    <%= "<option value='#{value}'"%>
-    <%= " selected='selected'" if value == @month.to_i %>
-    <%= ">#{@month_names[value]}</option>" %>
-    <% end %>
-  </select>
+    <label>Målgruppe:</label>
+    <input type="radio" name="audience" value="all" class="filter_radio" <%= "checked" if @audience == 'all'%>>Alle
+    <input type="radio" name="audience" value="adult" class="filter_radio" <%= "checked" if @audience == 'adult'%>>Voksne
+    <input type="radio" name="audience" value="young" class="filter_radio" <%= "checked" if @audience == 'young'%>>Barn/unge
 
-  <label>Målgruppe:</label>
-  <input type="radio" name="audience" value="all" class="filter_radio" <%= "checked" if @audience == 'all'%>>Alle
-  <input type="radio" name="audience" value="adult" class="filter_radio" <%= "checked" if @audience == 'adult'%>>Voksne
-  <input type="radio" name="audience" value="young" class="filter_radio" <%= "checked" if @audience == 'young'%>>Barn/unge
+    <label>Per side:</label>
+    <input type="radio" name="per_page" value="10" class="filter_radio" <%= "checked" if @per_page == '10'%>>10
+    <input type="radio" name="per_page" value="20" class="filter_radio" <%= "checked" if @per_page == '20'%>>20
+    <input type="radio" name="per_page" value="50" class="filter_radio" <%= "checked" if @per_page == '50'%>>50
+    <input type="radio" name="per_page" value="200" class="filter_radio" <%= "checked" if @per_page == '200'%>>Maks
+  </div>
 
-  <label>Per side:</label>
-  <input type="radio" name="per_page" value="10" class="filter_radio" <%= "checked" if @per_page == '10'%>>10
-  <input type="radio" name="per_page" value="20" class="filter_radio" <%= "checked" if @per_page == '20'%>>20
-  <input type="radio" name="per_page" value="50" class="filter_radio" <%= "checked" if @per_page == '50'%>>50
-  <input type="radio" name="per_page" value="0" class="filter_radio" <%= "checked" if @per_page == '200'%>>Maks
-
+    <div class="input-group">
   <label>Sorter etter:</label>
   <input type="radio" name="sort_by" value="reg" class="filter_radio" <%= "checked" if @sort_by == 'reg'%>>Reg.dato
   <input type="radio" name="sort_by" value="event"  class="filter_radio" <%= "checked" if @sort_by == 'event'%>>Arr.dato
 
     <div class="btn-group" data-toggle="buttons">
-      <label class="btn btn-outline-primary active">
-        <input type="radio" name="options" id="option1" autocomplete="off" checked><span class='glyphicon glyphicon-triangle-top'></span>
+      <label class='btn btn-outline-primary <%= " active" if @sort_order == 'asc'%>'>
+        <input type="radio" name="sort_order" value="asc" autocomplete="off" class="filter_radio"
+        <%= " checked" if @sort_order == 'asc'%>>
+        <span class='glyphicon glyphicon-triangle-top'></span>
       </label>
-      <label class="btn btn-outline-primary">
-        <input type="radio" name="options" id="option2" autocomplete="off"><span class='glyphicon glyphicon-triangle-bottom'></span>
+      <label class='btn btn-outline-primary <%= " active" if @sort_order == 'desc'%>'>
+        <input type="radio" name="sort_order" value="desc" autocomplete="off" class="filter_radio"
+        <%= " checked" if @sort_order == 'desc'%>>
+        <span class='glyphicon glyphicon-triangle-bottom'></span>
       </label>
     </div>
+  </div>
 </div>
 
-  <div class="table-responsive">
+
+
+  <div class="table-responsive" id="mytable">
     <table class="fw_table table table-striped" id="event_table">
 
       <thead>
@@ -79,8 +89,8 @@
         <%= "Side #{page_number} av #{number_of_pages}" %>
       </div>
       <div class="col col-xs-8">
-        <nav aria-label="Page navigation example">
-          <ul class="pagination hidden-xs pull-left">
+        <nav aria-label="Page navigation">
+          <ul class="pagination pull-left">
 
             <li class="page-item">
           <%= "<a class='page-link' href='#{@link}1' aria-label='Første'>"%>
@@ -99,8 +109,8 @@
           <% end %>
 
           <% @page_array.each do |i| %>
-          <%= "<li class='page-item'><a href='#{@link}#{i}'>#{i}</a></li>" unless i == page_number  %>
-          <%= "<li class='page-item active'><a href='#{@link}#{i}'>#{i}</a></li>" if i == page_number  %>
+          <%= "<li class='page-item'><a class='page-link' href='#{@link}#{i}'>#{i}</a></li>" unless i == page_number  %>
+          <%= "<li class='page-item active'><a class='page-link' href='#{@link}#{i}'>#{i}</a></li>" if i == page_number  %>
           <% end %>
 
 
@@ -119,12 +129,6 @@
                 <span class="sr-only">Siste</span>
               </a>
             </li>
-
-
-        </ul>
-        <ul class="pagination visible-xs pull-right">
-          <li><a href="#">«</a></li>
-          <li><a href="#">»</a></li>
         </ul>
       </nav>
       </div>

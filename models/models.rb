@@ -23,8 +23,8 @@ class Event < ActiveRecord::Base
   belongs_to :subcategory
 
   scope :reverse, -> { order('id').reverse_order }
-  scope :order_by_event_date, -> { order('date') }
-  scope :order_by_registration_date, -> { order('id').reverse_order }
+  scope :order_by_event_date, -> { order(date: :desc) }
+  scope :order_by_registration_date, -> { order(id: :desc) }
 
   validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
   validates :date, presence: true

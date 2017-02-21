@@ -88,9 +88,9 @@
       </div>
       <div class="modal-body">
         <h5>Generelt</h5>
-        <label>Sted:</label>
+        <label>Foretrukket sted:</label>
         <select id="settings_branch">
-          <option value="0">---</option>
+          <option value="">---</option>
           <% settings.branches.each do |branch| %>
           <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
           <% end %>
@@ -100,11 +100,11 @@
         <input type="radio" name="settings_per_page" value="10">10
         <input type="radio" name="settings_per_page" value="20">20
         <input type="radio" name="settings_per_page" value="50">50
-        <input type="radio" name="settings_per_page" value="0">Maks
+        <input type="radio" name="settings_per_page" value="200">Maks
       </div>
       <div class="modal-footer">
-        <button type="button" id="save_settings" class="btn btn-primary">Lagre</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Lukk</button>
+        <button type="button" id="save_settings" data-dismiss="modal" class="btn btn-primary">Lagre</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
       </div>
     </div>
   </div>

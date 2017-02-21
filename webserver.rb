@@ -191,7 +191,7 @@ get '/manage_events' do
     # filter result set
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
     events = events.by_age_group(@audience) unless @audience == 'all'
-    events = events.by_branch(@branch)
+    events = events.by_branch(@branch) unless @branch.blank?
 
     if @month.present?
       start = Date.new(2017, @month.to_i ,1)
@@ -213,13 +213,13 @@ get '/manage_events' do
     @page_array = (page_start..page_end).to_a
     @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Okt", "Nov", "Des"]
 
-    @link = "/view_events?per_page=#{@per_page}&audience=#{@audience}"
-      + "&sort_by=#{@sort_by}&sort_order=#{@sort_order}&month=#{@month}&branch=#{@branch}&page_number="
+    @link = "/view_events?per_page=#{@per_page}&audience=#{@audience}&sort_by=#{@sort_by}"
+    @link += "&sort_order=#{@sort_order}&month=#{@month}&branch=#{@branch}&page_number="
 
     start = (page_number.to_i - 1) * limit
 
     # final cut
-    events = events.to_a.reverse.slice(start, limit)
+    events = @sort_order == 'desc' ? events.to_a.slice(start, limit) : events.to_a.reverse.slice(start, limit)
 
     erb :view_events, :locals => {events: events, branches: Branch.all,
        page_number: page_number, number_of_pages: number_of_pages}
@@ -472,6 +472,7 @@ get '/manage_events' do
 
     put '/api/settings' do
       data = JSON.parse(request.body.read)
+      puts data['defaultBranch']
       session[:default_branch] = data['defaultBranch']
       session[:default_per_page] = data['defaultPerPage']
     end

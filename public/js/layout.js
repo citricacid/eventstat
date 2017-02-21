@@ -16,7 +16,7 @@ function storageAvailable(type) {
 
 function submitSettings() {
   if (storageAvailable) {
-    const defaultBranch = localStorage.getItem('defaultBranch') || '0';
+    const defaultBranch = localStorage.getItem('defaultBranch') || '';
     const defaultPerPage = localStorage.getItem('defaultPerPage') || '10';
     const data = {defaultBranch: defaultBranch, defaultPerPage: defaultPerPage};
 
@@ -44,7 +44,7 @@ $(function() {
   })
 
   // initialize page
-  const defaultBranch = localStorage.getItem('defaultBranch') || '0';
+  const defaultBranch = localStorage.getItem('defaultBranch') || '';
   const defaultPerPage = localStorage.getItem('defaultPerPage') || '10';
 
   $('#settings_branch').val(defaultBranch);
