@@ -45,6 +45,12 @@ class ReportBuilder
     @report.subtypes = Filter.new(subtypes, sum_all_subtypes)
   end
 
+  def set_age_group(age_group_id)
+    sum_all = age_group_id == 'sum_all'
+    age_groups = age_group_id == 'iterate_all' ? AgeGroup.all : AgeGroup.where(id: age_group_id)
+    @report.age_groups = Filter.new(age_groups, sum_all)
+  end
+
 
   def report
     obj = @report.dup
@@ -60,17 +66,14 @@ Filter = Struct.new(:collection, :sum_all)
 Foo = Struct.new(:id, :label) # TODO FIX ME
 
 class Report
-  attr_accessor :from_date, :to_date, :branches, :categories, :category_type, :maintypes, :subtypes
+  attr_accessor :from_date, :to_date, :branches, :categories, :category_type, :maintypes, :subtypes, :age_groups
 
   def get_results
     @results = []
     traverse_branches
 
-    # puts @results.inspect # delete
-
-    attributes = %w{id email name}
-
     # remove this
+    attributes = %w{id email name}
     csv_string = CSV.generate(headers: true) do |csv|
       csv << attributes
 
@@ -80,8 +83,6 @@ class Report
     end
 
     #puts csv_string
-
-
     {results: @results.flatten}.to_json
   end
 
@@ -96,7 +97,6 @@ class Report
     end
   end
 
-
   def traverse_maintypes(branch)
     if @maintypes.sum_all
       traverse_subtypes(branch, Foo.new(nil, 'Samlet'))
@@ -110,33 +110,43 @@ class Report
 
   def traverse_subtypes(branch, maintype)
     if @subtypes.sum_all
-      traverse_categories(branch, maintype, Foo.new(nil, 'Samlet'))
+      traverse_age_groups(branch, maintype, Foo.new(nil, 'Samlet'))
     else
       @subtypes.collection.each do |subtype|
         next unless maintype.id == nil || subtype.associated?(maintype.id)
 
-        traverse_categories(branch, maintype, Foo.new(subtype.id, subtype.label))
+        traverse_age_groups(branch, maintype, Foo.new(subtype.id, subtype.label))
       end
     end
   end
 
+  def traverse_age_groups(branch, maintype, subtype)
+    if @age_groups.sum_all
+      traverse_categories(branch, maintype, subtype, Foo.new(nil, 'Samlet'))
+    else
+      @age_groups.collection.each do |age_group|
+        traverse_categories(branch, maintype, subtype, Foo.new(age_group.id, age_group.name))
+      end
+    end
+  end
 
-  def traverse_categories(branch, maintype, subtype)
+  #def traverse_categories(branch, maintype, subtype)
+  def traverse_categories(branch, maintype, subtype, age_group)
     if @categories.sum_all
-      events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id)
-      calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label)
+      events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
     else @categories.collection.each do |cat|
       next unless cat.subtype_associated?(subtype.id, maintype.id) ||
        (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
        (subtype.id == nil && maintype.id == nil)
 
       events = case @category_type
-        when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
-        when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id)
+      when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
       end
 
       calculate_result(branch_name: branch.label, category_name: cat.name,
-      events: events, subtype: subtype.label, maintype: maintype.label)
+      events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.name)
     end
   end
 
@@ -144,21 +154,22 @@ end
 
 
 def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil,
-  maintype: 'Samlet', subtype: 'Samlet')
+  maintype: 'Samlet', subtype: 'Samlet', age_group: 'Samlet')
   young_ages_count = events.to_a.sum(&:sum_non_adults)
   all_ages_count = events.to_a.sum(&:sum_all_ages)
   older_ages_count = events.to_a.sum(&:sum_adults)
 
   @results << {branch_name: branch_name, category_name: category_name, all: all_ages_count,
     young: young_ages_count, older: older_ages_count, no_of_events: events.size,
-    maintype: maintype, subtype: subtype}
+    maintype: maintype, subtype: subtype, age_group: age_group}
   end
 
 
   def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
-    maintype_id: nil, subtype_id: nil)
+    maintype_id: nil, subtype_id: nil, age_group_id: nil)
     Event.between_dates(@from_date, @to_date)
     .by_branch(branch_id)
+    .by_age_group(age_group_id)
     .by_maintype(maintype_id)
     .by_subtype(subtype_id)
     .by_category(category_id)

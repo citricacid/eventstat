@@ -39,6 +39,9 @@ class Event < ActiveRecord::Base
     id.present? ? where("branch_id = ?", id) : all
   end
 
+  def self.by_age_group(id)
+    id.present? ? where("age_group_id = ?", id) : all
+  end
 
   def self.by_category(id) # and event_type = ????
     id.present? ? where("category_id = ?", id) : all
@@ -64,7 +67,7 @@ class Event < ActiveRecord::Base
     id.present? ? joins(:event_type).where('event_types.event_maintype_id = ?', id) : all
   end
 
-  def self.by_age_group(group)
+  def self.by_age_category(group)
     if group.present?
       id = group == 'adult' ? 0 : 1
       joins(:age_group).where('age_groups.age_category = ?', id)
@@ -103,10 +106,7 @@ end
 class AgeGroup < ActiveRecord::Base
   default_scope { order(:view_priority => :asc) }
   enum age_category: { adult: 0, non_adult: 1 }
-
 end
-
-
 
 class AgeAttribute < ActiveRecord::Base
   belongs_to :event_type

@@ -438,8 +438,16 @@ get '/manage_events' do
         }
       end
 
+      age_groups = []
+      AgeGroup.all.each do |agegroup|
+        age_groups << {
+          value: agegroup.id,
+          text: agegroup.name # lage label?
+        }
+      end
+
       {types: event_types, maintypes: maintypes, subtypes: subtypes, categories: categories,
-        subcategories: subcategories, branches: branches}.to_json
+        subcategories: subcategories, branches: branches, agegroups: age_groups}.to_json
 
       #  {maintypes: maintypes}.to_json
     end
@@ -485,6 +493,7 @@ get '/manage_events' do
       branch_id = data['branch_id']
       category_id = data['category_id']
       subcategory_id = data['subcategory_id']
+      age_group_id = data['age_group_id']
       @from_date = Date.parse(data['from_date'])
       @to_date = Date.parse(data['to_date'])
 
@@ -494,10 +503,10 @@ get '/manage_events' do
       report_builder = ReportBuilder.new
       report_builder.set_dates(@from_date, @to_date)
       report_builder.set_branch(branch_id)
+      report_builder.set_age_group(age_group_id)
       report_builder.set_type(maintype_id, subtype_id)
       report_builder.set_category(category_id, subcategory_id)
 
       report = report_builder.report
       report.get_results
-
     end
