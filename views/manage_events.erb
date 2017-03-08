@@ -196,7 +196,7 @@
                       <%= "<a class='btn btn-danger' href='/delete_event/#{event.id}'>Slette</a>" if @edit && is_admin %>
                       <label class="btn btn-danger">
                         <input type='checkbox' name='marked_for_deletion'
-                        <%= " checked" if event.marked_for_deletion == 1 %>
+                        <%= " checked" if @edit && event.marked_for_deletion == 1 %>
                         >Marker for sletting</label>
                     </div>
                   </form>
