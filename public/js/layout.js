@@ -43,12 +43,35 @@ $(function() {
     }
   })
 
+
+  $(".alert-dialog").click(function(event) {
+    const has_answered = true;
+    const source = event.target || event.srcElement;
+
+    localStorage.setItem('hasAnswered', true);
+
+    if (source.id === "yes") {
+      $("#settings_modal").modal('show');
+    }
+  })
+
+  //
   // initialize page
+  //
   const defaultBranch = localStorage.getItem('defaultBranch') || '';
   const defaultPerPage = localStorage.getItem('defaultPerPage') || '10';
+  const hasAnswered = localStorage.getItem('hasAnswered') || false
 
+  // set current values for options page
   $('#settings_branch').val(defaultBranch);
   $('input[name=settings_per_page]').val([defaultPerPage]);
+
+  // if login from new device, show options alert
+  if (storageAvailable('localStorage') && !hasAnswered) {
+    $("#options_alert").show();
+  } else {
+    $("#options_alert").hide();
+  }
 
   // set active class for navbar
   let activeNavigation;

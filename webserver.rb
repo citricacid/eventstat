@@ -163,7 +163,8 @@ get '/manage_events' do
     event_id = params['event_id']
 
     @edit = true
-    @selected_branch = params['event_id']
+    event = Event.find(event_id)
+    @selected_branch = event.branch_id
 
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
@@ -461,6 +462,7 @@ get '/manage_events' do
 
       event = is_edit ? Event.find(event_id) : Event.new
       event.attributes = event.attributes.merge(params) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
+      event.marked_for_deletion = params[:marked_for_deletion].present?
 
       category = event.event_type.get_category_id_by(event.subcategory_id)
       event.category_id = category.id
@@ -480,7 +482,6 @@ get '/manage_events' do
 
     put '/api/settings' do
       data = JSON.parse(request.body.read)
-      puts data['defaultBranch']
       session[:default_branch] = data['defaultBranch']
       session[:default_per_page] = data['defaultPerPage']
     end
