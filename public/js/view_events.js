@@ -10,9 +10,10 @@ $(function() {
     const month = 'month=' +$("#month_selector").val()
     const branch = 'branch=' +$("#branch_selector").val()
     const show_filters = 'show_filters=' + $('#filter_switch').is(':checked')
+    const show_marked = 'show_marked=' + $('input[name=show_marked]:checked').val()
 
     const link = '/view_events?page_number=1&' + per_page + '&' + sort_by + '&'
-    + sort_order + '&' + audience + '&' + branch + '&' + month + '&' + show_filters;
+    + sort_order + '&' + audience + '&' + branch + '&' + month + '&' + show_filters + '&' + show_marked;
 
     window.location.href = link;
   }

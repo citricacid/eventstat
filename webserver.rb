@@ -166,6 +166,8 @@ get '/manage_events' do
     event = Event.find(event_id)
     @selected_branch = event.branch_id
 
+    protected! if event.marked_for_deletion == 1
+
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
       event_types: EventType.ordered_view.all, event: Event.find(event_id), error: error, is_admin: is_admin? }
@@ -175,9 +177,8 @@ get '/manage_events' do
   get '/view_events' do
     require_logged_in
 
-    # success = session.delete(:transaction_success) # why is this here?
-
     # TODO: sanitize input
+
     # parse parameters
     @per_page = params[:per_page] || session[:default_per_page] || '10'
     @per_page = '10' if @per_page.to_i < 1 ||  @per_page.to_i > 200
@@ -187,12 +188,19 @@ get '/manage_events' do
     @sort_order = params[:sort_order] || 'desc'
     @month = params[:month] || ''
     @branch = params[:branch] || session[:default_branch] || ''
+    @show_marked = params[:show_marked] || 'all'
     @show_filters = params[:show_filters].present? && params[:show_filters] == 'true'
 
     # filter result set
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
     events = events.by_age_group(@audience) unless @audience == 'all'
     events = events.by_branch(@branch) unless @branch.blank?
+
+    if @show_marked == 'none'
+      events = events.where(marked_for_deletion: 0)
+    elsif @show_marked == 'only'
+      events = events.where(marked_for_deletion: 1)
+    end
 
     if @month.present?
       start = Date.new(2017, @month.to_i ,1)
@@ -239,6 +247,36 @@ get '/manage_events' do
 
     redirect('/view_events')
   end
+
+
+  get '/mark_event/:event_id' do
+    require_logged_in
+    event = Event.find(params['event_id'])
+
+    log_message = "MARKED EVENT FOR DELETION: " + event.inspect
+    logger.info log_message
+    Log.log.info log_message
+
+    event.marked_for_deletion = true
+    event.save!
+
+    redirect('/view_events')
+  end
+
+  get '/unmark_event/:event_id' do
+    protected!
+    event = Event.find(params['event_id'])
+
+    log_message = "UNMARKED EVENT FOR DELETION: " + event.inspect
+    logger.info log_message
+    Log.log.info log_message
+
+    event.marked_for_deletion = false
+    event.save!
+
+    redirect('/view_events')
+  end
+
 
   get '/manage_categories' do
     protected!
