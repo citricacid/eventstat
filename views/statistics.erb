@@ -167,6 +167,22 @@
         </div>
 
 
+        <%# --- Dropdowns for target audiences                 --- %>
+        <div class="row">
+          <div class="form-group" id="target_audience_row">
+            <label for="category_selector" class="main">Aldersgruppe/kategori:</label>
+
+            <select id="age_group_selector" class="target_audience_selector" name="age_group_id">
+              <%= erb :_category_options, locals: {cats: age_groups}  %>
+            </select>
+
+            <select id="age_category_selector" class="target_audience_selector" name="age_category_id">
+              <%= erb :_category_options, locals: {cats: age_categories}  %>
+            </select>
+          </div>
+        </div>
+
+
         <%# --- Buttons                --- %>
         <div class="row">
           <div class="form-group">

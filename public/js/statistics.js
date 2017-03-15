@@ -44,13 +44,20 @@ const resetCategories = function() {
   $('#subcategory_selector').find('option:first-child').prop('selected', true);
 };
 
+// refactor?!
+const resetAgeGroups = function() {
+  $('#age_group_selector').find('option:nth-child(2)').prop('selected', true);
+  $('#age_category_selector').find('option:first-child').prop('selected', true);
+};
+
+
 // document ready
 $(function() {
   //
   // event handlers
   //
 
-  $('.category_selector').change(function() {
+  $('.category_selector, .target_audience_selector').change(function() {
     toggleOption($(this), true);
     toggleOption($(this).siblings(), false);
   });
@@ -248,6 +255,7 @@ $(function() {
   // reset category selectors
   resetCategories();
   $('#category_selector').change();
+  resetAgeGroups();
 
   // set parameters for tableExport plugin
 

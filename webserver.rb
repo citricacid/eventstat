@@ -312,8 +312,14 @@ get '/manage_events' do
     error = session.delete(:transaction_error)
     @selected_branch = session[:default_branch] || '0'
 
+    Group = Struct.new(:id, :name)
+    groups = []
+
+    AgeGroup.age_categories.each { |k, v| groups << Group.new(v, AgeGroup.get_label(k)) }
+
     erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
+      categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
+      age_categories: groups, event_types: EventType.all,
       event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
     end
 
@@ -539,10 +545,13 @@ get '/manage_events' do
       maintype_id = data['maintype_id']
       subtype_id = data['subtype_id']
 
+      age_group_id = data['age_group_id']
+      age_category_id = data['age_category_id']
+
       report_builder = ReportBuilder.new
       report_builder.set_dates(@from_date, @to_date)
       report_builder.set_branch(branch_id)
-      report_builder.set_age_group(age_group_id)
+      report_builder.set_age_group(age_group_id, age_category_id)
       report_builder.set_type(maintype_id, subtype_id)
       report_builder.set_category(category_id, subcategory_id)
 
