@@ -1,0 +1,17 @@
+<form action="/api/lock" method="post" id="lock-form" autocomplete="off">
+<div class="row">
+  <%= erb :_branch_selector, locals: {branches: branches}  %>
+</div>
+
+<div class="row">
+  <%= erb :_datepicker %>
+</div>
+
+<div class="row">
+<div class="form-group">
+  <button type="button" class="btn btn-secondary" id="preview">Forhåndsvis</button>
+  <input type="submit" class="btn btn-primary" value="Lagre">
+</div>
+</div>
+
+</form>
