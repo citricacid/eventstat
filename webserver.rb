@@ -277,6 +277,11 @@ get '/manage_events' do
     redirect('/view_events')
   end
 
+  get '/manage_locks' do
+    require_logged_in
+    @selected_branch = session[:default_branch] || '0'
+    erb :manage_locks, :locals => {branches: Branch.all}
+  end
 
   get '/manage_categories' do
     protected!

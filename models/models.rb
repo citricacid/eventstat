@@ -104,6 +104,13 @@ class Branch < ActiveRecord::Base
   has_many :counts, :through => :events
 
   default_scope { order(:name => :asc) }
+
+  def set_lock(date)
+    # check if valid...
+    locked_until = date # if locked_until < date
+    save!
+  end
+
 end
 
 

@@ -79,13 +79,19 @@
       <tbody>
 
         <% events.each do |event| %>
-          <%= "<tr>" %>
+          <% if event.marked_for_deletion == 1 %>
+            <%= "<tr style='text-decoration: line-through; color:red;'>" %>
+          <% else %>
+            <%= "<tr>" %>
+          <% end %>
           <%= "<td>#{event.name}</td><td>#{event.date.strftime('%d/%m/%-y')}</td>" %>
           <%= "<td>#{event.attendants}</td>" %>
           <% if event.marked_for_deletion == 1 %>
-          <%= "<td><a href='/delete_event/#{event.id}'><span class='glyphicon glyphicon-remove btn-danger'></span></a></td>"   %>
+          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit btn-danger'></span></a></td>"   %>
+          <% elsif event.is_locked == 1 %>            
+            <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-lock'></span></a></td>"   %>
           <% else %>
-          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>
+            <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>
           <% end %>
           <%= "</tr>" %>
           <% end %>
