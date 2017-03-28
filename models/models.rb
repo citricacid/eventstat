@@ -64,7 +64,7 @@ class Event < ActiveRecord::Base
   end
 
   def self.by_age_group(id)
-    id.present? ? where("age_group_id = ?", id) : all
+    id.present? ? where(age_group_id: id) : all
   end
 
   def self.by_age_category_id(group_id)

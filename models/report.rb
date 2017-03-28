@@ -47,14 +47,25 @@ class ReportBuilder
 
   def set_age_group(age_group_id, age_category_id)
     sum_all = age_group_id == 'sum_all' || age_category_id == 'sum_all'
+    sum_multiple_as_one = nil
+    #puts AgeGroup.age_categories
 
     if age_category_id == 'none'
       categories = age_group_id == 'iterate_all' ? AgeGroup.all : AgeGroup.where(id: age_group_id)
     else
-      categories = age_category_id == 'iterate_all' ? AgeGroup.age_categories : Subcategory.where(id: age_category_id)
+      categories = age_category_id == 'iterate_all' ? AgeGroup.age_categories : AgeGroup.where(age_category: age_category_id)
+      # id, label
+      snoo = []
+      AgeGroup.age_categories.each do |ag|
+        puts "---"
+        puts AgeGroup.where(age_category: ag[1])
+        puts ag[0]
+        puts ag[1]
+      end
+      sum_multiple_as_one = true unless age_category_id == 'iterate_all'
     end
 
-    @report.age_groups = Filter.new(categories, sum_all)
+    @report.age_groups = Filter.new(categories, sum_all, sum_multiple_as_one)
   end
 
 
@@ -68,7 +79,7 @@ end
 
 
 
-Filter = Struct.new(:collection, :sum_all)
+Filter = Struct.new(:collection, :sum_all, :sum_multiple_as_one)
 Foo = Struct.new(:id, :label) # TODO FIX ME
 
 class Report
@@ -126,13 +137,16 @@ class Report
       end
     end
 
-
     def traverse_age_groups(branch, maintype, subtype)
       if @age_groups.sum_all
         traverse_categories(branch, maintype, subtype, Foo.new(nil, 'Samlet'))
+      elsif @age_groups.sum_multiple_as_one == true
+        bart = @age_groups.collection.collect {|x| x.id}
+        traverse_categories(branch, maintype, subtype, Foo.new(bart, 'hmm'))
       else
-        @age_groups.collection.each do |age_group|
-          traverse_categories(branch, maintype, subtype, Foo.new(age_group.id, age_group.name))
+        #puts @age_groups.collection.inspect
+        @age_groups.collection.each do |k,v|
+          traverse_categories(branch, maintype, subtype, Foo.new(v,k)) #id, label
         end
       end
     end
