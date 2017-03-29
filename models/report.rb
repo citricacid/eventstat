@@ -45,24 +45,27 @@ class ReportBuilder
     @report.subtypes = Filter.new(subtypes, sum_all_subtypes)
   end
 
+  # special case. needs better, less fugly solution. but works for now
   def set_age_group(age_group_id, age_category_id)
     sum_all = age_group_id == 'sum_all' || age_category_id == 'sum_all'
     sum_multiple_as_one = nil
-    #puts AgeGroup.age_categories
 
     if age_category_id == 'none'
       categories = age_group_id == 'iterate_all' ? AgeGroup.all : AgeGroup.where(id: age_group_id)
-    else
-      categories = age_category_id == 'iterate_all' ? AgeGroup.age_categories : AgeGroup.where(age_category: age_category_id)
-      # id, label
-      snoo = []
+    elsif age_category_id == 'iterate_all'
+      categories = []
       AgeGroup.age_categories.each do |ag|
-        puts "---"
-        puts AgeGroup.where(age_category: ag[1])
-        puts ag[0]
-        puts ag[1]
+        label =  AgeGroup.get_label(ag[0])
+        id = AgeGroup.where(age_category: ag[1])
+        categories << LineItem.new(id, label)
       end
-      sum_multiple_as_one = true unless age_category_id == 'iterate_all'
+    else
+      #categories = age_category_id == 'iterate_all' ? AgeGroup.age_categories : AgeGroup.where(age_category: age_category_id)
+      categories = []
+      label =  AgeGroup.get_label(age_category_id)
+      id = AgeGroup.where(age_category: age_category_id)
+      categories = LineItem.new(id, label)
+      sum_multiple_as_one = true #unless age_category_id == 'iterate_all'
     end
 
     @report.age_groups = Filter.new(categories, sum_all, sum_multiple_as_one)
@@ -80,7 +83,7 @@ end
 
 
 Filter = Struct.new(:collection, :sum_all, :sum_multiple_as_one)
-Foo = Struct.new(:id, :label) # TODO FIX ME
+LineItem = Struct.new(:id, :label) # TODO FIX ME
 
 class Report
   attr_accessor :from_date, :to_date, :branches, :categories, :category_type,
@@ -106,20 +109,20 @@ class Report
 
   def traverse_branches
     if @branches.sum_all
-      traverse_maintypes(Foo.new(nil, 'Samlet'))
+      traverse_maintypes(LineItem.new(nil, 'Samlet'))
     else
       @branches.collection.each do |branch|
-        traverse_maintypes(Foo.new(branch.id, branch.name))
+        traverse_maintypes(LineItem.new(branch.id, branch.name))
       end
     end
   end
 
   def traverse_maintypes(branch)
     if @maintypes.sum_all
-      traverse_subtypes(branch, Foo.new(nil, 'Samlet'))
+      traverse_subtypes(branch, LineItem.new(nil, 'Samlet'))
     else
       @maintypes.collection.each do |maintype|
-        traverse_subtypes(branch, Foo.new(maintype.id, maintype.label))
+        traverse_subtypes(branch, LineItem.new(maintype.id, maintype.label))
       end
     end
   end
@@ -127,26 +130,27 @@ class Report
 
     def traverse_subtypes(branch, maintype)
       if @subtypes.sum_all
-        traverse_age_groups(branch, maintype, Foo.new(nil, 'Samlet'))
+        traverse_age_groups(branch, maintype, LineItem.new(nil, 'Samlet'))
       else
         @subtypes.collection.each do |subtype|
           next unless maintype.id == nil || subtype.associated?(maintype.id)
 
-          traverse_age_groups(branch, maintype, Foo.new(subtype.id, subtype.label))
+          traverse_age_groups(branch, maintype, LineItem.new(subtype.id, subtype.label))
         end
       end
     end
 
     def traverse_age_groups(branch, maintype, subtype)
       if @age_groups.sum_all
-        traverse_categories(branch, maintype, subtype, Foo.new(nil, 'Samlet'))
+        traverse_categories(branch, maintype, subtype, LineItem.new(nil, 'Samlet'))
       elsif @age_groups.sum_multiple_as_one == true
-        bart = @age_groups.collection.collect {|x| x.id}
-        traverse_categories(branch, maintype, subtype, Foo.new(bart, 'hmm'))
+        #bart = @age_groups.collection.collect {|x| x.id}
+        #traverse_categories(branch, maintype, subtype, LineItem.new(bart, 'hmm'))
+        traverse_categories(branch, maintype, subtype, @age_groups.collection)
       else
-        #puts @age_groups.collection.inspect
-        @age_groups.collection.each do |k,v|
-          traverse_categories(branch, maintype, subtype, Foo.new(v,k)) #id, label
+        @age_groups.collection.each do |ag|
+          traverse_categories(branch, maintype, subtype, ag) #id, label
+          #traverse_categories(branch, maintype, subtype, LineItem.new(v,k)) #id, label
         end
       end
     end
