@@ -52,7 +52,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <p>Sikker på at du ønsker å slette arrangementet?</p>
+        <p>Sikker på at du ønsker å markere arrangementet som slettet?</p>
       </div>
       <div class="modal-footer">
         <%= "<a class='btn btn-danger' href='/mark_event/#{event.id}'>Slette</a>" if @edit %>
@@ -137,7 +137,7 @@
                   <%= "selected" if @selected_branch == '0' %>>-- velg --</option>
                 <% branches.each do |branch| %>
                 <%= "<option value='#{branch.id}' " %>
-                  <%= "selected " if branch.id == @selected_branch %>
+                  <%= "selected " if branch.id.to_s == @selected_branch.to_s %>
                   <%= ">#{branch.name}</option>" %>
                   <% end %>
                 </select>
@@ -220,7 +220,7 @@
                       <%= "<a class='btn btn-danger pull-right' data-toggle='modal'
                       data-target='#confirmDeletionModal'>Marker for sletting</a>" if event.marked_for_deletion == 0 %>
                       <%= "<a class='btn btn-info pull-right' href='/unmark_event/#{event.id}'>
-                      Fjern merking</a>" if event.marked_for_deletion == 1 && is_admin  %>
+                      Fjern merking</a>" if event.marked_for_deletion == 1  %>
                       <% end %>
                     </div>
                   </form>

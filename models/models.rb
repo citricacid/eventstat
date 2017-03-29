@@ -25,6 +25,7 @@ class Event < ActiveRecord::Base
   scope :reverse, -> { order('id').reverse_order }
   scope :order_by_event_date, -> { order(date: :desc) }
   scope :order_by_registration_date, -> { order(id: :desc) }
+  scope :exclude_marked_events, -> { where(marked_for_deletion: 0) }
 
   validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
   validates :date, presence: true
@@ -121,9 +122,9 @@ class AgeGroup < ActiveRecord::Base
 
   def self.get_label(enum_key)
     if enum_key == 'adult'
-      'voksenlabel'
+      'voksne/alle'
     else
-      'barnelabel'
+      'barn/unge'
     end
   end
 

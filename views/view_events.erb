@@ -56,8 +56,8 @@
     </div>
 
     <label>Vis slettbare:</label>
-    <input type="radio" name="show_marked" value="all" class="filter_radio" <%= "checked" if @show_marked == 'all'%>>alle
     <input type="radio" name="show_marked" value="none" class="filter_radio" <%= "checked" if @show_marked == 'none'%>>ingen
+    <input type="radio" name="show_marked" value="all" class="filter_radio" <%= "checked" if @show_marked == 'all'%>>alle
     <input type="radio" name="show_marked" value="only" class="filter_radio" <%= "checked" if @show_marked == 'only'%>>bare
 
   </div>
@@ -88,7 +88,7 @@
           <%= "<td>#{event.attendants}</td>" %>
           <% if event.marked_for_deletion == 1 %>
           <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit btn-danger'></span></a></td>"   %>
-          <% elsif event.is_locked == 1 %>            
+          <% elsif event.is_locked == 1 %>
             <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-lock'></span></a></td>"   %>
           <% else %>
             <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>

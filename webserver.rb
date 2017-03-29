@@ -166,7 +166,7 @@ get '/manage_events' do
     event = Event.find(event_id)
     @selected_branch = event.branch_id
 
-    protected! if event.marked_for_deletion == 1
+    # protected! if event.marked_for_deletion == 1
 
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
@@ -188,12 +188,12 @@ get '/manage_events' do
     @sort_order = params[:sort_order] || 'desc'
     @month = params[:month] || ''
     @branch = params[:branch] || session[:default_branch] || ''
-    @show_marked = params[:show_marked] || 'all'
+    @show_marked = params[:show_marked] || 'none'
     @show_filters = params[:show_filters].present? && params[:show_filters] == 'true'
 
     # filter result set
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
-    events = events.by_age_group(@audience) unless @audience == 'all'
+    events = events.by_age_category(@audience) unless @audience == 'all'
     events = events.by_branch(@branch) unless @branch.blank?
 
     if @show_marked == 'none'
@@ -202,6 +202,7 @@ get '/manage_events' do
       events = events.where(marked_for_deletion: 1)
     end
 
+    # TODO refactor for year
     if @month.present?
       start = Date.new(2017, @month.to_i ,1)
       stop = start.next_month.prev_day
@@ -260,11 +261,11 @@ get '/manage_events' do
     event.marked_for_deletion = true
     event.save!
 
-    redirect('/view_events')
+    redirect('/view_events?show_marked=all')
   end
 
   get '/unmark_event/:event_id' do
-    protected!
+    require_logged_in
     event = Event.find(params['event_id'])
 
     log_message = "UNMARKED EVENT FOR DELETION: " + event.inspect
@@ -279,9 +280,43 @@ get '/manage_events' do
 
   get '/manage_locks' do
     require_logged_in
-    @selected_branch = session[:default_branch] || '0'
+
+    @selected_branch = params[:branch_id] || session[:default_branch] || '0'
+    @events = []
+    begin
+      branch = Branch.where(id: @selected_branch).first!
+      @current_lock_date = branch.locked_until.strftime('%d-%m-%Y')
+      @new_lock_date = params[:to_date] || @current_lock_date
+      @lockable = Date.parse(@current_lock_date) < Date.parse(@new_lock_date)
+      @events = Event.order_by_event_date.by_branch(branch.id).between_dates(Date.parse(@current_lock_date), Date.parse(@new_lock_date))
+      @unmarked_count = @events.where(marked_for_deletion: 0).size
+      @marked_count = @events.where(marked_for_deletion: 1).size
+    rescue
+      puts "it gone wrong"
+    end
+
+
     erb :manage_locks, :locals => {branches: Branch.all}
   end
+
+  get '/ajax/get_lock_date' do
+    #events.by_branch(@branch)
+    branch = Branch.where(id: params[:branch_id]).first
+    {current_lock_date: branch.locked_until.strftime('%d-%m-%Y')}.to_json
+  end
+
+  get '/ajax/get_events' do
+    branch = Branch.where(id: params[:branch_id]).first
+    current_lock_date = branch.locked_until
+    new_lock_date = params[:new_date]
+
+    # if new_date > cur_date
+    events = Event.order_by_event_date.by_branch(branch.id).between_dates(current_lock_date, new_lock_date)
+
+    {events: events}.to_json
+  end
+
+
 
   get '/manage_categories' do
     protected!
