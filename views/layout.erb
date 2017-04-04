@@ -30,6 +30,7 @@
   <script src="/bs/js/bootstrap.min.js"></script>
 
   <script src="/js/layout.js"></script>
+  <link href="/css/custom.css" rel="stylesheet">
 </head>
 <body>
 
@@ -66,6 +67,7 @@
         </ul>
         <ul class='nav navbar-nav navbar-right'>
           <% if is_authenticated? %>
+          <%= "<li class='nav-logout'><a href='/manage_locks'><span class='glyphicon glyphicon-lock'></span></a></li>" %>
           <%= "<li class='nav-settings'><a href='#settings_modal' data-toggle='modal' data-backdrop='static'><span class='glyphicon glyphicon-cog'></span></a></li>" %>
           <%= "<li class='nav-logout'><a href='/logout'><span class='glyphicon glyphicon-log-out'></span> Logg ut</a></li>" %>
           <% else %>

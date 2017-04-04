@@ -72,7 +72,6 @@ class Event < ActiveRecord::Base
     group_id.present? ? joins(:age_group).where('age_groups.age_category = ?', group_id) : all
   end
 
-
   def self.by_age_category(group)
     if group.present?
       id = group == 'adult' ? 0 : 1

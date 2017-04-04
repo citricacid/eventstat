@@ -173,13 +173,32 @@ get '/manage_events' do
       event_types: EventType.ordered_view.all, event: Event.find(event_id), error: error, is_admin: is_admin? }
     end
 
+  # ////////////////////////////////////////////////////////////////////////////
 
   get '/view_events' do
     require_logged_in
 
     # TODO: sanitize input
+    parse_parameters
+    erb :view_events, :locals => {branches: Branch.all }
 
-    # parse parameters
+  end
+
+  get '/ajax/search' do
+    # TODO: sanitize input
+    parse_parameters
+    events = filter_result_set
+    prepare_page_links(events)
+
+    start = (@page_number.to_i - 1) * @limit
+
+    # final cut
+    events = @sort_order == 'desc' ? events.to_a.slice(start, @limit) : events.to_a.reverse.slice(start, @limit)
+
+    {tablerows: generate_tablerows(events), page_links: generate_page_links}.to_json
+  end
+
+  def parse_parameters
     @per_page = params[:per_page] || session[:default_per_page] || '10'
     @per_page = '10' if @per_page.to_i < 1 ||  @per_page.to_i > 200
 
@@ -190,8 +209,13 @@ get '/manage_events' do
     @branch = params[:branch] || session[:default_branch] || ''
     @show_marked = params[:show_marked] || 'none'
     @show_filters = params[:show_filters].present? && params[:show_filters] == 'true'
+    @search = params[:search] || ''
+    @page_number = params[:page_number].present? ? params[:page_number].to_i : 1
 
-    # filter result set
+    @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Okt", "Nov", "Des"]
+  end
+
+  def filter_result_set
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
     events = events.by_age_category(@audience) unless @audience == 'all'
     events = events.by_branch(@branch) unless @branch.blank?
@@ -209,31 +233,118 @@ get '/manage_events' do
       events = events.between_dates(start, stop)
     end
 
-    # prepare page links
-    page_number = params[:page_number].present? ? params[:page_number].to_i : 1
-    limit = @per_page.to_i == 0 ? events.size : @per_page.to_i
-    offset = (page_number - 1) * limit
-    number_of_pages = events.size / limit
-    number_of_pages += 1 if events.size % limit > 0 && events.size != limit
-    page_number = 1 if page_number < 1 || page_number > number_of_pages
+    if @search.present?
+      events = events.where('MATCH (name) AGAINST(? IN BOOLEAN MODE)', @search + '*')
+    end
 
-    page_start = page_number > 2 ? page_number - 2 : 1
-    page_end = number_of_pages - page_number > 2 ? page_number + 2 : number_of_pages
-
-    @page_array = (page_start..page_end).to_a
-    @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Okt", "Nov", "Des"]
-
-    @link = "/view_events?per_page=#{@per_page}&audience=#{@audience}&sort_by=#{@sort_by}"
-    @link += "&sort_order=#{@sort_order}&month=#{@month}&branch=#{@branch}&page_number="
-
-    start = (page_number.to_i - 1) * limit
-
-    # final cut
-    events = @sort_order == 'desc' ? events.to_a.slice(start, limit) : events.to_a.reverse.slice(start, limit)
-
-    erb :view_events, :locals => {events: events, branches: Branch.all,
-       page_number: page_number, number_of_pages: number_of_pages}
+    events
   end
+
+  def prepare_page_links(events)
+    @limit = @per_page.to_i < 1 ? 10 : @per_page.to_i
+    #offset = (@page_number - 1) * limit
+    @number_of_pages = events.size / @limit
+    @number_of_pages += 1 if events.size % @limit > 0 && events.size != @limit
+    @page_number = 1 if @page_number < 1 || @page_number > @number_of_pages
+
+    page_start = @page_number > 2 ? @page_number - 2 : 1
+    page_end = @number_of_pages - @page_number > 2 ? @page_number + 2 : @number_of_pages
+    @page_array = (page_start..page_end).to_a
+
+    @link = %Q(
+      /view_events?per_page=#{@per_page}&audience=#{@audience}&sort_by=#{@sort_by}
+      &show_filters=#{@show_filters}&show_marked=#{@show_marked}&search=#{@search}
+      &sort_order=#{@sort_order}&month=#{@month}&branch=#{@branch}&page_number=
+    ).delete(' ')
+  end
+
+  def generate_tablerows(events)
+    tablerows = ''
+    events.each do |event|
+      if event.marked_for_deletion == 1
+        style = 'text-decoration: line-through; color:red;'
+        icon = 'glyphicon-edit btn-danger'
+      elsif event.is_locked == 1
+        style = ''
+        icon = 'glyphicon-lock'
+      else
+        style = ''
+        icon = 'glyphicon-edit'
+      end
+
+      tablerows <<  %Q(
+      <tr style='#{style}'>
+      <td>#{event.name}</td><td>#{event.date.strftime('%d/%m/%-y')}</td>
+      <td>#{event.attendants}</td>
+      <td><a href='/edit_event/#{event.id}'><span class='glyphicon #{icon}'></span></a></td>
+      </tr>
+      )
+    end
+
+    tablerows
+  end
+
+  def generate_page_links
+    page_links = %Q(
+    <div class='col col-xs-4'>
+    Side <span id="page_number">#{@page_number}</span> av #{@number_of_pages}
+    </div>
+    <div class='col col-xs-8'>
+    <nav aria-label='Page navigation'>
+    <ul class='pagination pull-left'>
+    <li class='page-item'>
+    <a class='page-link' data-page='1' href='javascript:void(0)' aria-label='Første'>
+    <span aria-hidden='true'>&laquo;</span>
+    <span class='sr-only'>Første</span>
+    </a>
+    </li>
+    )
+
+    if @page_number > 1
+      page_links += %Q(
+      <li class='page-item'>
+      <a class='page-link' data-page='#{(@page_number - 1)}' href='javascript:void(0)' aria-label='Forrige'>
+      <span aria-hidden='true'><</span>
+      <span class='sr-only'>Forrige</span>
+      </a></li>
+      )
+    end
+
+    #{@link}
+    #<button type="button" class="list-group-item">These Boots Are Made For Walking</button>
+    #page_links += %Q(<li class='page-item #{is_active}'><a class='page-link' href='#{i}'>#{i}</a></li>)
+    #javascript:void(0)
+
+    @page_array.each do |i|
+      is_active = i == @page_number ? 'active' : ''
+      page_links += %Q(<li class='page-item #{is_active}'><a class='page-link' data-page='#{i}' href='javascript:void(0)'>#{i}</a></li>)
+    end
+
+    if @page_number < @number_of_pages
+      page_links += %Q(
+      <li class='page-item'>
+      <a class='page-link' data-page='#{(@page_number + 1)}' href='javascript:void(0)' aria-label='Neste'>
+      <span aria-hidden='true'>></span>
+      <span class='sr-only'>Neste</span>
+      </a></li>
+      )
+    end
+
+    page_links += %Q(
+    <li class="page-item">
+    <a class='page-link' data-page='#{@number_of_pages}' href='javascript:void(0)' aria-label='Siste'>
+    <span aria-hidden="true">&raquo;</span>
+    <span class="sr-only">Siste</span>
+    </a>
+    </li>
+    </ul>
+    </nav>
+    </div>
+    )
+  end
+
+  # ////////////////////////////////////////////////////////////////////////////
+
 
 
   get '/delete_event/:event_id' do
@@ -278,6 +389,9 @@ get '/manage_events' do
     redirect('/view_events')
   end
 
+
+  # ////////////////////////////////////////////////////////////////////////////
+
   get '/manage_locks' do
     require_logged_in
 
@@ -285,16 +399,22 @@ get '/manage_events' do
     @events = []
     begin
       branch = Branch.where(id: @selected_branch).first!
-      @current_lock_date = branch.locked_until.strftime('%d-%m-%Y')
-      @new_lock_date = params[:to_date] || @current_lock_date
-      @lockable = Date.parse(@current_lock_date) < Date.parse(@new_lock_date)
-      @events = Event.order_by_event_date.by_branch(branch.id).between_dates(Date.parse(@current_lock_date), Date.parse(@new_lock_date))
+
+      current_lock_date = branch.locked_until.next_day
+      new_lock_date = (params[:to_date] && Date.parse(params[:to_date])) || Date.today.prev_day
+      new_lock_date = current_lock_date if new_lock_date < current_lock_date
+
+      @from_date = current_lock_date.strftime('%d-%m-%Y')
+      @to_date = new_lock_date.strftime('%d-%m-%Y')
+
+      @events = Event.order_by_event_date
+        .by_branch(branch.id)
+        .between_dates(current_lock_date, new_lock_date)
       @unmarked_count = @events.where(marked_for_deletion: 0).size
       @marked_count = @events.where(marked_for_deletion: 1).size
     rescue
       puts "it gone wrong"
     end
-
 
     erb :manage_locks, :locals => {branches: Branch.all}
   end
@@ -316,7 +436,53 @@ get '/manage_events' do
     {events: events}.to_json
   end
 
+  post '/api/lock' do
+    require_logged_in
 
+    @selected_branch = params[:branch_id] || session[:default_branch]
+
+    begin
+      branch = Branch.where(id: @selected_branch).first!
+    rescue
+      # do show_filters
+      puts "uh-oh"
+    end
+
+    from_date = branch.locked_until.next_day
+    to_date = (params[:to_date] && Date.parse(params[:to_date])) || Date.today.prev_day
+    # return ERROR if from_date < to_date || to_date > Date.today
+
+    @events = Event.order_by_event_date
+      .by_branch(branch.id)
+      .between_dates(from_date, to_date)
+    @unmarked_count = @events.where(marked_for_deletion: 0).size
+    @marked_count = @events.where(marked_for_deletion: 1).size
+
+    ActiveRecord::Base.transaction do
+      @events.each do |event|
+        if event.marked_for_deletion == 1
+            event.delete!
+        else
+          event.is_locked = 1
+          event.save!
+        end
+      end
+      branch.locked_until = to_date
+      success = true
+    end
+
+
+      if success
+        status 200
+        {message: "OK. Lagret"}.to_json
+      else
+        status 400
+        {message: "Beklager, det oppsto en feil"}.to_json
+      end
+
+    end
+
+  # ////////////////////////////////////////////////////////////////////////////
 
   get '/manage_categories' do
     protected!
@@ -340,11 +506,12 @@ get '/manage_events' do
     protected!
 
     erb :schema, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, event_types: EventType.all,
+      categories: Category.all, subcategory_links: SubcategoryLink.all,
+      age_groups: AgeGroup.all, event_types: EventType.all,
       event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
-    end
+  end
 
-
+  # ////////////////////////////////////////////////////////////////////////////
 
   get '/view_statistics' do
     require_logged_in

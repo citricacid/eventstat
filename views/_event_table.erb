@@ -1,6 +1,6 @@
-<div class="table-responsive" id="mytable">
+<div class="table-responsive">
+  <%= erb :_progressbar %>
   <table class="fw_table table table-striped" id="event_table">
-
     <thead>
       <tr>
         <th>Tittel</th>
@@ -10,8 +10,7 @@
       </tr>
     </thead>
     <tbody>
-
-      <% events.each do |event| %>
+      <% @events.each do |event| %>
         <% if event.marked_for_deletion == 1 %>
           <%= "<tr style='text-decoration: line-through; color:red;'>" %>
         <% else %>
