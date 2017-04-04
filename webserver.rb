@@ -233,7 +233,7 @@ end
     end
 
     if @search.present?
-      #events = events.where('MATCH (name) AGAINST(? IN BOOLEAN MODE)', @search + '*')
+      # events = events.where('MATCH (name) AGAINST(? IN BOOLEAN MODE)', @search + '*')
       events = events.where('name LIKE ?', "%#{@search}%")
     end
 
