@@ -153,7 +153,7 @@ get '/manage_events' do
   erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
     event_types: EventType.ordered_view.all, error: error }
-  end
+end
 
 
   get '/edit_event/:event_id' do
@@ -166,7 +166,6 @@ get '/manage_events' do
     event = Event.find(event_id)
     @selected_branch = event.branch_id
 
-    # protected! if event.marked_for_deletion == 1
 
     erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
@@ -206,7 +205,8 @@ get '/manage_events' do
     @sort_by = params[:sort_by] || 'reg'
     @sort_order = params[:sort_order] || 'desc'
     @month = params[:month] || ''
-    @branch = params[:branch] || session[:default_branch] || ''
+    @year = params[:year] || '2017'
+    @branch_id = params[:branch] || session[:default_branch] || ''
     @show_marked = params[:show_marked] || 'none'
     @show_filters = params[:show_filters].present? && params[:show_filters] == 'true'
     @search = params[:search] || ''
@@ -218,7 +218,7 @@ get '/manage_events' do
   def filter_result_set
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
     events = events.by_age_category(@audience) unless @audience == 'all'
-    events = events.by_branch(@branch) unless @branch.blank?
+    events = events.by_branch(@branch_id) unless @branch_id.blank?
 
     if @show_marked == 'none'
       events = events.where(marked_for_deletion: 0)
@@ -226,15 +226,15 @@ get '/manage_events' do
       events = events.where(marked_for_deletion: 1)
     end
 
-    # TODO refactor for year
     if @month.present?
-      start = Date.new(2017, @month.to_i ,1)
+      start = Date.new(@year.to_i, @month.to_i , 1)
       stop = start.next_month.prev_day
       events = events.between_dates(start, stop)
     end
 
     if @search.present?
-      events = events.where('MATCH (name) AGAINST(? IN BOOLEAN MODE)', @search + '*')
+      #events = events.where('MATCH (name) AGAINST(? IN BOOLEAN MODE)', @search + '*')
+      events = events.where('name LIKE ?', "%#{@search}%")
     end
 
     events
@@ -254,7 +254,7 @@ get '/manage_events' do
     @link = %Q(
       /view_events?per_page=#{@per_page}&audience=#{@audience}&sort_by=#{@sort_by}
       &show_filters=#{@show_filters}&show_marked=#{@show_marked}&search=#{@search}
-      &sort_order=#{@sort_order}&month=#{@month}&branch=#{@branch}&page_number=
+      &sort_order=#{@sort_order}&month=#{@month}&branch=#{@branch_id}&page_number=
     ).delete(' ')
   end
 
@@ -310,10 +310,6 @@ get '/manage_events' do
       )
     end
 
-    #{@link}
-    #<button type="button" class="list-group-item">These Boots Are Made For Walking</button>
-    #page_links += %Q(<li class='page-item #{is_active}'><a class='page-link' href='#{i}'>#{i}</a></li>)
-    #javascript:void(0)
 
     @page_array.each do |i|
       is_active = i == @page_number ? 'active' : ''
@@ -370,7 +366,7 @@ get '/manage_events' do
     Log.log.info log_message
 
     event.marked_for_deletion = true
-    event.save!
+    event.save! unless event.is_locked == 1 # makes no sense to mark locked event - just a minor safeguard
 
     redirect('/view_events?show_marked=all')
   end
@@ -395,7 +391,7 @@ get '/manage_events' do
   get '/manage_locks' do
     require_logged_in
 
-    @selected_branch = params[:branch_id] || session[:default_branch] || '0'
+    @selected_branch = params[:branch_id] || session[:default_branch]
     @events = []
     begin
       branch = Branch.where(id: @selected_branch).first!
@@ -444,8 +440,7 @@ get '/manage_events' do
     begin
       branch = Branch.where(id: @selected_branch).first!
     rescue
-      # do show_filters
-      puts "uh-oh"
+      redirect back
     end
 
     from_date = branch.locked_until.next_day
@@ -458,6 +453,7 @@ get '/manage_events' do
     @unmarked_count = @events.where(marked_for_deletion: 0).size
     @marked_count = @events.where(marked_for_deletion: 1).size
 
+    success = false
     ActiveRecord::Base.transaction do
       @events.each do |event|
         if event.marked_for_deletion == 1
@@ -468,18 +464,13 @@ get '/manage_events' do
         end
       end
       branch.locked_until = to_date
+      branch.save!
+
       success = true
     end
 
-
-      if success
-        status 200
-        {message: "OK. Lagret"}.to_json
-      else
-        status 400
-        {message: "Beklager, det oppsto en feil"}.to_json
-      end
-
+      @message = success ? "Ok. Lagret" : "Beklager. Feil oppsto"
+      redirect back
     end
 
   # ////////////////////////////////////////////////////////////////////////////
@@ -713,10 +704,13 @@ get '/manage_events' do
 
       event = is_edit ? Event.find(event_id) : Event.new
       event.attributes = event.attributes.merge(params) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
-      event.marked_for_deletion = params[:marked_for_deletion].present?
 
       category = event.event_type.get_category_id_by(event.subcategory_id)
       event.category_id = category.id
+
+      event.added_after_lock = 1 if !is_edit && event.date < Branch.find(event.branch_id).locked_until
+
+      protected! if event.is_locked == 1
 
       if event.save
         type = is_edit ? "MODIFY EVENT: " : "ADD EVENT: "

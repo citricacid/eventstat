@@ -10,6 +10,7 @@ $(function() {
     const sort_order = 'sort_order=' + $('#sort_selector').find(':selected').data('sort_order')
     const audience = 'audience=' + $('input[name=audience]:checked').val()
     const month = 'month=' +$("#month_selector").val()
+    const year = 'year=' +$("#year_selector").val()
     const branch = 'branch=' +$("#branch_selector").val()
     const show_filters = 'show_filters=' + $('#filter_switch').is(':checked')
     const show_marked = 'show_marked=' + $('input[name=show_marked]:checked').val()
@@ -17,7 +18,7 @@ $(function() {
     const page_number = '?page_number=' + pageNumber || $('#page_number').html() || '1';
 
     return page_number + '&' + per_page + '&' + sort_by + '&' + sort_order
-    + '&' + audience + '&' + branch + '&' + month + '&' + show_filters
+    + '&' + audience + '&' + branch + '&' + month + '&' + year + '&' + show_filters
     + '&' + show_marked + '&' + search;
   }
 
@@ -67,6 +68,11 @@ $(function() {
   $("#branch_selector, #month_selector, #sort_selector, .filter_radio").change(function() {
     getResults('1');
   });
+
+  $('#clear_search').click(function() {
+    $('#search_box').val('');
+    getResults('1');
+  })
 
 
   $('body').on('click', '.page-link', function(){

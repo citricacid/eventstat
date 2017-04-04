@@ -5,10 +5,10 @@
   <div class="input-group">
     <label for="branch_selector" class="radio-inline">Sted:</label>
     <select id="branch_selector" name="branch_id">
-      <option value="" selected >-- Alle --</option>
+      <option value="">-- Alle --</option>
       <% branches.each do |branch| %>
       <%= "<option value='#{branch.id}'"%>
-        <%= " selected='selected'" if branch.id.to_s == @branch.to_s %>
+        <%= " selected='selected'" if branch.id.to_s == @branch_id.to_s %>
         <%= ">#{branch.name}</option>" %>
         <% end %>
       </select>
@@ -17,7 +17,7 @@
       <input type="checkbox" id="filter_switch" <%= "checked" if @show_filters %>>
     </div>
 
-      <div class="input-group">
+      <div class="input-group hidden-xs">
         <input type="text" class="form-control" id="search_box" placeholder="Søk&hellip;"
         <%= " value='#{@search}'" %>>
         <span class="input-group-btn">
@@ -41,8 +41,10 @@
             <% end %>
           </select>
           <select id="year_selector">
-            <option value="" selected >2017</option>
-            </select>
+            <% for year in (2017..Date.today.year).reverse_each %>
+              <%= %Q(<option value='#{year}'>#{year}</option>) %>
+            <% end %>
+          </select>
         </div>
       </div>
 
@@ -81,9 +83,9 @@
         </div>
 
         <div class="input-group col-lg-3">
-          <label class='radio-inline'>Vis slettbare:</label>
-          <input type="radio" name="show_marked" value="none" class="filter_radio" <%= "checked" if @show_marked == 'none'%>>ingen
-          <input type="radio" name="show_marked" value="all" class="filter_radio" <%= "checked" if @show_marked == 'all'%>>alle
+          <label class='radio-inline'>Vis merkede:</label>
+          <input type="radio" name="show_marked" value="none" class="filter_radio" <%= "checked" if @show_marked == 'none'%>>nei
+          <input type="radio" name="show_marked" value="all" class="filter_radio" <%= "checked" if @show_marked == 'all'%>>ja
           <input type="radio" name="show_marked" value="only" class="filter_radio" <%= "checked" if @show_marked == 'only'%>>bare
         </div>
       </div>
@@ -116,7 +118,6 @@
         </tbody>
       </table>
     </div>
-
 
     <div class="row" id="page_navigation">
     </div>

@@ -3,11 +3,6 @@
   overflow-y:scroll;
 }
 
-.summation_row {
-  display: block;
-  border-top: 5px solid #000;
-  filter: invert(100%);
-}
 
 .table-loading-overlay {
   position: fixed;

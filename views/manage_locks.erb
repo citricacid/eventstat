@@ -9,7 +9,17 @@
 
 <form action="/api/lock" method="post" id="lock-form" autocomplete="off">
 <div class="row">
-  <%= erb :_branch_selector, locals: {branches: branches}  %>
+  <div class="form-group">
+    <label for="branch_selector" class="main">Sted:</label>
+    <select id="branch_selector" name="branch_id">
+      <option value="">--Velg--</option>
+      <% branches.each do |branch| %>
+      <%= "<option value='#{branch.id}'" %>
+      <%= " selected" if branch.id.to_s == @selected_branch.to_s %>
+      <%= ">#{branch.name}</option>" %>
+      <% end %>
+    </select>
+  </div>
 </div>
 
 <div class="row">
