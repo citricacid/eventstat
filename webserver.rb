@@ -234,7 +234,8 @@ end
 
     if @search.present?
       # events = events.where('MATCH (name) AGAINST(? IN BOOLEAN MODE)', @search + '*')
-      events = events.where('name LIKE ?', "%#{@search}%")
+      #events = events.where('name LIKE ?', "%#{@search}%")
+      events = events.search(@search)
     end
 
     events

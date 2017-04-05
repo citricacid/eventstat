@@ -81,6 +81,9 @@ class Event < ActiveRecord::Base
     end
   end
 
+  def self.search(text)
+    joins(:subcategory).where('subcategories.name LIKE ?', "%#{text}%").or(joins(:subcategory).where('events.name LIKE ?', "%#{text}%"))
+  end
 
   def sum_all_ages
     attendants
