@@ -736,6 +736,7 @@ end
       # TODO sanitize input
 
       data = JSON.parse(request.body.read)
+      period_label = data['period_label']
       branch_id = data['branch_id']
       category_id = data['category_id']
       subcategory_id = data['subcategory_id']
@@ -750,10 +751,12 @@ end
       age_category_id = data['age_category_id']
 
       report_builder = ReportBuilder.new
+      report_builder.set_period_label(period_label)
       report_builder.set_dates(@from_date, @to_date)
       report_builder.set_branch(branch_id)
       report_builder.set_age_group(age_group_id, age_category_id)
-      report_builder.set_type(maintype_id, subtype_id)
+      #report_builder.set_type(maintype_id, subtype_id)
+      report_builder.set_type([7,9], subtype_id)
       report_builder.set_category(category_id, subcategory_id)
 
       report = report_builder.report

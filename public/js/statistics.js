@@ -1,7 +1,6 @@
 "use strict";
 /* global $ moment */
 
-let listOfResults = [];
 let tables;
 
 const convertFormToHash = function($form) {
@@ -75,7 +74,7 @@ $(function() {
   // handle radio buttons
   $('input[name=subtype_id]').change(function() {
     const categories = $(this).data('categories') ||
-     $('#event_maintype_selector').find(':selected').data('categories');
+    $('#event_maintype_selector').find(':selected').data('categories');
 
     setVisibleOptions($('#category_selector'), categories);
 
@@ -87,7 +86,7 @@ $(function() {
 
   $(".period").change(function() {
     const periodString = $("#daterange_from").val() + "/" + $("#daterange_to").val();
-    $('#period_name').val(periodString);
+    $('#period_label').val(periodString);
   });
 
   $(".quickpick").change(function() {
@@ -119,7 +118,7 @@ $(function() {
       quickpickString = quarter + ". kvartal " + year;
     }
 
-    $('#period_name').val(quickpickString);
+    $('#period_label').val(quickpickString);
 
     $("#daterange_from").val(startOfPeriod);
     $("#daterange_to").val(endOfPeriod);
@@ -127,14 +126,14 @@ $(function() {
 
   $("#clear").click(function() {
     $("#stats_table").find("tbody tr").remove();
-    listOfResults = [];
   });
 
   //
   // Submit parameters and process results
   //
   $('#submit').click(function() {
-    const periodString = $('#period_name').val();
+    // method to get default headers
+    const periodString = $('#period_label').val();
 
     const form = $("#query_form");
     const data = convertFormToHash(form);
@@ -147,13 +146,30 @@ $(function() {
       type: "PUT"
     });
 
+
     request.done(function(data, textStatus, xhr) {
+      // set new headers
+      const newHeaders = []
+
+      data.headers.forEach(header => {
+        newHeaders.push($('<th />',
+        {text: header.label, 'data-is-accumulative': header.is_countable, 'data-id': header.id
+        }))
+      })
+
+      const oldHeaders = $('thead').html()
+      $('thead').find('tr').html(newHeaders)
+
+      // if header structure has changed, clear table
+      if ($('thead').html() !== oldHeaders) {
+        $("#stats_table").find("tbody tr").remove();
+      }
+
+      // populate table with results
       const $tbody = $("#stats_table").find("tbody");
 
       data.results.forEach(result => {
-        listOfResults.push(result);
-
-        let foo = $('<button/>', {
+        let removeButton = $('<button/>', {
           type: 'button',
           text: ' ',
           html: "<span class='glyphicon glyphicon-remove'></span>",
@@ -164,28 +180,20 @@ $(function() {
           }
         });
 
-        // add empty row before accumulated? change addSummationRow to processSummationRow
-        let tableRow = $('<tr />').append(
-          [
-            $('<td/>', {text: periodString}),
-            $('<td/>', {text: result.branch_name}),
-            $('<td/>', {text: result.category_name}),
-            $('<td/>', {text: result.young}),
-            $('<td/>', {text: result.older}),
-            $('<td/>', {text: result.all}),
-            $('<td/>', {text: result.no_of_events}),
-            $('<td/>', {text: result.maintype}),
-            $('<td/>', {text: result.subtype}),
-            $('<td/>', {html: foo})
-          ]
-        );
+        let tableRow = $('<tr />');
 
+        $.each(result, function(i, obj) {
+          tableRow.append($('<td/>', {text: obj}))
+        });
+
+        tableRow.append($('<td/>', {html: removeButton}))
         $tbody.append(tableRow);
       });
 
       processSummationRow($("#stats_table"));
-      tables.update();
+      tables.update(); // refreshes table export
     });
+
 
     request.fail(function(xhr, textStatus, errorThrown) {
       alert(textStatus + ': ' + errorThrown);
@@ -220,9 +228,9 @@ $(function() {
     $tbody.append($row);
   }
 
-//
-// initialize page
-//
+  //
+  // initialize page
+  //
 
   // initialize daterange pickers
   $("#daterange_from").daterangepicker({
@@ -252,14 +260,12 @@ $(function() {
 
   $('#event_maintype_selector').change();
 
-  // reset category selectors
+  // reset selectors
   resetCategories();
   $('#category_selector').change();
   resetAgeGroups();
 
   // set parameters for tableExport plugin
-
-
   /* default filename if "id" attribute is set and undefined */
   // $.fn.tableExport.defaultFileName = "myDownload";
 
@@ -267,5 +273,4 @@ $(function() {
   $.fn.tableExport.xls.buttonContent = '-> excel'
 
   tables = $("#stats_table").tableExport({bootstrap: false, position: "top", formats: ['xls']});
-
 });

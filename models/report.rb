@@ -1,17 +1,62 @@
 # encoding: utf-8
 require 'csv'
 
+
+# Filter:
+# collection - activerecord collection
+# sum_all - boolean flag, if set to false then the collection will be iterated over
+# sum_multipe_as_one: fucked if I know
+Filter = Struct.new(:collection, :sum_all, :sum_multiple_as_one)
+
+# LineItem:
+# Used during filter traversal to generate labels for the table columns
+LineItem = Struct.new(:id, :label)
+
+# HeaderItem:
+# Simple struct for generating the table headers
+#
+# :label - for the table headers
+# :id - marker for matching table data with the correct column
+# :is_counntable - boolean flag indicating whether the column values should be accumulated
+HeaderItem = Struct.new(:label, :id, :is_countable)
+
+
+#
+# ReportBuilder
+#
+# Setters for defining the filters for the final report.
+#
+# Parameters: The id parameters can have the following values:
+# 'iterate_all' - report will iterate over all existing items (one lite item for each)
+# 'sum_all' - all existing items will be lumped as one
+# 'none' - for mutually exclusive categories...
+# single id or list of id values.... CHECK IF THIS ACTUALLY WORKS
+
+# idea: get_headers_for(...) and get_default_headers() - but where to place them?
+
 class ReportBuilder
   def initialize
     @report = Report.new
   end
 
+  def report
+    obj = @report.dup
+    @report = Report.new
+    return obj
+  end
+
+
+  #
+  # Setters
+  #
+  def set_period_label(str)
+    @report.period_label = str
+  end
 
   def set_dates(from_date, to_date)
     @report.from_date = from_date
     @report.to_date = to_date
   end
-
 
   def set_branch(branch_id)
     sum_all = branch_id == 'sum_all'
@@ -19,6 +64,7 @@ class ReportBuilder
     @report.branches = Filter.new(branches, sum_all)
   end
 
+  # refactor into set_category and set_subcategory
 
   def set_category(category_id, subcategory_id)
     @report.category_type = category_id != 'none' ? :category : :subcategory
@@ -34,7 +80,7 @@ class ReportBuilder
     @report.categories = Filter.new(categories, sum_all)
   end
 
-
+  # refactor into two setters?!
   def set_type(maintype_id, subtype_id)
     sum_all = maintype_id == 'sum_all'
     maintypes = maintype_id == 'iterate_all' ? EventMaintype.all : EventMaintype.where(id: maintype_id)
@@ -73,41 +119,28 @@ class ReportBuilder
 
     @report.age_groups = Filter.new(categories, sum_all, sum_multiple_as_one)
   end
-
-
-  def report
-    obj = @report.dup
-    @report = Report.new
-    return obj
-  end
-
 end
 
 
-Filter = Struct.new(:collection, :sum_all, :sum_multiple_as_one)
-LineItem = Struct.new(:id, :label)
+
+
+# Report
+#
+#
 
 class Report
-  attr_accessor :from_date, :to_date, :branches, :categories, :category_type,
-  :maintypes, :subtypes, :age_groups, :age_categories
+  attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :category_type,
+  :maintypes, :subtypes, :age_groups, :age_categories, :headers
 
   def get_results
     @results = []
     traverse_branches
 
-    # remove this
-    attributes = %w{id email name}
-    csv_string = CSV.generate(headers: true) do |csv|
-      csv << attributes
+    puts get_headers.flatten
+    puts @results.flatten
 
-      @results.flatten.each do |row|
-        csv << row.values
-      end
-    end
-
-    {results: @results.flatten}.to_json
+    {headers: get_headers.flatten, results: @results.flatten}.to_json
   end
-
 
   def traverse_branches
     if @branches.sum_all
@@ -130,75 +163,109 @@ class Report
   end
 
 
-    def traverse_subtypes(branch, maintype)
-      if @subtypes.sum_all
-        traverse_age_groups(branch, maintype, LineItem.new(nil, 'Samlet'))
-      else
-        @subtypes.collection.each do |subtype|
-          next unless maintype.id == nil || subtype.associated?(maintype.id)
+  def traverse_subtypes(branch, maintype)
+    if @subtypes.sum_all
+      traverse_age_groups(branch, maintype, LineItem.new(nil, 'Samlet'))
+    else
+      @subtypes.collection.each do |subtype|
+        next unless maintype.id == nil || subtype.associated?(maintype.id)
 
-          traverse_age_groups(branch, maintype, LineItem.new(subtype.id, subtype.label))
-        end
+        traverse_age_groups(branch, maintype, LineItem.new(subtype.id, subtype.label))
       end
     end
+  end
 
-    def traverse_age_groups(branch, maintype, subtype)
-      if @age_groups.sum_all
-        traverse_categories(branch, maintype, subtype, LineItem.new(nil, 'Samlet'))
-      elsif @age_groups.sum_multiple_as_one == true
-        traverse_categories(branch, maintype, subtype, @age_groups.collection)
-      else
-        @age_groups.collection.each do |ag|
-          traverse_categories(branch, maintype, subtype, ag)
-        end
+  def traverse_age_groups(branch, maintype, subtype)
+    if @age_groups.sum_all
+      traverse_categories(branch, maintype, subtype, LineItem.new(nil, 'Samlet'))
+    elsif @age_groups.sum_multiple_as_one == true
+      traverse_categories(branch, maintype, subtype, @age_groups.collection)
+    else
+      @age_groups.collection.each do |ag|
+        traverse_categories(branch, maintype, subtype, ag)
       end
     end
-
-    #def traverse_categories(branch, maintype, subtype)
-    def traverse_categories(branch, maintype, subtype, age_group)
-      if @categories.sum_all
-        events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
-        calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
-      else @categories.collection.each do |cat|
-        next unless cat.subtype_associated?(subtype.id, maintype.id) ||
-        (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
-        (subtype.id == nil && maintype.id == nil)
-
-        events = case @category_type
-        when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
-        when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
-        end
-
-        calculate_result(branch_name: branch.label, category_name: cat.name,
-        events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
-      end
-    end
-
   end
 
 
-  def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil,
-    maintype: 'Samlet', subtype: 'Samlet', age_group: 'Samlet')
-    young_ages_count = events.to_a.sum(&:sum_non_adults)
-    all_ages_count = events.to_a.sum(&:sum_all_ages)
-    older_ages_count = events.to_a.sum(&:sum_adults)
+  def traverse_categories(branch, maintype, subtype, age_group)
+    if @categories.sum_all
+      events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
+    else @categories.collection.each do |cat|
+      next unless cat.subtype_associated?(subtype.id, maintype.id) ||
+      (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
+      (subtype.id == nil && maintype.id == nil)
 
-    @results << {branch_name: branch_name, category_name: category_name, all: all_ages_count,
-      young: young_ages_count, older: older_ages_count, no_of_events: events.size,
-      maintype: maintype, subtype: subtype, age_group: age_group}
+      events = case @category_type
+      when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      end
+
+      calculate_result(branch_name: branch.label, category_name: cat.name,
+      events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
     end
-
-
-    def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
-      maintype_id: nil, subtype_id: nil, age_group_id: nil)
-      Event.between_dates(@from_date, @to_date)
-      .exclude_marked_events
-      .by_branch(branch_id)
-      .by_age_group(age_group_id)
-      .by_maintype(maintype_id)
-      .by_subtype(subtype_id)
-      .by_category(category_id)
-      .by_subcategory(subcategory_id)
-    end
-
   end
+
+end
+
+
+def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil,
+  maintype: 'Samlet', subtype: 'Samlet', age_group: 'Samlet')
+  young_ages_count = events.to_a.sum(&:sum_non_adults)
+  all_ages_count = events.to_a.sum(&:sum_all_ages)
+  older_ages_count = events.to_a.sum(&:sum_adults)
+
+  res = {}
+  get_headers.each do |header|
+    res[header.id.to_sym] = @period_label if header.id == "period"
+    res[header.id.to_sym] = branch_name if header.id == "branch_name"
+    res[header.id.to_sym] = category_name if header.id == "category"
+    res[header.id.to_sym] = category_name if header.id == "subcategory"
+    res[header.id.to_sym] = maintype if header.id == "maintype"
+    res[header.id.to_sym] = subtype if header.id == "subtype"
+    res[header.id.to_sym] = age_group if header.id == "age_group"
+    res[header.id.to_sym] = events.size if header.id == "no_of_events"
+    res[header.id.to_sym] = all_ages_count if header.id == "no_of_attendants"
+    res[header.id.to_sym] = age_group if header.id == "agegroup"
+    # add more
+  end
+  puts res.inspect
+  @results << res
+end
+
+def get_headers
+  headers = []
+  headers << HeaderItem.new("Periode", "period", false)
+  headers << HeaderItem.new("Sted", "branch_name", false)
+
+  # dynamic headers
+  headers << HeaderItem.new("Type", "maintype", false) unless @maintypes.sum_all
+  headers << HeaderItem.new("Undertype", "subtype", false) unless @subtypes.sum_all
+  headers << HeaderItem.new("Kategori", "category", false) unless @categories.sum_all || @category_type == :subcategory
+  headers << HeaderItem.new("Underkategori", "subcategory", false) unless @categories.sum_all || @category_type == :category
+  headers << HeaderItem.new("Alder", "agecategory", false) unless @age_categories.nil? || @age_categories.sum_all
+  headers << HeaderItem.new("Alder", "agegroup", false) unless @age_groups.nil? || @age_groups.sum_all
+
+  headers << HeaderItem.new("Ant. deltagere", "no_of_attendants", true)
+  headers << HeaderItem.new("Ant. arr", "no_of_events", true)
+
+  #attr_accessor :from_date, :to_date, :branches, :categories, :category_type,
+  #:maintypes, :subtypes, :age_groups, :age_categories, :headers
+  headers
+end
+
+
+  def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
+    maintype_id: nil, subtype_id: nil, age_group_id: nil)
+    Event.between_dates(@from_date, @to_date)
+    .exclude_marked_events
+    .by_branch(branch_id)
+    .by_age_group(age_group_id)
+    .by_maintype(maintype_id)
+    .by_subtype(subtype_id)
+    .by_category(category_id)
+    .by_subcategory(subcategory_id)
+  end
+
+end
