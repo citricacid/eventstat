@@ -21,6 +21,82 @@ LineItem = Struct.new(:id, :label)
 HeaderItem = Struct.new(:label, :id, :is_countable)
 
 
+# ReportStrategy
+# Strategies for implementing custom statistical reports.
+#
+# Interface:
+# label: for use in external user interfaces
+# setup:
+# headers: define the headers for the report
+
+
+class ReportStrategy
+  def initialize
+    @strategies = {}
+    @strategies[:Standard] = StandardStrategy
+    @strategies[:Kommune] = KommuneStrategy
+  end
+
+  def get_strategies
+    strats = []
+    @strategies.each do |k,v|
+      strats << {id: k, label: v.label}
+    end
+
+    strats
+  end
+
+  def label(type)
+    @strategies[type.to_sym] ? @strategies[type.to_sym].label : 'Ikke funnet'
+  end
+
+  def headers(type)
+    @strategies[type.to_sym] ? @strategies[type.to_sym].headers : ''
+  end
+
+  def setup(type)
+    @strategies[type.to_sym].setup
+  end
+
+end
+
+class StandardStrategy
+  def self.label
+    'Standard'
+  end
+
+  def self.headers
+    [
+      HeaderItem.new("Ant. deltagere", "no_of_attendants", true),
+      HeaderItem.new("Ant. arr", "no_of_events", true)
+    ]
+  end
+
+  def self.setup
+
+  end
+
+end
+
+class KommuneStrategy
+  def self.label
+    'Kommune'
+  end
+
+  def self.headers
+    [
+      HeaderItem.new("Ant. kommunedeltagere", "no_of_attendants", true),
+      HeaderItem.new("Ant. kommunearr", "no_of_events", true)
+    ]
+  end
+
+  def self.setup
+    # @report.set_maintype([7,9])
+    lambda { @report.set_maintype([7,9]) }
+  end
+end
+
+
 #
 # ReportBuilder
 #
@@ -36,6 +112,7 @@ HeaderItem = Struct.new(:label, :id, :is_countable)
 
 class ReportBuilder
   def initialize
+    @strategy = ReportStrategy.new
     @report = Report.new
   end
 
@@ -45,10 +122,42 @@ class ReportBuilder
     return obj
   end
 
+  def build
+    # @report.strategy = :Standard if @report.strategy.nil?
+    @strategy.setup(@report.strategy).call
+    @report.headers = build_headers
+    return report
+  end
+
+  def build_headers
+    headers = []
+
+    # fixed headers
+    headers << HeaderItem.new("Periode", "period", false)
+    headers << HeaderItem.new("Sted", "branch_name", false)
+
+    # dynamic headers
+    headers << HeaderItem.new("Type", "maintype", false) unless @report.maintypes.sum_all
+    headers << HeaderItem.new("Undertype", "subtype", false) unless @report.subtypes.sum_all
+    headers << HeaderItem.new("Kategori", "category", false) unless @report.categories.sum_all || @report.category_type == :subcategory
+    headers << HeaderItem.new("Underkategori", "subcategory", false) unless @report.categories.sum_all || @report.category_type == :category
+    headers << HeaderItem.new("Alder", "agecategory", false) unless @report.age_categories.nil? || @report.age_categories.sum_all
+    headers << HeaderItem.new("Alder", "agegroup", false) unless @report.age_groups.nil? || @report.age_groups.sum_all
+
+    # headers by strategy
+    headers << @strategy.headers(@report.strategy)
+
+    headers.flatten
+  end
+
 
   #
   # Setters
   #
+  def set_strategy(key)
+    @report.strategy = key
+  end
+
   def set_period_label(str)
     @report.period_label = str
   end
@@ -80,16 +189,19 @@ class ReportBuilder
     @report.categories = Filter.new(categories, sum_all)
   end
 
-  # refactor into two setters?!
-  def set_type(maintype_id, subtype_id)
+
+  def set_maintype(maintype_id)
     sum_all = maintype_id == 'sum_all'
     maintypes = maintype_id == 'iterate_all' ? EventMaintype.all : EventMaintype.where(id: maintype_id)
     @report.maintypes = Filter.new(maintypes, sum_all)
+  end
 
+  def set_subtype(subtype_id)
     sum_all_subtypes = subtype_id == 'sum_all'
     subtypes = subtype_id == 'iterate_all' ? EventSubtype.all : EventSubtype.where(id: subtype_id)
     @report.subtypes = Filter.new(subtypes, sum_all_subtypes)
   end
+
 
   # special case. needs better, less fugly solution. but works for now
   def set_age_group(age_group_id, age_category_id)
@@ -130,16 +242,13 @@ end
 
 class Report
   attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :category_type,
-  :maintypes, :subtypes, :age_groups, :age_categories, :headers
+  :maintypes, :subtypes, :age_groups, :age_categories, :headers, :strategy
 
   def get_results
     @results = []
     traverse_branches
 
-    puts get_headers.flatten
-    puts @results.flatten
-
-    {headers: get_headers.flatten, results: @results.flatten}.to_json
+    {headers: @headers.flatten, results: @results.flatten}.to_json
   end
 
   def traverse_branches
@@ -216,8 +325,11 @@ def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil
   all_ages_count = events.to_a.sum(&:sum_all_ages)
   older_ages_count = events.to_a.sum(&:sum_adults)
 
+  # legg til events.non_adults.size
+  # legg til header "Arr for barn/unge"
+  # ny set metode include_subsize(truefalse)
   res = {}
-  get_headers.each do |header|
+  @headers.each do |header|
     res[header.id.to_sym] = @period_label if header.id == "period"
     res[header.id.to_sym] = branch_name if header.id == "branch_name"
     res[header.id.to_sym] = category_name if header.id == "category"
@@ -230,42 +342,23 @@ def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil
     res[header.id.to_sym] = age_group if header.id == "agegroup"
     # add more
   end
-  puts res.inspect
+
   @results << res
 end
 
-def get_headers
-  headers = []
-  headers << HeaderItem.new("Periode", "period", false)
-  headers << HeaderItem.new("Sted", "branch_name", false)
 
-  # dynamic headers
-  headers << HeaderItem.new("Type", "maintype", false) unless @maintypes.sum_all
-  headers << HeaderItem.new("Undertype", "subtype", false) unless @subtypes.sum_all
-  headers << HeaderItem.new("Kategori", "category", false) unless @categories.sum_all || @category_type == :subcategory
-  headers << HeaderItem.new("Underkategori", "subcategory", false) unless @categories.sum_all || @category_type == :category
-  headers << HeaderItem.new("Alder", "agecategory", false) unless @age_categories.nil? || @age_categories.sum_all
-  headers << HeaderItem.new("Alder", "agegroup", false) unless @age_groups.nil? || @age_groups.sum_all
 
-  headers << HeaderItem.new("Ant. deltagere", "no_of_attendants", true)
-  headers << HeaderItem.new("Ant. arr", "no_of_events", true)
 
-  #attr_accessor :from_date, :to_date, :branches, :categories, :category_type,
-  #:maintypes, :subtypes, :age_groups, :age_categories, :headers
-  headers
+def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
+  maintype_id: nil, subtype_id: nil, age_group_id: nil)
+  Event.between_dates(@from_date, @to_date)
+  .exclude_marked_events
+  .by_branch(branch_id)
+  .by_age_group(age_group_id)
+  .by_maintype(maintype_id)
+  .by_subtype(subtype_id)
+  .by_category(category_id)
+  .by_subcategory(subcategory_id)
 end
-
-
-  def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
-    maintype_id: nil, subtype_id: nil, age_group_id: nil)
-    Event.between_dates(@from_date, @to_date)
-    .exclude_marked_events
-    .by_branch(branch_id)
-    .by_age_group(age_group_id)
-    .by_maintype(maintype_id)
-    .by_subtype(subtype_id)
-    .by_category(category_id)
-    .by_subcategory(subcategory_id)
-  end
 
 end

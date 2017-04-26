@@ -511,6 +511,7 @@ end
     error = session.delete(:transaction_error)
     @selected_branch = session[:default_branch] || '0'
 
+    @strategies = ReportStrategy.new.get_strategies
     Group = Struct.new(:id, :name)
     groups = []
 
@@ -623,6 +624,7 @@ end
 
     # --------------------------------------------------------------------------
 
+    # TODO add headers, strategies
     get '/api/basics' do
       event_types = []
       EventType.all.each do |et|
@@ -750,16 +752,21 @@ end
 
       age_group_id = data['age_group_id']
       age_category_id = data['age_category_id']
+      strategy = data['strategy']
 
+      #
       report_builder = ReportBuilder.new
+      report_builder.set_strategy(strategy)
       report_builder.set_period_label(period_label)
       report_builder.set_dates(@from_date, @to_date)
       report_builder.set_branch(branch_id)
       report_builder.set_age_group(age_group_id, age_category_id)
       #report_builder.set_type(maintype_id, subtype_id)
-      report_builder.set_type([7,9], subtype_id)
+      #report_builder.set_type([7,9], subtype_id)
+      report_builder.set_maintype(maintype_id)
+      report_builder.set_subtype(subtype_id)
       report_builder.set_category(category_id, subcategory_id)
 
-      report = report_builder.report
+      report = report_builder.build
       report.get_results
     end

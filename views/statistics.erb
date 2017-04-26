@@ -183,6 +183,16 @@
         </div>
 
 
+        <%# --- Strategies -- remove later                 --- %>
+        <div class="row">
+            <select name="strategy">
+          <% @strategies.each do |strategy| %>
+            <%= %Q(<option value='#{strategy[:id]}'>#{strategy[:label]}</option>) %>
+          <% end %>
+        </select>
+        </div>
+
+
         <%# --- Buttons                --- %>
         <div class="row">
           <div class="form-group">
