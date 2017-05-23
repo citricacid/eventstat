@@ -15,8 +15,12 @@ const setValidity = function($element, isValid) {
   }
 };
 
+const foo = function($elem) {
+ return $elem.data('must_validate')
+}
+
 const validateSelection = function($selector) {
-  const isValid = !$selector.find(':selected').hasClass("invalid_option");
+  const isValid = !$selector.data('must_validate') || !$selector.find(':selected').hasClass("invalid_option");
 
   setValidity($selector, isValid);
   return isValid;
@@ -47,7 +51,7 @@ const validateAttendants = function() {
 
 const validateDate = function() {
   const $dateInput = $('#daterange');
-  const isOK = moment($dateInput.val()).isValid();
+  const isOK = moment($dateInput.val(), 'DD-MM-YYYY', true).isValid();
 
   setValidity($dateInput, isOK);
   return isOK;
@@ -116,14 +120,15 @@ $(function() {
     isValid = validateSelection($subcategorySelector) && isValid;
     isValid = validateSelection($ageGroupSelector) && isValid;
     isValid = validateAttendants() && isValid;
-    isValid = validateDate && isValid;
+    isValid = validateDate() && isValid; // should this be a function call?
 
     // If only title is invalid, generate a default one
+    // (disabled for now to accommodate templates)
     if (isValid && !validateTitle()) {
       const branchName = $('#branch_selector option:selected').text();
       const dateString = $('#daterange').val();
 
-      $('#name').val(branchName + ' ' + dateString);
+      //$('#name').val(branchName + ' ' + dateString);
     }
 
     isValid = validateTitle() && isValid;

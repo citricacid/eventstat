@@ -166,6 +166,7 @@ $(function() {
       }
 
       // populate table with results
+      const countableKeys = findCountableKeys(newHeaders);
       const $tbody = $("#stats_table").find("tbody");
 
       data.results.forEach(result => {
@@ -180,7 +181,22 @@ $(function() {
           }
         });
 
-        let tableRow = $('<tr />');
+        // rows which countable values are zero across the board will be hideable by class
+        let tableRow;
+        const sumOfAllCountable = countableKeys.reduce((total, key) => total += parseInt(result[key], 10), 0);
+
+        if (sumOfAllCountable == 0) {
+          tableRow = $('<tr class="zero_sum" />');
+        } else {
+          tableRow = $('<tr />');
+        }
+
+
+
+        // sum += parseInt($(this).html(), 10);
+        //alert(froo)
+        //alert(countableIndices)
+        // if countable-rows == 0, add class 'zero'
 
         $.each(result, function(i, obj) {
           tableRow.append($('<td/>', {text: obj}))
@@ -199,6 +215,22 @@ $(function() {
       alert(textStatus + ': ' + errorThrown);
     });
   });
+
+
+  function findCountableKeys(headers) {
+    const keys = []
+    $('#stats_table th').each(function(index) {
+      if ($(this).data('is-accumulative')) {
+        keys.push($(this).data('id'))
+      }
+    });
+
+    return keys;
+  }
+
+  function foo() {
+
+  }
 
   function processSummationRow($table) {
     $table.find('.summation_row').remove();

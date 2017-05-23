@@ -21,82 +21,6 @@ LineItem = Struct.new(:id, :label)
 HeaderItem = Struct.new(:label, :id, :is_countable)
 
 
-# ReportStrategy
-# Strategies for implementing custom statistical reports.
-#
-# Interface:
-# label: for use in external user interfaces
-# setup:
-# headers: define the headers for the report
-
-
-class ReportStrategy
-  def initialize
-    @strategies = {}
-    @strategies[:Standard] = StandardStrategy
-    @strategies[:Kommune] = KommuneStrategy
-  end
-
-  def get_strategies
-    strats = []
-    @strategies.each do |k,v|
-      strats << {id: k, label: v.label}
-    end
-
-    strats
-  end
-
-  def label(type)
-    @strategies[type.to_sym] ? @strategies[type.to_sym].label : 'Ikke funnet'
-  end
-
-  def headers(type)
-    @strategies[type.to_sym] ? @strategies[type.to_sym].headers : ''
-  end
-
-  def setup(type)
-    @strategies[type.to_sym].setup
-  end
-
-end
-
-class StandardStrategy
-  def self.label
-    'Standard'
-  end
-
-  def self.headers
-    [
-      HeaderItem.new("Ant. deltagere", "no_of_attendants", true),
-      HeaderItem.new("Ant. arr", "no_of_events", true)
-    ]
-  end
-
-  def self.setup
-
-  end
-
-end
-
-class KommuneStrategy
-  def self.label
-    'Kommune'
-  end
-
-  def self.headers
-    [
-      HeaderItem.new("Ant. kommunedeltagere", "no_of_attendants", true),
-      HeaderItem.new("Ant. kommunearr", "no_of_events", true)
-    ]
-  end
-
-  def self.setup
-    # @report.set_maintype([7,9])
-    lambda { @report.set_maintype([7,9]) }
-  end
-end
-
-
 #
 # ReportBuilder
 #
@@ -112,7 +36,6 @@ end
 
 class ReportBuilder
   def initialize
-    @strategy = ReportStrategy.new
     @report = Report.new
   end
 
@@ -123,8 +46,6 @@ class ReportBuilder
   end
 
   def build
-    # @report.strategy = :Standard if @report.strategy.nil?
-    @strategy.setup(@report.strategy).call
     @report.headers = build_headers
     return report
   end
@@ -144,8 +65,9 @@ class ReportBuilder
     headers << HeaderItem.new("Alder", "agecategory", false) unless @report.age_categories.nil? || @report.age_categories.sum_all
     headers << HeaderItem.new("Alder", "agegroup", false) unless @report.age_groups.nil? || @report.age_groups.sum_all
 
-    # headers by strategy
-    headers << @strategy.headers(@report.strategy)
+    # fixed, countable headers
+    headers << HeaderItem.new("Ant. deltagere", "no_of_attendants", true)
+    headers << HeaderItem.new("Ant. arr", "no_of_events", true)
 
     headers.flatten
   end

@@ -80,7 +80,7 @@ $(function() {
     case '/': activeNavigation = '.nav-brand'; break;
     case '/info': activeNavigation = '.nav-info'; break;
     case '/view_events': activeNavigation = '.nav-view_events'; break;
-    case '/manage_events': activeNavigation = '.nav-manage_events'; break;
+    case '/manage_event': activeNavigation = '.nav-manage_event'; break;
     case '/api/event': activeNavigation = '.nav-manage_events'; break;
     case '/view_statistics': activeNavigation = '.nav-statistics'; break;
     case '/login': activeNavigation = '.nav-login'; break;

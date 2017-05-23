@@ -1,0 +1,33 @@
+<!-- User Guide Modal -->
+<div class="modal fade" id="userguideModal" tabindex="-1" role="dialog" aria-labelledby="userguideModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="userguideModalLabel">Brukerveiledning</h4>
+      </div>
+      <div class="modal-body">
+        <h4 class="underline">Generelt:</h4>
+        <ul>
+          <li>Tiltakene skal være avtalt på forhånd eller være forhåndsannonsert. Rene medlemsmøter skal ikke telles.</li>
+          <li>Vi teller antall personer under den målgruppa arrangementet er beregnet for. Hvis det er et arrangement for barn, teller vi alle frammøtte, både voksne og barn.</li>
+          <li>Der en aktivitet har elementer fra flere kategorier skal plasseres der det har hovedtyngden.</li>
+        </ul>
+
+        <h4 class="underline">Definisjon typer</h4>
+        <% event_types.each do |type| %>
+        <%= "<p><b>#{type.name}:</b> #{type.definition}</p>" if type.definition.present? %>
+        <% end %>
+        <h4  class="underline">Definisjon kategorier</h4>
+        <% subcategories.each do |cat| %>
+        <%= "<p><b>#{cat.name}:</b> #{cat.definition}</p>" if cat.definition.present? %>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Lukk</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -102,6 +102,16 @@ class Event < ActiveRecord::Base
 end
 
 
+class Template < ActiveRecord::Base
+  belongs_to :age_group
+  belongs_to :event_type
+  belongs_to :branch
+  belongs_to :category
+  belongs_to :subcategory
+end
+
+
+
 class Branch < ActiveRecord::Base
   has_many :events
   has_many :counts, :through => :events
@@ -269,7 +279,6 @@ class Subcategory < ActiveRecord::Base
   def subtype_associated?(subtype_id, maintype_id)
     categories.map {|cat| cat.subtype_associated?(subtype_id, maintype_id)}.present?
   end
-
 
 end
 

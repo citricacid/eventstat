@@ -142,35 +142,83 @@ get '/settings' do
   erb :get_settings
 end
 
-get '/manage_events' do
+# def foo form_type, is_edit
+
+
+
+
+get '/manage_templates' do
   require_logged_in
 
   error = session.delete(:transaction_error)
 
-  @edit = false
-  @selected_branch = session[:default_branch] || '0'
+  selected_branch = session[:default_branch] || '0'
 
-  erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+  erb :manage_events, :locals => {
+    is_event: false, is_edit: false, selected_branch: selected_branch,
+    selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
+    event_types: EventType.ordered_view.all, error: error }
+
+end
+
+
+
+get '/manage_event' do
+  require_logged_in
+
+  error = session.delete(:transaction_error)
+  selected_branch = session[:default_branch] || '0'
+
+  erb :manage_event, :locals => {selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
+    subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
     event_types: EventType.ordered_view.all, error: error }
 end
 
 
+  def edit(model_name, item_id, is_event)
+    model = model_name.safe_constantize
+    item = model.find(item_id)
+
+    erb :manage_event, :locals => {  # ... manage_events must be typified...
+      item: item, is_edit: true, is_event: true, selected_branch: item.branch_id,
+      error: session.delete(:transaction_error), is_admin: is_admin?,
+      branches: Branch.all, subcategories: Subcategory.all,
+      subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
+      event_types: EventType.ordered_view.all}
+  end
+
   get '/edit_event/:event_id' do
     require_logged_in
 
-    error = session.delete(:transaction_error)
-    event_id = params['event_id']
+    # params['event_id']
+    edit('Event', params['event_id'], true)
 
-    @edit = true
-    event = Event.find(event_id)
-    @selected_branch = event.branch_id
+    #error = session.delete(:transaction_error)
+    #event_id = params['event_id']
+
+    #event = Event.find(event_id)
+    #selected_branch = event.branch_id
 
 
-    erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-      subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-      event_types: EventType.ordered_view.all, event: Event.find(event_id), error: error, is_admin: is_admin? }
     end
+
+    get '/edit_template/:template_id' do
+      require_logged_in
+
+      error = session.delete(:transaction_error)
+      event_id = params['event_id']
+
+      event = Event.find(event_id)
+      selected_branch = event.branch_id
+
+      erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+        subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, is_edit: true, is_event: true, selected_branch: event.branch_id,
+        event_types: EventType.ordered_view.all, event: Event.find(event_id), error: error, is_admin: is_admin? }
+      end
+
+
+
 
   # ////////////////////////////////////////////////////////////////////////////
 
@@ -509,18 +557,19 @@ end
     require_logged_in
 
     error = session.delete(:transaction_error)
-    @selected_branch = session[:default_branch] || '0'
+    selected_branch = session[:default_branch] || '0'
 
-    @strategies = ReportStrategy.new.get_strategies
+    #@strategies = ReportStrategy.new.get_strategies
+
     Group = Struct.new(:id, :name)
     groups = []
-
     AgeGroup.age_categories.each { |k, v| groups << Group.new(v, AgeGroup.get_label(k)) }
 
-    erb :statistics, :locals => {branches: Branch.all, subcategories: Subcategory.all,
+    erb :statistics, :locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,
       categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
       age_categories: groups, event_types: EventType.all,
-      event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all}
+      event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all,
+      selected_branch: selected_branch}
     end
 
 
@@ -699,6 +748,43 @@ end
     end
 
 
+    # -----------------------------------------------------------------------
+
+    post '/api/template' do
+      require_logged_in
+
+      is_edit = params[:id].present?
+      event_id = params[:id].to_i if is_edit
+
+      event = is_edit ? Template.find(event_id) : Template.new
+      selected = params.select {|key| event.attributes.key?(key)}
+      event.attributes = event.attributes.merge(selected) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
+
+      category = event.event_type.get_category_id_by(event.subcategory_id) if event.event_type != nil
+      event.category_id = category.id unless category.nil?
+
+      # event.added_after_lock = 1 if !is_edit && event.date < Branch.find(event.branch_id).locked_until
+
+      #protected! if event.is_locked == 1
+
+      if event.save
+        type = is_edit ? "MODIFY TEMPLATE: " : "ADD TEMPLATE: "
+        logger.info type + event.inspect
+        Log.log.info type + event.inspect
+
+        session[:transaction_success] = true
+        erb :receipt, :locals => {item: event, is_event: false}
+      else
+        session[:transaction_error] = true
+        redirect '/edit_template/' + event.id.to_s
+      end
+    end
+
+
+
+    # -----------------------------------------------------------------------
+
+
     post '/api/event' do
       require_logged_in
 
@@ -721,7 +807,7 @@ end
         Log.log.info type + event.inspect
 
         session[:transaction_success] = true
-        erb :receipt, :locals => {event: event}
+        erb :receipt, :locals => {item: event, is_event: true}
       else
         session[:transaction_error] = true
         redirect '/edit_event/' + event.id.to_s

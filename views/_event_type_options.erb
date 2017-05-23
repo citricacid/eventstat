@@ -1,7 +1,9 @@
-<% event_types.each do |type| %>
-<%= "<option value='#{type.id}' "%>
-  <%= "data-age_groups='#{type.age_group_array}' " %>
-  <%= "data-subcategories='#{type.subcategory_array}' " %>
-  <%= "selected " if edit && type.id == event.event_type_id %>
-  <%= ">#{type.name}</option>" %>
-<% end %>
+  <%= erb :_standard_filters, locals: {type: type} %>
+
+  <% event_types.each do |et| %>
+    <%= "<option value='#{et.id}' "%>
+    <%= "data-age_groups='#{et.age_group_ids}' " %>
+    <%= "data-subcategories='#{et.subcategory_ids}' data-definition='#{et.definition}' " %>
+    <%= "selected " if selected && selected.to_s == et.id.to_s %>
+    <%= ">#{et.name}</option>" %>
+  <% end %>

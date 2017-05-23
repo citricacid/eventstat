@@ -1,5 +1,6 @@
 <div class="table-responsive">
   <%= erb :_progressbar %>
+
   <table class="fw_table table table-striped" id="event_table">
     <thead>
       <tr>
@@ -19,14 +20,14 @@
         <%= "<td>#{event.name}</td><td>#{event.date.strftime('%d/%m/%-y')}</td>" %>
         <%= "<td>#{event.attendants}</td>" %>
         <% if event.marked_for_deletion == 1 %>
-        <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit btn-danger'></span></a></td>"   %>
+          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit btn-danger'></span></a></td>" %>
         <% elsif event.is_locked == 1 %>
-          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-lock'></span></a></td>"   %>
+          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-lock'></span></a></td>" %>
         <% else %>
-          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>"   %>
+          <%= "<td><a href='/edit_event/#{event.id}'><span class='glyphicon glyphicon-edit'></span></a></td>" %>
         <% end %>
         <%= "</tr>" %>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+      <% end %>
+    </tbody>
+  </table>
+</div>

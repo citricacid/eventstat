@@ -1,0 +1,178 @@
+<script src="/js/moment.min.js"></script>
+<!-- Include Date Range Picker -->
+<script src="/js/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/daterangepicker.css" />
+
+<script src="/js/manage_events.js"></script>
+
+<!-- Define variables -->
+<% url_string = is_event ? "event" : "template" %>
+<% form_type_ui_string = is_event ? "arrangement" : "mal" %>
+
+<%= erb :_user_guide_modal, locals: {event_types: event_types, subcategories: subcategories} %>
+
+<!-- Confirm 'Mark for Deletion' Modal -->
+<div class="modal fade" id="confirmDeletionModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Marker for sletting</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Sikker på at du ønsker å markere arrangementet som slettet?</p>
+      </div>
+      <div class="modal-footer">
+        <%= "<a class='btn btn-danger' href='/mark_event/#{item.id}'>Slette</a>" if is_edit %>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<% if error %>
+  <%= '<div class="alert alert-danger" id="server-fail">' %>
+  <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
+  <%=   "Serverfeil. Kunne ikke lagre #{form_type_ui_string}. Prøv igjen senere." %>
+  <%=  '</div>' %>
+<% end %>
+
+
+<%= "<form action='/api/#{url_string}' method='post' id='event-form' autocomplete='off'>" %>
+  <%= "<input type='hidden' name='id' value='#{item.id}'>" if is_edit %>
+
+  <div class="form-group">
+    <% if is_edit %>
+      <%= "<h3>Redigere #{form_type_ui_string}" %>
+    <% else %>
+      <%= "<h3>Legg til #{form_type_ui_string}" %>
+    <% end %>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#userguideModal">
+      <span class="glyphicon glyphicon-info-sign"></span>
+    </button></h3>
+  </div>
+
+  <%= %Q(
+        <div class="form-group">
+          <div class="alert alert-danger" id="info">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              Dette arrangmentet er låst for videre endringer. (id: #{item.id})
+          </div>
+      </div>) if is_event && is_edit && item.is_locked == 1 %>
+
+
+  <%# --- Dropdown and definition panel for event type                  --- %>
+  <div class="form-group panel_group">
+    <label for="event_type_selector">Type:</label>
+    <%= erb :_definition_button %>
+    <select id="event_type_selector" class="form-control" name="event_type_id" data-must_validate=<%= "#{is_event}" %>>
+      <%= erb :_event_type_options, locals: {selected: defined?(item) && item.event_type_id || nil, event_types: event_types, type: :choose} %>
+  </select>
+    <%= erb :_definition_panel %>
+  </div>
+
+
+  <%# --- Input for title                                               --- %>
+  <div class="form-group">
+    <label class="form-control-label" for="name">Tittel:</label>
+    <input type="text" class="form-control" data-must_validate=true
+    id="name" name="name" <%= " value='#{item.name}'" if is_edit %> >
+  </div>
+
+  <%# --- Dropdown for branches                               %>
+  <div class="form-group">
+    <label for="branch_selector">Sted:</label>
+    <select id="branch_selector" name="branch_id" class="form-control" data-must_validate=true>
+      <%= erb :_standard_options, locals: {selected: selected_branch, collection: branches, type: :choose} %>
+    </select>
+  </div>
+
+
+  <%# --- Date picker                                      --- %>
+  <% if is_event %>
+    <div class="form-group">
+      <label for="daterange">Dato:</label>
+      <input class="form-control" type="text" name="date" id="daterange" data-must_validate=true
+        <%= " value=#{item.date.strftime('%d-%m-%Y')}" if is_edit %> >
+    </div>
+  <% end %>
+
+
+  <%# --- Dropdown and definition panel for subcategory selector        --- %>
+  <div class="form-group panel_group">
+    <label for="subcategory_selector">Kategori:</label>
+    <%= erb :_definition_button %>
+    <select id="subcategory_selector" name="subcategory_id" class="form-control" data-must_validate=<%= "#{is_event}" %>>
+      <%= erb :_subcategory_options, locals: {selected: defined?(item) && item.subcategory_id || nil, subcategories: subcategories, type: :choose} %>
+    </select>
+    <%= erb :_definition_panel %>
+  </div>
+
+  <%# --- Special: Toggled comment section for select subcategories        --- %>
+  <div class="form-group" id="comment" <%= "style='display: none;'" unless is_edit && item.subcategory.has_comment %>  >
+    <label class="form-control-label" for="comment_field">Beskrivelse(valgfri):</label>
+    <input type="text"
+    name="comment" id="comment_field" <%= " value='#{item.comment}'" if is_edit %> >
+  </div>
+
+
+  <%# --- Dropdown and input for target audience and attendants         --- %>
+  <div class="form-group panel_group">
+    <div class="row">
+      <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
+        <label for="age_group_selector">Målgruppe:</label>
+        <%= erb :_definition_button %>
+      </div>
+      <% if is_event %>
+      <div class="form-group col-xs-3 col-sm-3 col-md-2 col-lg-2">
+        <label for="attendants" id="attendants_label">Antall frammøtte:</label>
+      </div>
+      <% end %>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
+        <select class="form-control input-group-md" id="age_group_selector" name="age_group_id" data-must_validate=<%= "#{is_event}" %>>
+            <%= erb :_standard_options, locals: {selected: defined?(item) && item.age_group_id || nil, collection: age_groups, type: :choose} %>
+        </select>
+      </div>
+      <% if is_event %>
+      <div class="form-group col-xs-3 col-sm-3 col-md-2 col-lg-2">
+        <input class="form-control input-group-md" type="number" min="0" name="attendants" id="attendants"
+         data-must_validate=true <%= " value='#{item.attendants}'" if is_edit %> >
+      </div>
+      <% end %>
+    </div>
+    <%= erb :_definition_panel %>
+  </div>
+
+  <%# --- Bottom buttons: save, delete, lock, etc         --- %>
+  <div class="form-group">
+    <% if is_event && (!is_edit || item.is_locked == 0) %>
+      <%= %Q(<input type='submit' class='btn btn-primary' value='Lagre'>) %>
+    <% elsif is_admin %>
+      <%= %Q(
+        <button type="submit" class="btn btn-primary">
+          <i class="glyphicon glyphicon-lock"></i>Lagre
+          </button>
+      ) %>
+    <% else %>
+      <button type="submit" class="btn btn-primary" disabled>
+        <i class="glyphicon glyphicon-lock"></i>
+      </button>
+    <% end %>
+
+    <% if is_edit %>
+      <%= "<a class='btn btn-danger' href='/delete_event/#{item.id}'>Slette</a>" if is_admin %>
+      <%= "<a class='btn btn-danger pull-right' data-toggle='modal'
+        data-target='#confirmDeletionModal'>Marker for sletting</a>" if item.is_locked == 0 && item.marked_for_deletion == 0 %>
+      <%= "<a class='btn btn-info pull-right' href='/unmark_event/#{item.id}'>
+        Fjern merking</a>" if item.is_locked == 0 && item.marked_for_deletion == 1  %>
+    <% end %>
+  </div>
+</form>

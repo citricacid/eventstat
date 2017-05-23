@@ -1,0 +1,13 @@
+<%# --- Dropdown for categories/subcategories                                 %>
+<%# --- Locals: type = :form || :stats                                        %>
+<%# --- collection:                                         %>
+<%# --- is is_countable actually used?                                        %>
+
+  <%= erb :_standard_filters, locals: {type: type} %>
+  <% subcategories.each do |subcategory| %>
+  <%= "<option value='#{subcategory.id}' " %>
+    <%= "selected " if selected && selected.to_s == subcategory.id.to_s %>
+    <%= "data-has_comment='#{subcategory.has_comment}' " %>
+    <%= "data-is_countable='#{subcategory.is_countable}' " %>
+    <%= "data-definition='#{subcategory.definition}'>#{subcategory.name}</option>" %>
+  <% end %>

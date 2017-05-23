@@ -1,0 +1,8 @@
+<%# Inputs: collection, type, [selected]   %>
+<%= erb :_standard_filters, locals: {type: type} %>
+
+<% collection.each do |item| %>
+  <%= "<option value='#{item.id}'" %>
+    <%= " selected" if defined?(selected) && item.id.to_s == selected.to_s %>
+  <%=  ">#{item.name}</option>" %>
+<% end %>

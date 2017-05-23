@@ -86,6 +86,7 @@
   </div>
 
 
+  <%# --- Statistics panel         --- %>
   <div id="freestyle" class="tab-pane fade in active">
 
     <form class="form-inline" role="form" id="query_form" autocomplete="off">
@@ -104,11 +105,17 @@
       </div>
 
       <div class="row">
-        <%= erb :_branch_selector, locals: {branches: branches}  %>
+        <div class="form-group">
+          <label for="branch_selector" class="main">Sted:</label>
+          <select id="branch_selector" name="branch_id">
+            <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :stats}  %>
+          </select>
+        </div>
       </div>
 
 
       <%# --- Dropdown and radio buttons for event types                  --- %>
+      <%# --- what the heck is happening here? clarify code               --- %>
       <div class="row">
         <div class="form-group">
           <label for="event_maintype_selector" class="main">Type/undertype:</label>
@@ -158,11 +165,11 @@
           <label for="category_selector" class="main">Kategori/underkategori:</label>
 
           <select id="category_selector" class="category_selector" name="category_id">
-            <%= erb :_category_options, locals: {cats: categories}  %>
+            <%= erb :_standard_options, locals: {collection: categories, type: :toggle}  %>
           </select>
 
           <select id="subcategory_selector" class="category_selector" name="subcategory_id">
-            <%= erb :_category_options, locals: {cats: subcategories}  %>
+            <%= erb :_standard_options, locals: {collection: subcategories, type: :toggle}  %>
           </select>
         </div>
 
@@ -173,24 +180,15 @@
             <label for="category_selector" class="main">Aldersgruppe/kategori:</label>
 
             <select id="age_group_selector" class="target_audience_selector" name="age_group_id">
-              <%= erb :_category_options, locals: {cats: age_groups}  %>
+              <%= erb :_standard_options, locals: {collection: age_groups, type: :toggle}  %>
             </select>
 
             <select id="age_category_selector" class="target_audience_selector" name="age_category_id">
-              <%= erb :_category_options, locals: {cats: age_categories}  %>
+              <%= erb :_standard_options, locals: {collection: age_categories, type: :toggle}  %>
             </select>
           </div>
         </div>
 
-
-        <%# --- Strategies -- remove later                 --- %>
-        <div class="row">
-            <select name="strategy">
-          <% @strategies.each do |strategy| %>
-            <%= %Q(<option value='#{strategy[:id]}'>#{strategy[:label]}</option>) %>
-          <% end %>
-        </select>
-        </div>
 
 
         <%# --- Buttons                --- %>
@@ -198,6 +196,7 @@
           <div class="form-group">
             <button type="button" class="btn btn-secondary" id="submit">Hent</button>
             <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
+            
           </div>
         </div>
 
@@ -205,6 +204,7 @@
 
       <div id='container' style='min-width: 600px;display:none; height: 600px; margin: 0 auto'></div>
 
+      <%# --- Remove dynamic headers....                --- %>
       <div class="table-responsive">
         <table class="table table-striped" id="stats_table">
           <thead class="thead-inverse">
