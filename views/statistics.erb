@@ -4,7 +4,6 @@
 <link rel="stylesheet" type="text/css" href="/css/daterangepicker.css" />
 
 <script src="/js/statistics.js"></script>
-<script src="/js/table_to_csv.js"></script>
 
 <link rel="stylesheet" type="text/css" href="/css/tableexport.min.css" />
 <script src="/js/xlsx.core.min.js"></script>
@@ -196,7 +195,8 @@
           <div class="form-group">
             <button type="button" class="btn btn-secondary" id="submit">Hent</button>
             <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
-            
+            <label class="checkbox-inline">Skjul tomme rader</label>
+            <input type="checkbox" id="toggle_empty_rows">
           </div>
         </div>
 

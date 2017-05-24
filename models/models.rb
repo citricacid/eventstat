@@ -115,8 +115,13 @@ end
 class Branch < ActiveRecord::Base
   has_many :events
   has_many :counts, :through => :events
+  has_many :templates
 
   default_scope { order(:name => :asc) }
+
+  def has_templates
+    templates.count > 0
+  end
 
   def set_lock(date)
     # check if valid...

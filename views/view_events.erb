@@ -5,91 +5,86 @@
   <div class="input-group">
     <label for="branch_selector" class="radio-inline">Sted:</label>
     <select id="branch_selector" name="branch_id">
-      <option value="">-- Alle --</option>
-      <% branches.each do |branch| %>
-      <%= "<option value='#{branch.id}'"%>
-        <%= " selected='selected'" if branch.id.to_s == @branch_id.to_s %>
-        <%= ">#{branch.name}</option>" %>
+      <%= erb :_standard_options, locals: {collection: branches, selected: @branch_id, type: :all}  %>
+    </select>
+
+    <label class="checkbox-inline">Vis filtre</label>
+    <input type="checkbox" id="filter_switch" <%= "checked" if @show_filters %>>
+  </div>
+
+  <div class="input-group hidden-xs">
+    <input type="text" class="form-control" id="search_box" placeholder="Søk&hellip;"
+      <%= " value='#{@search}'" %>>
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" id="clear_search">
+        <span class='glyphicon glyphicon-remove'></span>
+      </button>
+    </span>
+  </div>
+</div>
+
+<div id="filter_bar" <%= "hidden" unless @show_filters %>>
+  <div class="row">
+    <div class="input-group">
+      <label for="month_selector" class='radio-inline'>Periode:</label>
+      <select id="month_selector">
+        <option value="" selected >--</option>
+          <% for value in 1..12 %>
+            <%= "<option value='#{value}'"%>
+              <%= " selected='selected'" if value == @month.to_i %>
+              <%= ">#{@month_names[value]}</option>" %>
+          <% end %>
+      </select>
+      <select id="year_selector">
+        <% for year in (2017..Date.today.year).reverse_each %>
+          <%= %Q(<option value='#{year}'>#{year}</option>) %>
         <% end %>
       </select>
-
-      <label class="checkbox-inline">Vis filtre</label>
-      <input type="checkbox" id="filter_switch" <%= "checked" if @show_filters %>>
-    </div>
-
-      <div class="input-group hidden-xs">
-        <input type="text" class="form-control" id="search_box" placeholder="Søk&hellip;"
-        <%= " value='#{@search}'" %>>
-        <span class="input-group-btn">
-          <button type="button" class="btn btn-default" id="clear_search">
-            <span class='glyphicon glyphicon-remove'></span>
-          </button>
-        </span>
     </div>
   </div>
 
-  <div id="filter_bar" <%= "hidden" unless @show_filters %>>
-    <div class="row">
-      <div class="input-group">
-        <label for="month_selector" class='radio-inline'>Periode:</label>
-        <select id="month_selector">
-          <option value="" selected >--</option>
-          <% for value in 1..12 %>
-          <%= "<option value='#{value}'"%>
-            <%= " selected='selected'" if value == @month.to_i %>
-            <%= ">#{@month_names[value]}</option>" %>
-            <% end %>
-          </select>
-          <select id="year_selector">
-            <% for year in (2017..Date.today.year).reverse_each %>
-              <%= %Q(<option value='#{year}'>#{year}</option>) %>
-            <% end %>
-          </select>
-        </div>
-      </div>
-
-      <div class="row form-inline">
-          <div class="input-group col-lg-3">
-            <label class='radio-inline'>Målgruppe:</label>
-            <input type="radio" name="audience" value="all" class="filter_radio" <%= "checked" if @audience == 'all'%>>Alle
-            <input type="radio" name="audience" value="adult" class="filter_radio" <%= "checked" if @audience == 'adult'%>>Voksne
-            <input type="radio" name="audience" value="young" class="filter_radio" <%= "checked" if @audience == 'young'%>>Barn/unge
-          </div>
-
-          <div class="input-group col-lg-3">
-            <label class='radio-inline'>Per side:</label>
-            <input type="radio" name="per_page" value="10" class="filter_radio" <%= "checked" if @per_page == '10'%>>10
-            <input type="radio" name="per_page" value="20" class="filter_radio" <%= "checked" if @per_page == '20'%>>20
-            <input type="radio" name="per_page" value="50" class="filter_radio" <%= "checked" if @per_page == '50'%>>50
-            <input type="radio" name="per_page" value="200" class="filter_radio" <%= "checked" if @per_page == '200'%>>Maks
-          </div>
-      </div>
-
-      <div class="row form-inline">
-        <div class="input-group col-lg-3">
-          <label class='radio-inline' for="sort_selector">Sorter etter:</label>
-          <select id="sort_selector">
-            <option data-sort_by="reg" data-sort_order="desc">Reg.dato synkende</option>
-            <option data-sort_by="reg" data-sort_order="asc"
-              <%= " selected" if @sort_by == 'reg' && @sort_order == 'asc' %>
-            >Reg.dato stigende</option>
-            <option data-sort_by="event" data-sort_order="desc"
-              <%= " selected" if @sort_by == 'event' && @sort_order == 'desc' %>
-            >Arr.dato synkende</option>
-            <option data-sort_by="event" data-sort_order="asc"
-                <%= " selected" if @sort_by == 'event' && @sort_order == 'asc' %>
-            >Arr.dato stigende</option>
-          </select>
-        </div>
-
-        <div class="input-group col-lg-3">
-          <label class='radio-inline'>Vis merkede:</label>
-          <input type="radio" name="show_marked" value="none" class="filter_radio" <%= "checked" if @show_marked == 'none'%>>nei
-          <input type="radio" name="show_marked" value="all" class="filter_radio" <%= "checked" if @show_marked == 'all'%>>ja
-          <input type="radio" name="show_marked" value="only" class="filter_radio" <%= "checked" if @show_marked == 'only'%>>bare
-        </div>
-      </div>
+  <div class="row form-inline">
+    <div class="input-group col-lg-3">
+      <label class='radio-inline'>Målgruppe:</label>
+      <input type="radio" name="audience" value="all" class="filter_radio" <%= "checked" if @audience == 'all'%>>Alle
+      <input type="radio" name="audience" value="adult" class="filter_radio" <%= "checked" if @audience == 'adult'%>>Voksne
+      <input type="radio" name="audience" value="young" class="filter_radio" <%= "checked" if @audience == 'young'%>>Barn/unge
     </div>
+
+    <div class="input-group col-lg-3">
+      <label class='radio-inline'>Per side:</label>
+      <input type="radio" name="per_page" value="10" class="filter_radio" <%= "checked" if @per_page == '10'%>>10
+      <input type="radio" name="per_page" value="20" class="filter_radio" <%= "checked" if @per_page == '20'%>>20
+      <input type="radio" name="per_page" value="50" class="filter_radio" <%= "checked" if @per_page == '50'%>>50
+      <input type="radio" name="per_page" value="200" class="filter_radio" <%= "checked" if @per_page == '200'%>>Maks
+    </div>
+  </div>
+
+  <div class="row form-inline">
+    <div class="input-group col-lg-3">
+      <label class='radio-inline' for="sort_selector">Sorter etter:</label>
+      <select id="sort_selector">
+        <option data-sort_by="reg" data-sort_order="desc">Reg.dato synkende</option>
+        <option data-sort_by="reg" data-sort_order="asc"
+          <%= " selected" if @sort_by == 'reg' && @sort_order == 'asc' %>
+        >Reg.dato stigende</option>
+        <option data-sort_by="event" data-sort_order="desc"
+          <%= " selected" if @sort_by == 'event' && @sort_order == 'desc' %>
+        >Arr.dato synkende</option>
+        <option data-sort_by="event" data-sort_order="asc"
+            <%= " selected" if @sort_by == 'event' && @sort_order == 'asc' %>
+        >Arr.dato stigende</option>
+      </select>
+    </div>
+
+    <div class="input-group col-lg-3">
+      <label class='radio-inline'>Vis merkede:</label>
+      <input type="radio" name="show_marked" value="none" class="filter_radio" <%= "checked" if @show_marked == 'none'%>>nei
+      <input type="radio" name="show_marked" value="all" class="filter_radio" <%= "checked" if @show_marked == 'all'%>>ja
+      <input type="radio" name="show_marked" value="only" class="filter_radio" <%= "checked" if @show_marked == 'only'%>>bare
+    </div>
+  </div>
+</div>
 
 
     <div class="table-responsive" id="mytable">

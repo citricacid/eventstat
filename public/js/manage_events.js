@@ -54,7 +54,8 @@ const validateDate = function() {
   const isOK = moment($dateInput.val(), 'DD-MM-YYYY', true).isValid();
 
   setValidity($dateInput, isOK);
-  return isOK;
+  //return !$dateInput || isOK;
+  return true; // TODO: fix this!
 };
 
 // selector handling
@@ -132,6 +133,8 @@ $(function() {
     }
 
     isValid = validateTitle() && isValid;
+
+    alert(isValid)
 
     return isValid;
   });

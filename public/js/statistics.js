@@ -128,6 +128,12 @@ $(function() {
     $("#stats_table").find("tbody tr").remove();
   });
 
+  $("#toggle_empty_rows").change(function() {
+    $(".empty_row").toggle(!this.checked);
+    //tables.update({formats: ['xls']}); // refreshes table export
+    tables.reset();
+  })
+
   //
   // Submit parameters and process results
   //
@@ -182,21 +188,12 @@ $(function() {
         });
 
         // rows which countable values are zero across the board will be hideable by class
-        let tableRow;
+        let tableRow = $('<tr />');;
         const sumOfAllCountable = countableKeys.reduce((total, key) => total += parseInt(result[key], 10), 0);
 
         if (sumOfAllCountable == 0) {
-          tableRow = $('<tr class="zero_sum" />');
-        } else {
-          tableRow = $('<tr />');
+          tableRow.addClass('empty_row tableexport-ignore');
         }
-
-
-
-        // sum += parseInt($(this).html(), 10);
-        //alert(froo)
-        //alert(countableIndices)
-        // if countable-rows == 0, add class 'zero'
 
         $.each(result, function(i, obj) {
           tableRow.append($('<td/>', {text: obj}))
@@ -207,7 +204,10 @@ $(function() {
       });
 
       processSummationRow($("#stats_table"));
-      tables.update(); // refreshes table export
+
+      $(".empty_row").toggle(!$("#toggle_empty_rows").is(':checked'));
+      tables.reset();
+      //tables.update({formats: ['xls']}); // refreshes table export
     });
 
 
@@ -228,9 +228,6 @@ $(function() {
     return keys;
   }
 
-  function foo() {
-
-  }
 
   function processSummationRow($table) {
     $table.find('.summation_row').remove();
@@ -301,8 +298,22 @@ $(function() {
   /* default filename if "id" attribute is set and undefined */
   // $.fn.tableExport.defaultFileName = "myDownload";
 
-  // formats: ["xls", "csv", "txt"],
-  $.fn.tableExport.xls.buttonContent = '-> excel'
 
-  tables = $("#stats_table").tableExport({bootstrap: false, position: "top", formats: ['xls']});
+  $.fn.tableExport.xlsx.buttonContent = '-> excel'
+  $.fn.tableExport.xls.buttonContent = '-> excel'
+  TableExport.prototype.charset = "charset=utf-8";
+  /* Excel Binary spreadsheet (.xls) */
+
+  TableExport.prototype.xlsx = {
+    defaultClass: "xlsx",
+    buttonContent: "helledussen",
+    mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    fileExtension: ".xlsx"
+};
+
+  let settings = {
+    bootstrap: false, position: 'top', emptyCSS: ".tableexport-empty", formats: ['xlsx']
+  }
+  tables = $("#stats_table").tableExport(settings);
+
 });

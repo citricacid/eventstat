@@ -1,0 +1,38 @@
+<link href="/css/custom.css" rel="stylesheet">
+<script src="/js/view_templates.js"></script>
+
+<div class="row form-inline">
+  <div class="input-group">
+    <label for="branch_selector" class="radio-inline">Sted:</label>
+    <select id="branch_selector" name="branch_id">
+      <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :all}  %>
+    </select>
+  </div>
+</div>
+
+
+<div class="table-responsive" id="mytable">
+  <table class="fw_table table table-striped" id="template_table">
+    <thead>
+      <tr>
+        <th>Tittel</th>
+        <th>Sted</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% templates.each do |template| %>
+        <%= %Q(
+          <tr class='templaterow branch-#{template.branch_id}'>
+            <td>#{template.name}</td>
+            <td>#{template.branch.name}</td>
+            <td><a href='/edit_template/#{template.id}'><span class='glyphicon glyphicon-edit'></span></a></td>
+          </tr>
+        ) %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="row" id="page_navigation">
+</div>

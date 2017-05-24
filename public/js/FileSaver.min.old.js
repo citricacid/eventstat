@@ -11,8 +11,8 @@
 
 
 
-  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/frameworks-81a59bf26d881d29286674f6deefe779c444382fff322085b50ba455460ccae5.css" integrity="sha256-gaWb8m2IHSkoZnT23u/necREOC//MiCFtQukVUYMyuU=" media="all" rel="stylesheet" />
-  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/github-cc9de0e8eacc2e4692137e919b3627e9d539401c99d4e78b4a344c5fe153899a.css" integrity="sha256-zJ3g6OrMLkaSE36RmzYn6dU5QByZ1OeLSjRMX+FTiZo=" media="all" rel="stylesheet" />
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/frameworks-d311c4a37b4a480a760dda55c72eb656b70f39154f15e1b7a7f6506e143d7ec0.css" integrity="sha256-0xHEo3tKSAp2DdpVxy62VrcPORVPFeG3p/ZQbhQ9fsA=" media="all" rel="stylesheet" />
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/github-1553403a85c0174ba800d36d4701990317fd2242f931d53dc3ec5a4d034df94d.css" integrity="sha256-FVNAOoXAF0uoANNtRwGZAxf9IkL5MdU9w+xaTQNN+U0=" media="all" rel="stylesheet" />
   
   
   
@@ -25,14 +25,12 @@
   <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub">
   <meta property="fb:app_id" content="1401488693436528">
 
-    
-    <meta content="https://avatars0.githubusercontent.com/u/9957358?v=3&amp;s=400" property="og:image" /><meta content="GitHub" property="og:site_name" /><meta content="object" property="og:type" /><meta content="clarketm/FileSaver.js" property="og:title" /><meta content="https://github.com/clarketm/FileSaver.js" property="og:url" /><meta content="FileSaver.js - An HTML5 saveAs() FileSaver implementation" property="og:description" />
 
   <link rel="assets" href="https://assets-cdn.github.com/">
-  <link rel="web-socket" href="wss://live.github.com/_sockets/VjI6MTY2OTUzMzY3OmVlYTEwNDliZGM3YTZlYTdjYjM0ZWEwODkxNDU0OGUyMDkwZjZmYTIyZDdiZGQ0MzMzZGVmNWIwNDQyNWY5YWY=--77f5397ae7a36acbcec8ae816981d5eee6557a3a">
+  <link rel="web-socket" href="wss://live.github.com/_sockets/VjI6MTQ2ODUwMDg0OmM1NWNlZTg5ZjZjZTI3NDMzZTQyYTBhNzc2NDU4ZDBlYjEzOWY5YTdkYjNkNDM0YWM0NWJiMmViOGIxZGZlYmY=--9717d9453cf0faced0108b76a4bc19c542a228aa">
   <meta name="pjax-timeout" content="1000">
   <link rel="sudo-modal" href="/sessions/sudo_modal">
-  <meta name="request-id" content="BEF6:622D:4CF9E0F:78FA465:5924243B" data-pjax-transient>
+  <meta name="request-id" content="848A:701F:50C3DA2:8338992:58A42DCA" data-pjax-transient>
   
 
   <meta name="selected-link" value="repo_source" data-pjax-transient>
@@ -41,27 +39,25 @@
 <meta name="google-site-verification" content="ZzhVyEFwb7w3e0-uOTltm8Jsck2F5StVihD0exw2fsA">
     <meta name="google-analytics" content="UA-3769691-2">
 
-<meta content="collector.githubapp.com" name="octolytics-host" /><meta content="github" name="octolytics-app-id" /><meta content="https://collector.githubapp.com/github-external/browser_event" name="octolytics-event-url" /><meta content="BEF6:622D:4CF9E0F:78FA465:5924243B" name="octolytics-dimension-request_id" /><meta content="734547" name="octolytics-actor-id" /><meta content="citricacid" name="octolytics-actor-login" /><meta content="0b523b6b7e52376a7493af2b52879129c27bfb55c768d8a1fd70dada22b40f0f" name="octolytics-actor-hash" />
+<meta content="collector.githubapp.com" name="octolytics-host" /><meta content="github" name="octolytics-app-id" /><meta content="https://collector.githubapp.com/github-external/browser_event" name="octolytics-event-url" /><meta content="848A:701F:50C3DA2:8338992:58A42DCA" name="octolytics-dimension-request_id" /><meta content="734547" name="octolytics-actor-id" /><meta content="citricacid" name="octolytics-actor-login" /><meta content="0b523b6b7e52376a7493af2b52879129c27bfb55c768d8a1fd70dada22b40f0f" name="octolytics-actor-hash" />
 <meta content="/&lt;user-name&gt;/&lt;repo-name&gt;/blob/show" data-pjax-transient="true" name="analytics-location" />
-
 
 
 
   <meta class="js-ga-set" name="dimension1" content="Logged In">
 
 
-  
 
       <meta name="hostname" content="github.com">
   <meta name="user-login" content="citricacid">
 
       <meta name="expected-hostname" content="github.com">
-    <meta name="js-proxy-site-detection-payload" content="MDc3YzU2YjU0YmZmNjJiZjZmNmU3Nzk0MzRlZDg2N2Q5ZDdhNThkZTAxZDNmYTczMjRkYTQyN2EzZTBmOGY0N3x7InJlbW90ZV9hZGRyZXNzIjoiMTcxLjIzLjYuMTA5IiwicmVxdWVzdF9pZCI6IkJFRjY6NjIyRDo0Q0Y5RTBGOjc4RkE0NjU6NTkyNDI0M0IiLCJ0aW1lc3RhbXAiOjE0OTU1NDA3OTYsImhvc3QiOiJnaXRodWIuY29tIn0=">
+    <meta name="js-proxy-site-detection-payload" content="NGZlNDEzODIyMjlkNDg0MjZiZWI3ZmQ4OGZjNGRmZWRlNmZiNDZlMDI3MDY5OTc1Zjk2NDZkMTZkYzk1NTc1ZXx7InJlbW90ZV9hZGRyZXNzIjoiMTcxLjIzLjYuMTA5IiwicmVxdWVzdF9pZCI6Ijg0OEE6NzAxRjo1MEMzREEyOjgzMzg5OTI6NThBNDJEQ0EiLCJ0aW1lc3RhbXAiOjE0ODcxNTQ2MzQsImhvc3QiOiJnaXRodWIuY29tIn0=">
 
 
-  <meta name="html-safe-nonce" content="ce47ce147a75eea02c0f8c71609fc95b3bf55715">
+  <meta name="html-safe-nonce" content="ee8ece5aa670f819872358299b4fcbea315cb214">
 
-  <meta http-equiv="x-pjax-version" content="e5b0cc3077c9d4712506cc203fb9680d">
+  <meta http-equiv="x-pjax-version" content="dbddd28c3b648a4ea69fbcc850391424">
   
 
     
@@ -85,27 +81,23 @@
 <meta name="theme-color" content="#1e2327">
 
 
-
   </head>
 
-  <body class="logged-in env-production page-blob">
+  <body class="logged-in env-production linux vis-public fork page-blob">
     
 
+  <div id="js-pjax-loader-bar" class="pjax-loader-bar"><div class="progress"></div></div>
+  <a href="#start-of-content" tabindex="1" class="accessibility-aid js-skip-to-content">Skip to content</a>
 
-
-  <div class="position-relative js-header-wrapper ">
-    <a href="#start-of-content" tabindex="1" class="accessibility-aid js-skip-to-content">Skip to content</a>
-    <div id="js-pjax-loader-bar" class="pjax-loader-bar"><div class="progress"></div></div>
-
-    
-    
-    
+  
+  
+  
 
 
 
-        
-<div class="header" role="banner">
+      <div class="header" role="banner">
   <div class="container clearfix">
+
     <a class="header-logo-invertocat" href="https://github.com/" data-hotkey="g d" aria-label="Homepage" data-ga-click="Header, go to dashboard, icon:logo">
   <svg aria-hidden="true" class="octicon octicon-mark-github" height="32" version="1.1" viewBox="0 0 16 16" width="32"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
 </a>
@@ -114,18 +106,16 @@
         <div class="header-search scoped-search site-scoped-search js-site-search" role="search">
   <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/search" class="js-site-search-form" data-scoped-search-url="/clarketm/FileSaver.js/search" data-unscoped-search-url="/search" method="get"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>
     <label class="form-control header-search-wrapper js-chromeless-input-container">
-        <a href="/clarketm/FileSaver.js/blob/master/FileSaver.min.js" class="header-search-scope no-underline">This repository</a>
+      <div class="header-search-scope">This repository</div>
       <input type="text"
         class="form-control header-search-input js-site-search-focus js-site-search-field is-clearable"
         data-hotkey="s"
         name="q"
-        value=""
         placeholder="Search"
         aria-label="Search this repository"
         data-unscoped-placeholder="Search GitHub"
         data-scoped-placeholder="Search"
         autocapitalize="off">
-        <input type="hidden" class="js-site-search-type-field" name="type" >
     </label>
 </form></div>
 
@@ -139,10 +129,6 @@
           <a href="/issues" aria-label="Issues you created" class="js-selected-navigation-item header-nav-link" data-ga-click="Header, click, Nav menu - item:issues context:user" data-hotkey="g i" data-selected-links="/issues /issues/assigned /issues/mentioned /issues">
             Issues
 </a>        </li>
-            <li class="header-nav-item">
-              <a href="/marketplace" class="js-selected-navigation-item header-nav-link" data-ga-click="Header, click, Nav menu - item:marketplace context:user" data-selected-links=" /marketplace">
-                Marketplace
-</a>            </li>
           <li class="header-nav-item">
             <a class="header-nav-link" href="https://gist.github.com/" data-ga-click="Header, go to gist, text:gist">Gist</a>
           </li>
@@ -152,7 +138,7 @@
 <ul class="header-nav user-nav float-right" id="user-links">
   <li class="header-nav-item">
     
-    <a href="/notifications" aria-label="You have unread notifications" class="header-nav-link notification-indicator tooltipped tooltipped-s js-socket-channel js-notification-indicator " data-channel="notification-changed:734547" data-ga-click="Header, go to notifications, icon:unread" data-hotkey="g n">
+    <a href="/notifications" aria-label="You have unread notifications" class="header-nav-link notification-indicator tooltipped tooltipped-s js-socket-channel js-notification-indicator" data-channel="tenant:1:notification-changed:734547" data-ga-click="Header, go to notifications, icon:unread" data-hotkey="g n">
         <span class="mail-status unread"></span>
         <svg aria-hidden="true" class="octicon octicon-bell float-left" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M14 12v1H0v-1l.73-.58c.77-.77.81-2.55 1.19-4.42C2.69 3.23 6 2 6 2c0-.55.45-1 1-1s1 .45 1 1c0 0 3.39 1.23 4.16 5 .38 1.88.42 3.66 1.19 4.42l.66.58H14zm-7 4c1.11 0 2-.89 2-2H5c0 1.11.89 2 2 2z"/></svg>
 </a>
@@ -187,13 +173,6 @@
 
 
 
-  <div class="dropdown-divider"></div>
-  <div class="dropdown-header">
-    <span title="clarketm/FileSaver.js">This repository</span>
-  </div>
-    <a class="dropdown-item" href="/clarketm/FileSaver.js/issues/new" data-ga-click="Header, create new issue">
-      New issue
-    </a>
 
       </ul>
     </div>
@@ -203,7 +182,7 @@
     <a class="header-nav-link name tooltipped tooltipped-sw js-menu-target" href="/citricacid"
        aria-label="View profile and more"
        data-ga-click="Header, show menu, icon:avatar">
-      <img alt="@citricacid" class="avatar" src="https://avatars0.githubusercontent.com/u/734547?v=3&amp;s=40" height="20" width="20">
+      <img alt="@citricacid" class="avatar" height="20" src="https://avatars0.githubusercontent.com/u/734547?v=3&amp;s=40" width="20" />
       <span class="dropdown-caret"></span>
     </a>
 
@@ -224,6 +203,9 @@
         <a class="dropdown-item" href="/explore" data-ga-click="Header, go to explore, text:explore">
           Explore
         </a>
+          <a class="dropdown-item" href="/integrations" data-ga-click="Header, go to integrations, text:integrations">
+            Integrations
+          </a>
         <a class="dropdown-item" href="https://help.github.com" data-ga-click="Header, go to help, text:help">
           Help
         </a>
@@ -234,7 +216,7 @@
           Settings
         </a>
 
-        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/logout" class="logout-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="pOUfZFKmQgKkYnR9s8cs/8gwl1nuPGCzbFNsUv+oDymPRVXPz1W5A4UMMm/UtUj8rryfugblhhIOI7CmBQ2eTw==" /></div>
+        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/logout" class="logout-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="1JISnehF1mXRNG39VjpazUBizTw2TiPRUnz710+ZlD3L1zIPxjPGHyoDoPr8bleSn/6kdhBN+MT/p9csl7sqXA==" /></div>
           <button type="submit" class="dropdown-item dropdown-signout" data-ga-click="Header, sign out, icon:logout">
             Sign out
           </button>
@@ -243,18 +225,18 @@
   </li>
 </ul>
 
-
-    <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/logout" class="sr-only right-0" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="vWbJeU6wcsLFGTtfRs+0mHwbiLRAXrZBdvlLjvQeaY6WxoPS00OJw+R3fU0hvdCbGpeAV6iHUOAUiZd6Drv46A==" /></div>
+    <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/logout" class="sr-only" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="oTp1HmbSRg5GHCryebG+TM2py5P5IaO5x3SpXP1NLoO+f1WMSKRWdL0r5/XT5bMTEjWi2d8ieKxqr4WnJW+Q4g==" /></div>
       <button type="submit" class="dropdown-item dropdown-signout" data-ga-click="Header, sign out, icon:logout">
         Sign out
       </button>
-</form>  </div>
+</form>
+    
+  </div>
 </div>
 
 
-      
+    
 
-  </div>
 
   <div id="start-of-content" class="accessibility-aid"></div>
 
@@ -264,36 +246,38 @@
 
 
   <div role="main">
-        <div itemscope itemtype="http://schema.org/SoftwareSourceCode">
+      <div itemscope itemtype="http://schema.org/SoftwareSourceCode">
     <div id="js-repo-pjax-container" data-pjax-container>
-        
+      
 
 
+<div class="pagehead repohead instapaper_ignore readability-menu experiment-repo-nav">
+  <div class="container repohead-details-container">
 
-    <div class="pagehead repohead instapaper_ignore readability-menu experiment-repo-nav">
-      <div class="container repohead-details-container">
+    
 
-        <ul class="pagehead-actions">
+<ul class="pagehead-actions">
+
   <li>
-        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/notifications/subscribe" class="js-social-container" data-autosubmit="true" data-remote="true" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="ruQ0bzK6H60UAw7NkUgwzfjRjrn3kTQH5dCUdSm17ZsRMMZzyZJcwxuCxku/PeWDBfvSpmjzbQQg+p9UzybOfQ==" /></div>      <input class="form-control" id="repository_id" name="repository_id" type="hidden" value="74808045" />
+        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/notifications/subscribe" class="js-social-container" data-autosubmit="true" data-remote="true" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="ZEnN1Gio2AyyRk9BVlK4V19L2VW31/fmY/i4upf1crV6T/dqSAT7HqxX9FmvQomqQK1NBqrB0xECUi7uv1HPoQ==" /></div>      <input class="form-control" id="repository_id" name="repository_id" type="hidden" value="74808045" />
 
         <div class="select-menu js-menu-container js-select-menu">
           <a href="/clarketm/FileSaver.js/subscription"
             class="btn btn-sm btn-with-count select-menu-button js-menu-target" role="button" tabindex="0" aria-haspopup="true"
             data-ga-click="Repository, click Watch settings, action:blob#show">
             <span class="js-select-button">
-                <svg aria-hidden="true" class="octicon octicon-eye" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.06 2C3 2 0 8 0 8s3 6 8.06 6C13 14 16 8 16 8s-3-6-7.94-6zM8 12c-2.2 0-4-1.78-4-4 0-2.2 1.8-4 4-4 2.22 0 4 1.8 4 4 0 2.22-1.78 4-4 4zm2-4c0 1.11-.89 2-2 2-1.11 0-2-.89-2-2 0-1.11.89-2 2-2 1.11 0 2 .89 2 2z"/></svg>
-                Watch
+              <svg aria-hidden="true" class="octicon octicon-eye" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.06 2C3 2 0 8 0 8s3 6 8.06 6C13 14 16 8 16 8s-3-6-7.94-6zM8 12c-2.2 0-4-1.78-4-4 0-2.2 1.8-4 4-4 2.22 0 4 1.8 4 4 0 2.22-1.78 4-4 4zm2-4c0 1.11-.89 2-2 2-1.11 0-2-.89-2-2 0-1.11.89-2 2-2 1.11 0 2 .89 2 2z"/></svg>
+              Watch
             </span>
           </a>
-            <a class="social-count js-social-count"
-              href="/clarketm/FileSaver.js/watchers"
-              aria-label="2 users are watching this repository">
-              2
-            </a>
+          <a class="social-count js-social-count"
+            href="/clarketm/FileSaver.js/watchers"
+            aria-label="1 user is watching this repository">
+            1
+          </a>
 
         <div class="select-menu-modal-holder">
-          <div class="select-menu-modal subscription-menu-modal js-menu-content">
+          <div class="select-menu-modal subscription-menu-modal js-menu-content" aria-hidden="true">
             <div class="select-menu-header js-navigation-enable" tabindex="-1">
               <svg aria-label="Close" class="octicon octicon-x js-menu-close" height="16" role="img" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48z"/></svg>
               <span class="select-menu-title">Notifications</span>
@@ -322,7 +306,7 @@
                     <span class="description">Be notified of all conversations.</span>
                     <span class="js-select-button-text hidden-select-button-text">
                       <svg aria-hidden="true" class="octicon octicon-eye" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.06 2C3 2 0 8 0 8s3 6 8.06 6C13 14 16 8 16 8s-3-6-7.94-6zM8 12c-2.2 0-4-1.78-4-4 0-2.2 1.8-4 4-4 2.22 0 4 1.8 4 4 0 2.22-1.78 4-4 4zm2-4c0 1.11-.89 2-2 2-1.11 0-2-.89-2-2 0-1.11.89-2 2-2 1.11 0 2 .89 2 2z"/></svg>
-                        Unwatch
+                      Unwatch
                     </span>
                   </div>
                 </div>
@@ -335,7 +319,7 @@
                     <span class="description">Never be notified.</span>
                     <span class="js-select-button-text hidden-select-button-text">
                       <svg aria-hidden="true" class="octicon octicon-mute" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8 2.81v10.38c0 .67-.81 1-1.28.53L3 10H1c-.55 0-1-.45-1-1V7c0-.55.45-1 1-1h2l3.72-3.72C7.19 1.81 8 2.14 8 2.81zm7.53 3.22l-1.06-1.06-1.97 1.97-1.97-1.97-1.06 1.06L11.44 8 9.47 9.97l1.06 1.06 1.97-1.97 1.97 1.97 1.06-1.06L13.56 8l1.97-1.97z"/></svg>
-                        Stop ignoring
+                      Stop ignoring
                     </span>
                   </div>
                 </div>
@@ -350,7 +334,7 @@
 
   <li>
       <div class="js-toggler-container js-social-container starring-container ">
-    <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/unstar" class="starred" data-remote="true" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="7HXkIOrE9x08u02RkLEPC+T7AwQr0TB/nJ+ZJAOmfAeffTJRMnxwK/lF3C2QACHkrOxGKHVQwTxid+8sarJfog==" /></div>
+    <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/unstar" class="starred" data-remote="true" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="MJW0GI+hrHxZ/VgmMWhPp6Cl+JsjKhg8dFkBde3hUiximBdowz/3UaoHfjuhF+rG1Qs8kFBjCpdGLBXozFK+Ew==" /></div>
       <button
         type="submit"
         class="btn btn-sm btn-with-count js-toggler-target"
@@ -360,11 +344,11 @@
         Unstar
       </button>
         <a class="social-count js-social-count" href="/clarketm/FileSaver.js/stargazers"
-           aria-label="10 users starred this repository">
-          10
+           aria-label="4 users starred this repository">
+          4
         </a>
 </form>
-    <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/star" class="unstarred" data-remote="true" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="b5JyD8T9bW28uCYTHreiqwL4XQKCEByrAuAWtrKh10NAj1auF6jxyU2Qm2zLq7sC1jCn5TEwUPm685wyx/+AJA==" /></div>
+    <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/star" class="unstarred" data-remote="true" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="fHwW9g7uqc00JEz6DzLiGlrhxs62MXV5pNSRcK3m1YtPxOxhTfinH/sai2xM9ptHXELqR6qsCau2Uy4Ul9L2tA==" /></div>
       <button
         type="submit"
         class="btn btn-sm btn-with-count js-toggler-target"
@@ -374,8 +358,8 @@
         Star
       </button>
         <a class="social-count js-social-count" href="/clarketm/FileSaver.js/stargazers"
-           aria-label="10 users starred this repository">
-          10
+           aria-label="4 users starred this repository">
+          4
         </a>
 </form>  </div>
 
@@ -401,13 +385,13 @@
           </div>
 
     <a href="/clarketm/FileSaver.js/network" class="social-count"
-       aria-label="1335 users forked this repository">
-      1,335
+       aria-label="1200 users forked this repository">
+      1,200
     </a>
   </li>
 </ul>
 
-        <h1 class="public ">
+    <h1 class="public ">
   <svg aria-hidden="true" class="octicon octicon-repo-forked" height="16" version="1.1" viewBox="0 0 10 16" width="10"><path fill-rule="evenodd" d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/></svg>
   <span class="author" itemprop="author"><a href="/clarketm" class="url fn" rel="author">clarketm</a></span><!--
 --><span class="path-divider">/</span><!--
@@ -418,9 +402,9 @@
     </span>
 </h1>
 
-      </div>
-      <div class="container">
-        
+  </div>
+  <div class="container">
+    
 <nav class="reponav js-repo-nav js-sidenav-container-pjax"
      itemscope
      itemtype="http://schema.org/BreadcrumbList"
@@ -434,76 +418,59 @@
       <meta itemprop="position" content="1">
 </a>  </span>
 
-    <span itemscope itemtype="http://schema.org/ListItem" itemprop="itemListElement">
-      <a href="/clarketm/FileSaver.js/issues" class="js-selected-navigation-item reponav-item" data-hotkey="g i" data-selected-links="repo_issues repo_labels repo_milestones /clarketm/FileSaver.js/issues" itemprop="url">
-        <svg aria-hidden="true" class="octicon octicon-issue-opened" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"/></svg>
-        <span itemprop="name">Issues</span>
-        <span class="Counter">0</span>
-        <meta itemprop="position" content="2">
-</a>    </span>
 
   <span itemscope itemtype="http://schema.org/ListItem" itemprop="itemListElement">
     <a href="/clarketm/FileSaver.js/pulls" class="js-selected-navigation-item reponav-item" data-hotkey="g p" data-selected-links="repo_pulls /clarketm/FileSaver.js/pulls" itemprop="url">
       <svg aria-hidden="true" class="octicon octicon-git-pull-request" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/></svg>
       <span itemprop="name">Pull requests</span>
-      <span class="Counter">0</span>
+      <span class="counter">0</span>
       <meta itemprop="position" content="3">
 </a>  </span>
 
-    <a href="/clarketm/FileSaver.js/projects" class="js-selected-navigation-item reponav-item" data-selected-links="repo_projects new_repo_project repo_project /clarketm/FileSaver.js/projects">
-      <svg aria-hidden="true" class="octicon octicon-project" height="16" version="1.1" viewBox="0 0 15 16" width="15"><path fill-rule="evenodd" d="M10 12h3V2h-3v10zm-4-2h3V2H6v8zm-4 4h3V2H2v12zm-1 1h13V1H1v14zM14 0H1a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1z"/></svg>
-      Projects
-      <span class="Counter" >0</span>
+  <a href="/clarketm/FileSaver.js/projects" class="js-selected-navigation-item reponav-item" data-selected-links="repo_projects new_repo_project repo_project /clarketm/FileSaver.js/projects">
+    <svg aria-hidden="true" class="octicon octicon-project" height="16" version="1.1" viewBox="0 0 15 16" width="15"><path fill-rule="evenodd" d="M10 12h3V2h-3v10zm-4-2h3V2H6v8zm-4 4h3V2H2v12zm-1 1h13V1H1v14zM14 0H1a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1z"/></svg>
+    Projects
+    <span class="counter">0</span>
 </a>
     <a href="/clarketm/FileSaver.js/wiki" class="js-selected-navigation-item reponav-item" data-hotkey="g w" data-selected-links="repo_wiki /clarketm/FileSaver.js/wiki">
       <svg aria-hidden="true" class="octicon octicon-book" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M3 5h4v1H3V5zm0 3h4V7H3v1zm0 2h4V9H3v1zm11-5h-4v1h4V5zm0 2h-4v1h4V7zm0 2h-4v1h4V9zm2-6v9c0 .55-.45 1-1 1H9.5l-1 1-1-1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h5.5l1 1 1-1H15c.55 0 1 .45 1 1zm-8 .5L7.5 3H2v9h6V3.5zm7-.5H9.5l-.5.5V12h6V3z"/></svg>
       Wiki
 </a>
 
-    <div class="reponav-dropdown js-menu-container">
-      <button type="button" class="btn-link reponav-item reponav-dropdown js-menu-target " data-no-toggle aria-expanded="false" aria-haspopup="true">
-        Insights
-        <svg aria-hidden="true" class="octicon octicon-triangle-down v-align-middle text-gray" height="11" version="1.1" viewBox="0 0 12 16" width="8"><path fill-rule="evenodd" d="M0 5l6 6 6-6z"/></svg>
-      </button>
-      <div class="dropdown-menu-content js-menu-content">
-        <div class="dropdown-menu dropdown-menu-sw">
-          <a class="dropdown-item" href="/clarketm/FileSaver.js/pulse" data-skip-pjax>
-            <svg aria-hidden="true" class="octicon octicon-pulse" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M11.5 8L8.8 5.4 6.6 8.5 5.5 1.6 2.38 8H0v2h3.6l.9-1.8.9 5.4L9 8.5l1.6 1.5H14V8z"/></svg>
-            Pulse
-          </a>
-          <a class="dropdown-item" href="/clarketm/FileSaver.js/graphs" data-skip-pjax>
-            <svg aria-hidden="true" class="octicon octicon-graph" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M16 14v1H0V0h1v14h15zM5 13H3V8h2v5zm4 0H7V3h2v10zm4 0h-2V6h2v7z"/></svg>
-            Graphs
-          </a>
-        </div>
-      </div>
-    </div>
+  <a href="/clarketm/FileSaver.js/pulse" class="js-selected-navigation-item reponav-item" data-selected-links="pulse /clarketm/FileSaver.js/pulse">
+    <svg aria-hidden="true" class="octicon octicon-pulse" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M11.5 8L8.8 5.4 6.6 8.5 5.5 1.6 2.38 8H0v2h3.6l.9-1.8.9 5.4L9 8.5l1.6 1.5H14V8z"/></svg>
+    Pulse
+</a>
+  <a href="/clarketm/FileSaver.js/graphs" class="js-selected-navigation-item reponav-item" data-selected-links="repo_graphs repo_contributors /clarketm/FileSaver.js/graphs">
+    <svg aria-hidden="true" class="octicon octicon-graph" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M16 14v1H0V0h1v14h15zM5 13H3V8h2v5zm4 0H7V3h2v10zm4 0h-2V6h2v7z"/></svg>
+    Graphs
+</a>
+
 </nav>
 
-      </div>
-    </div>
+  </div>
+</div>
 
 <div class="container new-discussion-timeline experiment-repo-nav">
   <div class="repository-content">
 
     
-          
 
-<a href="/clarketm/FileSaver.js/blob/70e4ea24c58e5949d7db909af6e10f4e05adcbab/FileSaver.min.js" class="d-none js-permalink-shortcut" data-hotkey="y">Permalink</a>
+<a href="/clarketm/FileSaver.js/blob/e241bd15288553341b3629f5d1e0bc7aaa8a7a38/FileSaver.min.js" class="d-none js-permalink-shortcut" data-hotkey="y">Permalink</a>
 
-<!-- blob contrib key: blob_contributors:v21:620e090fe0725c04f3d92a8fbe0ca394 -->
+<!-- blob contrib key: blob_contributors:v21:52ce50fcb05b01e1727b2be9fde2a158 -->
 
 <div class="file-navigation js-zeroclipboard-container">
   
 <div class="select-menu branch-select-menu js-menu-container js-select-menu float-left">
-  <button class=" btn btn-sm select-menu-button js-menu-target css-truncate" data-hotkey="w"
+  <button class="btn btn-sm select-menu-button js-menu-target css-truncate" data-hotkey="w"
     
     type="button" aria-label="Switch branches or tags" tabindex="0" aria-haspopup="true">
-      <i>Branch:</i>
-      <span class="js-select-button css-truncate-target">master</span>
+    <i>Branch:</i>
+    <span class="js-select-button css-truncate-target">master</span>
   </button>
 
-  <div class="select-menu-modal-holder js-menu-content js-navigation-container" data-pjax>
+  <div class="select-menu-modal-holder js-menu-content js-navigation-container" data-pjax aria-hidden="true">
 
     <div class="select-menu-modal">
       <div class="select-menu-header">
@@ -551,16 +518,6 @@
         <div data-filterable-for="context-commitish-filter-field" data-filterable-type="substring">
 
 
-            <a class="select-menu-item js-navigation-item js-navigation-open "
-              href="/clarketm/FileSaver.js/tree/v1.3.6/FileSaver.min.js"
-              data-name="v1.3.6"
-              data-skip-pjax="true"
-              rel="nofollow">
-              <svg aria-hidden="true" class="octicon octicon-check select-menu-item-icon" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5z"/></svg>
-              <span class="select-menu-item-text css-truncate-target" title="v1.3.6">
-                v1.3.6
-              </span>
-            </a>
             <a class="select-menu-item js-navigation-item js-navigation-open "
               href="/clarketm/FileSaver.js/tree/v1.3.5/FileSaver.min.js"
               data-name="v1.3.5"
@@ -675,18 +632,17 @@
 </div>
 
 
-
   <div class="commit-tease">
       <span class="float-right">
-        <a class="commit-tease-sha" href="/clarketm/FileSaver.js/commit/70e4ea24c58e5949d7db909af6e10f4e05adcbab" data-pjax>
-          70e4ea2
+        <a class="commit-tease-sha" href="/clarketm/FileSaver.js/commit/e241bd15288553341b3629f5d1e0bc7aaa8a7a38" data-pjax>
+          e241bd1
         </a>
-        <relative-time datetime="2017-05-02T08:37:08Z">May 2, 2017</relative-time>
+        <relative-time datetime="2016-11-26T10:12:56Z">Nov 26, 2016</relative-time>
       </span>
       <div>
         <img alt="@clarketm" class="avatar" height="20" src="https://avatars1.githubusercontent.com/u/9957358?v=3&amp;s=40" width="20" />
         <a href="/clarketm" class="user-mention" rel="author">clarketm</a>
-          <a href="/clarketm/FileSaver.js/commit/70e4ea24c58e5949d7db909af6e10f4e05adcbab" class="message" data-pjax="true" title="v1.3.6 - fix IE 10+ &quot;saveAs: undefined&quot; error">v1.3.6 - fix IE 10+ "saveAs: undefined" error</a>
+          <a href="/clarketm/FileSaver.js/commit/e241bd15288553341b3629f5d1e0bc7aaa8a7a38" class="message" data-pjax="true" title="v1.3.5 - update module name for AMD">v1.3.5 - update module name for AMD</a>
       </div>
 
     <div class="commit-tease-contributors">
@@ -760,6 +716,7 @@
     </div>
   </div>
 
+
 <div class="file">
   <div class="file-header">
   <div class="file-actions">
@@ -771,12 +728,12 @@
     </div>
 
 
-        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/edit/master/FileSaver.min.js" class="inline-form js-update-url-with-hash" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="4BqYqy+kA3p4HTqdcY/zur3PlDwVGpg/LFecAFRJ7LWbagKuhViog8KuyMrc0UCnqqzM/32CDXw/h5obaqi+PQ==" /></div>
+        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/edit/master/FileSaver.min.js" class="inline-form js-update-url-with-hash" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="xiex1pPvjMGZ7iuUBse8JsAj5Hy/Jv4aB8tN4gw7Xu5Ajxadk1cGF9WA30+++aLvYNpSdaq5qb+lFdGgGF5JQA==" /></div>
           <button class="btn-octicon tooltipped tooltipped-nw" type="submit"
             aria-label="Fork this project and edit the file" data-hotkey="e" data-disable-with>
             <svg aria-hidden="true" class="octicon octicon-pencil" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M0 12v3h3l8-8-3-3-8 8zm3 2H1v-2h1v1h1v1zm10.3-9.3L12 6 9 3l1.3-1.3a.996.996 0 0 1 1.41 0l1.59 1.59c.39.39.39 1.02 0 1.41z"/></svg>
           </button>
-</form>        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/delete/master/FileSaver.min.js" class="inline-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="/5/Cn/bQmCwem6HM3EjT8ACjcqKwB78tE1krmtFduYVfpCmwFoweB2rB3we6sWs2Zopnk3gT9Y8SspVFoeynRw==" /></div>
+</form>        <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/clarketm/FileSaver.js/delete/master/FileSaver.min.js" class="inline-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="m/6U1tSacsbVWNVmHR77pcaVfRafOjjg6bPq07PWcWIl3R3rlhpDQt2z3yZ3oLxiU3tBQorWZJlVRCI8nQDSHQ==" /></div>
           <button class="btn-octicon btn-octicon-danger tooltipped tooltipped-nw" type="submit"
             aria-label="Fork this project and delete the file" data-disable-with>
             <svg aria-hidden="true" class="octicon octicon-trashcan" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M11 2H9c0-.55-.45-1-1-1H5c-.55 0-1 .45-1 1H2c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1v9c0 .55.45 1 1 1h7c.55 0 1-.45 1-1V5c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1zm-1 12H3V5h1v8h1V5h1v8h1V5h1v8h1V5h1v9zm1-10H2V3h9v1z"/></svg>
@@ -786,7 +743,7 @@
   <div class="file-info">
       11 lines (10 sloc)
       <span class="file-info-divider"></span>
-    2.61 KB
+    2.62 KB
   </div>
 </div>
 
@@ -796,7 +753,7 @@
       <table class="highlight tab-size js-file-line-container" data-tab-size="8">
       <tr>
         <td id="L1" class="blob-num js-line-number" data-line-number="1"></td>
-        <td id="LC1" class="blob-code blob-code-inner js-file-line"><span class="pl-c">/*! FileSaver.js v1.3.6</span></td>
+        <td id="LC1" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">/*</span>! FileSaver.js v1.3.5</span></td>
       </tr>
       <tr>
         <td id="L2" class="blob-num js-line-number" data-line-number="2"></td>
@@ -828,11 +785,11 @@
       </tr>
       <tr>
         <td id="L9" class="blob-num js-line-number" data-line-number="9"></td>
-        <td id="LC9" class="blob-code blob-code-inner js-file-line"><span class="pl-c"> */</span></td>
+        <td id="LC9" class="blob-code blob-code-inner js-file-line"><span class="pl-c"> <span class="pl-c">*/</span></span></td>
       </tr>
       <tr>
         <td id="L10" class="blob-num js-line-number" data-line-number="10"></td>
-        <td id="LC10" class="blob-code blob-code-inner js-file-line">(function(e,t){if(typeof exports===&quot;object&quot;&amp;&amp;typeof exports.nodeName!==&quot;string&quot;){module.exports=e.document?t(e,true):function(e){if(!e.document){throw new Error(&quot;FileSaver requires a window with a document&quot;)}return t(e)}}else{t(e)}})(window||this,function(e,t){&quot;use strict&quot;;if(typeof e===&quot;undefined&quot;||typeof navigator!==&quot;undefined&quot;&amp;&amp;/MSIE [1-9]\./.test(navigator.userAgent)){return}var n=e.document,r=function(){return e.URL||e.webkitURL||e},o=n.createElementNS(&quot;http://www.w3.org/1999/xhtml&quot;,&quot;a&quot;),i=&quot;download&quot;in o,a=function(e){var t=new MouseEvent(&quot;click&quot;);e.dispatchEvent(t)},f=/constructor/i.test(e.HTMLElement)||e.safari,u=/CriOS\/[\d]+/.test(navigator.userAgent),c=function(t){(e.setImmediate||e.setTimeout)(function(){throw t},0)},d=&quot;application/octet-stream&quot;,s=1e3*40,l=function(e){var t=function(){if(typeof e===&quot;string&quot;){r().revokeObjectURL(e)}else{e.remove()}};setTimeout(t,s)},p=function(e,t,n){t=[].concat(t);var r=t.length;while(r--){var o=e[&quot;on&quot;+t[r]];if(typeof o===&quot;function&quot;){try{o.call(e,n||e)}catch(e){c(e)}}}},w=function(e){if(/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(e.type)){return new Blob([String.fromCharCode(65279),e],{type:e.type})}return e},m=function(t,n,c){if(!c){t=w(t)}var s=this,m=t.type,v=m===d,y,h=function(){p(s,&quot;writestart progress write writeend&quot;.split(&quot; &quot;))},S=function(){if((u||v&amp;&amp;f)&amp;&amp;e.FileReader){var n=new FileReader;n.onloadend=function(){var t=u?n.result:n.result.replace(/^data:[^;]*;/,&quot;data:attachment/file;&quot;);var r=e.open(t,&quot;_blank&quot;);if(!r)e.location.href=t;t=undefined;s.readyState=s.DONE;h()};n.readAsDataURL(t);s.readyState=s.INIT;return}if(!y){y=r().createObjectURL(t)}if(v){e.location.href=y}else{var o=e.open(y,&quot;_blank&quot;);if(!o){e.location.href=y}}s.readyState=s.DONE;h();l(y)};s.readyState=s.INIT;if(i){y=r().createObjectURL(t);setTimeout(function(){o.href=y;o.download=n;a(o);h();l(y);s.readyState=s.DONE});return}S()},v=m.prototype,y=function(e,t,n){return new m(e,t||e.name||&quot;download&quot;,n)};if(typeof navigator!==&quot;undefined&quot;&amp;&amp;navigator.msSaveOrOpenBlob){y=function(e,t,n){t=t||e.name||&quot;download&quot;;if(!n){e=w(e)}return navigator.msSaveOrOpenBlob(e,t)}}v.abort=function(){};v.readyState=v.INIT=0;v.WRITING=1;v.DONE=2;v.error=v.onwritestart=v.onprogress=v.onwrite=v.onabort=v.onerror=v.onwriteend=null;if(typeof define===&quot;function&quot;&amp;&amp;define.amd){define(&quot;file-saverjs&quot;,[],function(){return y})}if(typeof t===&quot;undefined&quot;){e.saveAs=y}return y});</td>
+        <td id="LC10" class="blob-code blob-code-inner js-file-line">(function(e,t){if(typeof exports===&quot;object&quot;&amp;&amp;typeof exports.nodeName!==&quot;string&quot;){module.exports=e.document?t(e,true):function(e){if(!e.document){throw new Error(&quot;FileSaver requires a window with a document&quot;)}return t(e)}}else{t(e)}})(window||this,function(e,t){&quot;use strict&quot;;if(typeof e===&quot;undefined&quot;||typeof navigator!==&quot;undefined&quot;&amp;&amp;/MSIE [1-9]\./.test(navigator.userAgent)){return}var n=e.document,r=function(){return e.URL||e.webkitURL||e},o=n.createElementNS(&quot;http://www.w3.org/1999/xhtml&quot;,&quot;a&quot;),i=&quot;download&quot;in o,a=function(e){var t=new MouseEvent(&quot;click&quot;);e.dispatchEvent(t)},f=/constructor/i.test(e.HTMLElement)||e.safari,u=/CriOS\/[\d]+/.test(navigator.userAgent),c=function(t){(e.setImmediate||e.setTimeout)(function(){throw t},0)},d=&quot;application/octet-stream&quot;,s=1e3*40,l=function(e){var t=function(){if(typeof e===&quot;string&quot;){r().revokeObjectURL(e)}else{e.remove()}};setTimeout(t,s)},p=function(e,t,n){t=[].concat(t);var r=t.length;while(r--){var o=e[&quot;on&quot;+t[r]];if(typeof o===&quot;function&quot;){try{o.call(e,n||e)}catch(e){c(e)}}}},w=function(e){if(/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(e.type)){return new Blob([String.fromCharCode(65279),e],{type:e.type})}return e},m=function(t,n,c){if(!c){t=w(t)}var s=this,m=t.type,v=m===d,y,h=function(){p(s,&quot;writestart progress write writeend&quot;.split(&quot; &quot;))},S=function(){if((u||v&amp;&amp;f)&amp;&amp;e.FileReader){var n=new FileReader;n.onloadend=function(){var t=u?n.result:n.result.replace(/^data:[^;]*;/,&quot;data:attachment/file;&quot;);var r=e.open(t,&quot;_blank&quot;);if(!r)e.location.href=t;t=undefined;s.readyState=s.DONE;h()};n.readAsDataURL(t);s.readyState=s.INIT;return}if(!y){y=r().createObjectURL(t)}if(v){e.location.href=y}else{var o=e.open(y,&quot;_blank&quot;);if(!o){e.location.href=y}}s.readyState=s.DONE;h();l(y)};s.readyState=s.INIT;if(i){y=r().createObjectURL(t);setTimeout(function(){o.href=y;o.download=n;a(o);h();l(y);s.readyState=s.DONE});return}S()},v=m.prototype,y=function(e,t,n){return new m(e,t||e.name||&quot;download&quot;,n)};if(typeof navigator!==&quot;undefined&quot;&amp;&amp;navigator.msSaveOrOpenBlob){return function(e,t,n){t=t||e.name||&quot;download&quot;;if(!n){e=w(e)}return navigator.msSaveOrOpenBlob(e,t)}}v.abort=function(){};v.readyState=v.INIT=0;v.WRITING=1;v.DONE=2;v.error=v.onwritestart=v.onprogress=v.onwrite=v.onabort=v.onerror=v.onwriteend=null;if(typeof define===&quot;function&quot;&amp;&amp;define.amd){define(&quot;file-saverjs&quot;,[],function(){return y})}if(typeof t===&quot;undefined&quot;){e.saveAs=y}return y});</td>
       </tr>
 </table>
 
@@ -847,19 +804,18 @@
     <button type="submit" class="btn">Go</button>
 </form></div>
 
-
   </div>
   <div class="modal-backdrop js-touch-events"></div>
 </div>
+
 
     </div>
   </div>
 
   </div>
 
-      
-<div class="container site-footer-container">
-  <div class="site-footer " role="contentinfo">
+      <div class="container site-footer-container">
+  <div class="site-footer" role="contentinfo">
     <ul class="site-footer-links float-right">
         <li><a href="https://github.com/contact" data-ga-click="Footer, go to contact, text:contact">Contact GitHub</a></li>
       <li><a href="https://developer.github.com" data-ga-click="Footer, go to api, text:api">API</a></li>
@@ -874,7 +830,7 @@
       <svg aria-hidden="true" class="octicon octicon-mark-github" height="24" version="1.1" viewBox="0 0 16 16" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
 </a>
     <ul class="site-footer-links">
-      <li>&copy; 2017 <span title="0.18306s from unicorn-1633988452-6f0k9">GitHub</span>, Inc.</li>
+      <li>&copy; 2017 <span title="0.18467s from github-fe128-cp1-prd.iad.github.net">GitHub</span>, Inc.</li>
         <li><a href="https://github.com/site/terms" data-ga-click="Footer, go to terms, text:terms">Terms</a></li>
         <li><a href="https://github.com/site/privacy" data-ga-click="Footer, go to privacy, text:privacy">Privacy</a></li>
         <li><a href="https://github.com/security" data-ga-click="Footer, go to security, text:security">Security</a></li>
@@ -898,8 +854,8 @@
 
 
     
-    <script crossorigin="anonymous" integrity="sha256-X+Q/xqnlEgxCczSjjpp2AUGGgqM5gcBzhRQ0p+EAUEk=" src="https://assets-cdn.github.com/assets/frameworks-5fe43fc6a9e5120c427334a38e9a7601418682a33981c073851434a7e1005049.js"></script>
-    <script async="async" crossorigin="anonymous" integrity="sha256-AXqRaXtEjo0SExzO6eDFxoQOzb8MZppSrXQAEi3tDJo=" src="https://assets-cdn.github.com/assets/github-017a91697b448e8d12131ccee9e0c5c6840ecdbf0c669a52ad7400122ded0c9a.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-sNUEoh5XYdpexereftWU9RqFg1UMVmblFWBwOQVsl20=" src="https://assets-cdn.github.com/assets/frameworks-b0d504a21e5761da5ec5eade7ed594f51a8583550c5666e515607039056c976d.js"></script>
+    <script async="async" crossorigin="anonymous" integrity="sha256-oTl2cKVZVeoi9ScEsG0dkXybWkiTbKsyH4otzxf5sd4=" src="https://assets-cdn.github.com/assets/github-a1397670a55955ea22f52704b06d1d917c9b5a48936cab321f8a2dcf17f9b1de.js"></script>
     
     
     

@@ -23,12 +23,14 @@ $(function() {
   }
 
   const getResults = function(pageNumber) {
-    // todo: fail...
     $('#loadbar').show();
     //$('.table-loading-inner').css("padding-top", "300px");
     $.get('/ajax/search' + generate_parameters(pageNumber), function(data) {
       $("#event_table").find("tbody").html(data.tablerows);
       $('#page_navigation').html(data.page_links)
+    }).fail(function() {
+      alert('Beklager. Kan ikke utføre søket.')
+    }).always(function() {
       $('#loadbar').hide();
     })
   }

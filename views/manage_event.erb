@@ -76,12 +76,19 @@
     <%= erb :_definition_panel %>
   </div>
 
+  <div class="form-group">
+    <label for="template_selector">Mal:</label>
+    <select id="template_selector" class="form-control">
+
+    </select>
+  </div>
+
 
   <%# --- Input for title                                               --- %>
   <div class="form-group">
     <label class="form-control-label" for="name">Tittel:</label>
     <input type="text" class="form-control" data-must_validate=true
-    id="name" name="name" <%= " value='#{item.name}'" if is_edit %> >
+    id="name" name="name" <%= " value='#{item.name}'" if defined?(item) %> >
   </div>
 
   <%# --- Dropdown for branches                               %>
@@ -114,10 +121,10 @@
   </div>
 
   <%# --- Special: Toggled comment section for select subcategories        --- %>
-  <div class="form-group" id="comment" <%= "style='display: none;'" unless is_edit && item.subcategory.has_comment %>  >
+  <div class="form-group" id="comment" <%= "style='display: none;'" unless is_event && is_edit && item.subcategory.has_comment %>  >
     <label class="form-control-label" for="comment_field">Beskrivelse(valgfri):</label>
     <input type="text"
-    name="comment" id="comment_field" <%= " value='#{item.comment}'" if is_edit %> >
+    name="comment" id="comment_field" <%= " value='#{item.comment}'" if is_event && is_edit %> >
   </div>
 
 
@@ -170,9 +177,9 @@
     <% if is_edit %>
       <%= "<a class='btn btn-danger' href='/delete_event/#{item.id}'>Slette</a>" if is_admin %>
       <%= "<a class='btn btn-danger pull-right' data-toggle='modal'
-        data-target='#confirmDeletionModal'>Marker for sletting</a>" if item.is_locked == 0 && item.marked_for_deletion == 0 %>
+        data-target='#confirmDeletionModal'>Marker for sletting</a>" if is_event && item.is_locked == 0 && item.marked_for_deletion == 0 %>
       <%= "<a class='btn btn-info pull-right' href='/unmark_event/#{item.id}'>
-        Fjern merking</a>" if item.is_locked == 0 && item.marked_for_deletion == 1  %>
+        Fjern merking</a>" if is_event && item.is_locked == 0 && item.marked_for_deletion == 1  %>
     <% end %>
   </div>
 </form>

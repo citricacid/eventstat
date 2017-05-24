@@ -147,19 +147,30 @@ end
 
 
 
-get '/manage_templates' do
-  require_logged_in
+get '/manage_template' do
+  protected!
 
   error = session.delete(:transaction_error)
-
   selected_branch = session[:default_branch] || '0'
 
-  erb :manage_events, :locals => {
+  erb :manage_event, :locals => { is_admin: is_admin?,
     is_event: false, is_edit: false, selected_branch: selected_branch,
     selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
     event_types: EventType.ordered_view.all, error: error }
 
+end
+
+
+get '/add_event/:template_id' do
+  require_logged_in
+
+  error = session.delete(:transaction_error)
+  selected_branch = session[:default_branch] || '0'
+
+  erb :manage_event, :locals => {selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
+    subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
+    event_types: EventType.ordered_view.all, error: error, item: Template.find(params[:template_id]) }
 end
 
 
@@ -181,7 +192,7 @@ end
     item = model.find(item_id)
 
     erb :manage_event, :locals => {  # ... manage_events must be typified...
-      item: item, is_edit: true, is_event: true, selected_branch: item.branch_id,
+      item: item, is_edit: true, is_event: is_event, selected_branch: item.branch_id,
       error: session.delete(:transaction_error), is_admin: is_admin?,
       branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
@@ -204,18 +215,10 @@ end
     end
 
     get '/edit_template/:template_id' do
-      require_logged_in
+      protected!
 
-      error = session.delete(:transaction_error)
-      event_id = params['event_id']
-
-      event = Event.find(event_id)
-      selected_branch = event.branch_id
-
-      erb :manage_events, :locals => {branches: Branch.all, subcategories: Subcategory.all,
-        subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, is_edit: true, is_event: true, selected_branch: event.branch_id,
-        event_types: EventType.ordered_view.all, event: Event.find(event_id), error: error, is_admin: is_admin? }
-      end
+      edit('Template', params['template_id'], false)
+    end
 
 
 
@@ -750,8 +753,15 @@ end
 
     # -----------------------------------------------------------------------
 
+    get '/view_templates' do
+      protected!
+      selected_branch = session[:default_branch] || '0'
+
+      erb :view_templates, :locals => {branches: Branch.all, selected_branch: selected_branch, templates: Template.all}
+    end
+
     post '/api/template' do
-      require_logged_in
+      protected!
 
       is_edit = params[:id].present?
       event_id = params[:id].to_i if is_edit
@@ -762,10 +772,6 @@ end
 
       category = event.event_type.get_category_id_by(event.subcategory_id) if event.event_type != nil
       event.category_id = category.id unless category.nil?
-
-      # event.added_after_lock = 1 if !is_edit && event.date < Branch.find(event.branch_id).locked_until
-
-      #protected! if event.is_locked == 1
 
       if event.save
         type = is_edit ? "MODIFY TEMPLATE: " : "ADD TEMPLATE: "
@@ -807,7 +813,7 @@ end
         Log.log.info type + event.inspect
 
         session[:transaction_success] = true
-        erb :receipt, :locals => {item: event, is_event: true}
+        erb :receipt, :locals => {item: event, is_event: true, templates: event.branch.templates}
       else
         session[:transaction_error] = true
         redirect '/edit_event/' + event.id.to_s

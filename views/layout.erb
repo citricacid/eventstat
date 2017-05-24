@@ -57,6 +57,8 @@
              aria-expanded='false'>Admin <span class='caret'></span></a>
             <ul class='dropdown-menu'>
               <li class='nav-lock'><a href='/manage_locks'>Lås</a></li>
+              <li class='nav-template'><a href='/manage_template'>Opprett mal</a></li>
+              <li class='nav-template'><a href='/view_templates'>Rediger mal</a></li>
               <li class='nav-schema'><a href='/schema'>Skjema</a></li>
               <li class='nav-catdef'><a href='/manage_categories'>Underkategorier</a></li>
               <li class='nav-typedef'><a href='/manage_event_types'>Typer</a></li>
@@ -67,20 +69,11 @@
         </ul>
         <ul class='nav navbar-nav navbar-right'>
           <% if is_authenticated? %>
-          <%= %{<li class='dropdown nav-admin'>
-            <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true'
-             aria-expanded='false'>Admin <span class='caret'></span></a>
-            <ul class='dropdown-menu'>
-              <li class='nav-lock'><a href='/manage_locks'>Lås</a></li>
-              <li class='nav-templates'><a href='/manage_templates'>Maler</a></li>
-            </ul>
-          </li>} %>
-
-          <%= "<li class='nav-logout'><a href='/manage_locks'><span class='glyphicon glyphicon-lock'></span></a></li>" %>
-          <%= "<li class='nav-settings'><a href='#settings_modal' data-toggle='modal' data-backdrop='static'><span class='glyphicon glyphicon-cog'></span></a></li>" %>
-          <%= "<li class='nav-logout'><a href='/logout'><span class='glyphicon glyphicon-log-out'></span> Logg ut</a></li>" %>
+            <%= "<li class='nav-logout'><a href='/manage_locks'><span class='glyphicon glyphicon-lock'></span></a></li>" %>
+            <%= "<li class='nav-settings'><a href='#settings_modal' data-toggle='modal' data-backdrop='static'><span class='glyphicon glyphicon-cog'></span></a></li>" %>
+            <%= "<li class='nav-logout'><a href='/logout'><span class='glyphicon glyphicon-log-out'></span> Logg ut</a></li>" %>
           <% else %>
-          <%= "<li class='nav-login'><a href='/login'><span class='glyphicon glyphicon-log-in'></span> Logg inn</a></li>" %>
+            <%= "<li class='nav-login'><a href='/login'><span class='glyphicon glyphicon-log-in'></span> Logg inn</a></li>" %>
           <% end %>
         </ul>
       </div>
