@@ -55,9 +55,11 @@ set :expose_headers, ['Content-Type']
 before do
   env["rack.errors"] = error_logger
 
-   # content_type :json
-   #headers 'Access-Control-Allow-Origin' => '*',
-    #        'Access-Control-Allow-Methods' => ['OPTIONS', 'GET', 'POST', 'PUT']
+  begin
+    @default_branch = Branch.find(session[:default_branch]) if defined?(session)
+  rescue
+    @default_branch = nil
+  end
 end
 
 options "*" do
@@ -74,6 +76,7 @@ end
 
 # for use by the 'settings' modal in layout.erb
 set :branches, Branch.all
+
 
 # ------------ helpers  -------------
 
@@ -141,10 +144,6 @@ get '/settings' do
   require_logged_in
   erb :get_settings
 end
-
-# def foo form_type, is_edit
-
-
 
 
 get '/manage_template' do
@@ -826,11 +825,17 @@ end
       session[:default_per_page] = data['defaultPerPage']
     end
 
+    post '/api/query' do
+      #data = JSON.parse(request.body.read)
+      puts params.inspect
+    end
+
     put '/api/statistics' do
       # require_logged_in
       # TODO sanitize input
 
       data = JSON.parse(request.body.read)
+
       period_label = data['period_label']
       branch_id = data['branch_id']
       category_id = data['category_id']

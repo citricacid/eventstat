@@ -25,16 +25,17 @@
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="/js/jquery-1.12.4.min.js"></script>
-  <script src="/js/jquery-ui.sortable.min.js"></script>
+  <!-- <script src="/js/jquery-ui.sortable.min.js"></script> -->
+  <script src="/js/jquery-ui.drag.sort.min.js"></script>
+
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="/bs/js/bootstrap.min.js"></script>
 
   <script src="/js/layout.js"></script>
   <link href="/css/custom.css" rel="stylesheet">
 </head>
+
 <body>
-
-
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
@@ -50,15 +51,29 @@
           <li class='nav-info'><a href='/info'>Info</a></li>
           <li class='nav-view_events'><a href='/view_events'>Oversikt</a></li>
           <li class='nav-manage_event'><a href='/manage_event'>Legg til/rediger</a></li>
+
+          <%# --- Dropdown menu for adding from template                  --- %>
+          <% if @default_branch.present? && @default_branch.has_templates? %>
+            <li class='dropdown nav-add_from_template'>
+              <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true'
+              aria-expanded='false'>Fra mal <span class='caret'></span></a>
+              <ul class="dropdown-menu">
+                <% @default_branch.templates.each do |template| %>
+                  <%= "<li><a href='/add_event/#{template.id}'>#{template.name}</a></li>" %>
+                <% end %>
+              </ul>
+            </li>
+          <% end %>
+
           <li class='nav-statistics'><a href='/view_statistics'>Statistikk</a></li>
           <% if is_admin? %>
           <%= %{<li class='dropdown nav-admin'>
             <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true'
              aria-expanded='false'>Admin <span class='caret'></span></a>
             <ul class='dropdown-menu'>
-              <li class='nav-lock'><a href='/manage_locks'>Lås</a></li>
               <li class='nav-template'><a href='/manage_template'>Opprett mal</a></li>
               <li class='nav-template'><a href='/view_templates'>Rediger mal</a></li>
+              <li class='divider'></li>
               <li class='nav-schema'><a href='/schema'>Skjema</a></li>
               <li class='nav-catdef'><a href='/manage_categories'>Underkategorier</a></li>
               <li class='nav-typedef'><a href='/manage_event_types'>Typer</a></li>
@@ -81,39 +96,38 @@
   </nav>
 
   <div class="container-fluid">
-
     <div class="modal fade" id="settings_modal">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Innstillinger</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <h5>Generelt</h5>
-        <label>Foretrukket sted:</label>
-        <select id="settings_branch">
-          <option value="">---</option>
-          <% settings.branches.each do |branch| %>
-          <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
-          <% end %>
-        </select>
-        <h5>Oversikt</h5>
-        <label>Per side</label>
-        <input type="radio" name="settings_per_page" value="10">10
-        <input type="radio" name="settings_per_page" value="20">20
-        <input type="radio" name="settings_per_page" value="50">50
-        <input type="radio" name="settings_per_page" value="200">Maks
-      </div>
-      <div class="modal-footer">
-        <button type="button" id="save_settings" data-dismiss="modal" class="btn btn-primary">Lagre</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Innstillinger</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h5>Generelt</h5>
+            <label>Foretrukket sted:</label>
+            <select id="settings_branch">
+              <option value="">---</option>
+              <% settings.branches.each do |branch| %>
+                <%= "<option value='#{branch.id}'>#{branch.name}</option>" %>
+              <% end %>
+            </select>
+            <h5>Oversikt</h5>
+            <label>Per side</label>
+            <input type="radio" name="settings_per_page" value="10">10
+            <input type="radio" name="settings_per_page" value="20">20
+            <input type="radio" name="settings_per_page" value="50">50
+            <input type="radio" name="settings_per_page" value="200">Maks
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="save_settings" data-dismiss="modal" class="btn btn-primary">Lagre</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
     <div id="main">
       <%= yield %>

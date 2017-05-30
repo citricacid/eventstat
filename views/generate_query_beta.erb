@@ -1,0 +1,142 @@
+<script src="/js/generate_query.js"></script>
+
+<form action="/api/query" method="post">
+<%# --- maintype gens         --- %>
+<div class="row">
+<div class="panel panel-default col-xs-4">
+  <ul class='event_maintype source list-unstyled' data-type='event_maintype'>
+    <li value='iterate_all' class='item exclusive'>Alle</li>
+
+    <% event_maintypes.each do |item| %>
+      <%= "<li value='#{item.id}' class='item' "%>
+      <%= "data-subtype_name='#{item.name}'' " %>
+      <%= "data-subcategories='#{item.subcategory_ids}' " %>
+      <%= "data-categories='#{item.category_ids}' " %>
+      <%= ">#{item.label}</li>" %>
+    <% end %>
+  </ul>
+
+</div>
+
+<div class="panel panel-default col-xs-4">
+<ul class='event_maintype target list-unstyled' data-type='event_maintype' name='event_maintype_id'>
+    <li value='sum_all' class='item exclusive'>Samlet</li>
+</ul>
+</div>
+</div>
+
+
+
+<%# --- eventtypes gens         --- %>
+<div class="row">
+<div class="panel panel-default col-xs-4">
+  <ul class='event_type source list-unstyled' data-type='event_type'>
+    <li value='iterate_all' class='item exclusive'>Alle</li>
+    <% event_types.each do |et| %>
+      <%= "<li value='#{et.id}' class='item' "%>
+      <%= "data-age_groups='#{et.age_group_ids}' " %>
+      <%= "data-subcategories='#{et.subcategory_ids}' " %>
+      <%= ">#{et.name}</li>" %>
+    <% end %>
+  </ul>
+
+</div>
+
+<div class="panel panel-default col-xs-4">
+  <ul class='event_type target list-unstyled' data-type='event_type' name='event_type_id'>
+    <li value='sum_all' class="item exclusive">Samlet</li>
+  </ul>
+</div>
+</div>
+
+
+<%# --- category gens         --- %>
+<div class="row">
+<div class="panel panel-default col-xs-4">
+  <ul class='category source list-unstyled' data-type='category'>
+    <li value='none' class='item exclusive'>-</li>
+    <li value='iterate_all' class='item exclusive'>Alle</li>
+<% categories.each do |et| %>
+  <%= "<li value='#{et.id}' class='item' "%>
+  <%= ">#{et.name}</li>" %>
+<% end %>
+</ul>
+
+</div>
+
+<div class="panel panel-default col-xs-4">
+  <ul class='category target list-unstyled' data-type='category' name='category_id'>
+    <li value='sum_all' class='item exclusive'>Samlet</li>
+</ul>
+</div>
+</div>
+
+<%# --- subcategory gens         --- %>
+<div class="row">
+<div class="panel panel-default col-xs-4">
+  <ul class='subcategory source list-unstyled' data-type='subcategory'>
+    <li value='sum_all' class='item exclusive'>Samlet</li>
+    <li value='iterate_all' class='item exclusive'>Alle</li>
+<% subcategories.each do |et| %>
+<%= "<li value='#{et.id}' class='item' "%>
+<%= ">#{et.name}</li>" %>
+<% end %>
+</ul>
+
+</div>
+
+<div class="panel panel-default col-xs-4">
+<ul class='subcategory target list-unstyled' data-type='subcategory' name='subcategory_id'>
+  <li value='none' class='item exclusive'>-</li>
+</ul>
+</div>
+</div>
+
+
+<%# --- agegroup gens         --- %>
+
+<div class="row">
+<div class="panel panel-default col-xs-4">
+<ul class='age_group source list-unstyled' data-type='age_group'>
+  <li value='none' class='item exclusive'>-</li>
+  <li value='iterate_all' class='item exclusive'>Alle</li>
+<% age_groups.each do |item| %>
+<%= "<li value='#{item.id}' class='item' "%>
+<%= ">#{item.name}</li>" %>
+<% end %>
+</ul>
+
+</div>
+
+<div class="panel panel-default col-xs-4">
+<ul class='age_group target list-unstyled' data-type='age_group' name='age_group_id'>
+<li value='sum_all' class='item exclusive'>Samlet</li>
+</ul>
+</div>
+</div>
+
+
+<%# --- age_category gens         --- %>
+
+<div class="row">
+<div class="panel panel-default col-xs-4">
+<ul class='age_category source list-unstyled' data-type='age_category'>
+  <li value='sum_all' class='item exclusive'>Samlet</li>
+  <li value='iterate_all' class='item exclusive'>Alle</li>
+<% age_groups.each do |item| %>
+<%= "<li value='#{item.id}' class='item' "%>
+<%= ">#{item.name}</li>" %>
+<% end %>
+</ul>
+
+</div>
+
+<div class="panel panel-default col-xs-4">
+<ul class='age_category target list-unstyled' data-type='age_category' name='age_category_id'>
+<li value='none' class='item exclusive'>-</li>
+</ul>
+</div>
+</div>
+
+<input type="submit" value="Submit">
+</form>

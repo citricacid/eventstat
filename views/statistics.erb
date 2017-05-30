@@ -10,9 +10,9 @@
 <script src="/js/FileSaver.js"></script>
 <script src="/js/tableexport.min.js"></script>
 
+<!-- <script src="https://code.highcharts.com/highcharts.js"></script> -->
+<!-- <script src="https://code.highcharts.com/modules/exporting.js"></script> -->
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
 
 <ul class="nav nav-tabs">
   <li class="active"><a data-toggle="tab" href="#freestyle">Egendefinert</a></li>
@@ -80,9 +80,10 @@
 </div>
 
 
-  <div id="predefined" class="tab-pane fade">
-    <h2>Kommer snart</h2>
-  </div>
+<div id="predefined" class="tab-pane fade">
+  <h2>Kommer snart!</h2>
+
+</div>
 
 
   <%# --- Statistics panel         --- %>
@@ -176,7 +177,7 @@
         <%# --- Dropdowns for target audiences                 --- %>
         <div class="row">
           <div class="form-group" id="target_audience_row">
-            <label for="category_selector" class="main">Aldersgruppe/kategori:</label>
+            <label for="age_group_selector" class="main">Aldersgruppe/kategori:</label>
 
             <select id="age_group_selector" class="target_audience_selector" name="age_group_id">
               <%= erb :_standard_options, locals: {collection: age_groups, type: :toggle}  %>

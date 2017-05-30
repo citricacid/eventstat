@@ -30,7 +30,7 @@ HeaderItem = Struct.new(:label, :id, :is_countable)
 # 'iterate_all' - report will iterate over all existing items (one lite item for each)
 # 'sum_all' - all existing items will be lumped as one
 # 'none' - for mutually exclusive categories...
-# single id or list of id values.... CHECK IF THIS ACTUALLY WORKS
+# single id or list of id values
 
 # idea: get_headers_for(...) and get_default_headers() - but where to place them?
 

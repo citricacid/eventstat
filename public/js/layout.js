@@ -1,6 +1,11 @@
 "use strict";
 /* global $ */
 
+// script contains code for handling default settings and for highlighting
+// currently active selection in the navbar
+
+
+// check if browser supports local storage
 function storageAvailable(type) {
   try {
     const storage = window[type];
@@ -14,19 +19,22 @@ function storageAvailable(type) {
   }
 }
 
+// gather settings from  local storage and post to server
 function submitSettings() {
   if (storageAvailable) {
     const defaultBranch = localStorage.getItem('defaultBranch') || '';
     const defaultPerPage = localStorage.getItem('defaultPerPage') || '10';
     const data = {defaultBranch: defaultBranch, defaultPerPage: defaultPerPage};
 
-    $.ajax({
+    const request = $.ajax({
       url: "/api/settings",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
       data: JSON.stringify(data),
       type: "PUT"
     });
+
+    request.done(() =>  location.reload(true));
   }
 }
 
@@ -45,7 +53,6 @@ $(function() {
 
 
   $(".alert-dialog").click(function(event) {
-    const has_answered = true;
     const source = event.target || event.srcElement;
 
     localStorage.setItem('hasAnswered', true);

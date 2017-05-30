@@ -8,7 +8,12 @@ const convertFormToHash = function($form) {
   const formElements = $form.serializeArray();
 
   $.each(formElements, function() {
+    if (hash[this.name]) {
+      const thisValue = this.value || '';
+      hash[this.name] = [].concat(hash[this.name], thisValue)
+    } else {
     hash[this.name] = this.value || '';
+    }
   });
 
   return hash;
@@ -148,7 +153,7 @@ $(function() {
       url: "/api/statistics",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
-      data: JSON.stringify(data),
+      data: JSON.stringify(data), // $form.serializeArray()
       type: "PUT"
     });
 
@@ -206,6 +211,7 @@ $(function() {
       processSummationRow($("#stats_table"));
 
       $(".empty_row").toggle(!$("#toggle_empty_rows").is(':checked'));
+
       tables.reset();
       //tables.update({formats: ['xls']}); // refreshes table export
     });
@@ -315,5 +321,6 @@ $(function() {
     bootstrap: false, position: 'top', emptyCSS: ".tableexport-empty", formats: ['xlsx']
   }
   tables = $("#stats_table").tableExport(settings);
+
 
 });

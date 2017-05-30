@@ -76,19 +76,12 @@
     <%= erb :_definition_panel %>
   </div>
 
-  <div class="form-group">
-    <label for="template_selector">Mal:</label>
-    <select id="template_selector" class="form-control">
-
-    </select>
-  </div>
-
 
   <%# --- Input for title                                               --- %>
   <div class="form-group">
     <label class="form-control-label" for="name">Tittel:</label>
     <input type="text" class="form-control" data-must_validate=true
-    id="name" name="name" <%= " value='#{item.name}'" if defined?(item) %> >
+      id="name" name="name" <%= " value='#{item.name}'" if defined?(item) %> >
   </div>
 
   <%# --- Dropdown for branches                               %>
@@ -115,7 +108,8 @@
     <label for="subcategory_selector">Kategori:</label>
     <%= erb :_definition_button %>
     <select id="subcategory_selector" name="subcategory_id" class="form-control" data-must_validate=<%= "#{is_event}" %>>
-      <%= erb :_subcategory_options, locals: {selected: defined?(item) && item.subcategory_id || nil, subcategories: subcategories, type: :choose} %>
+      <%= erb :_subcategory_options, locals: {selected: defined?(item) && item.subcategory_id || nil,
+         subcategories: subcategories, type: :choose} %>
     </select>
     <%= erb :_definition_panel %>
   </div>
@@ -123,8 +117,8 @@
   <%# --- Special: Toggled comment section for select subcategories        --- %>
   <div class="form-group" id="comment" <%= "style='display: none;'" unless is_event && is_edit && item.subcategory.has_comment %>  >
     <label class="form-control-label" for="comment_field">Beskrivelse(valgfri):</label>
-    <input type="text"
-    name="comment" id="comment_field" <%= " value='#{item.comment}'" if is_event && is_edit %> >
+    <input type="text" name="comment"
+      id="comment_field" <%= " value='#{item.comment}'" if is_event && is_edit %> >
   </div>
 
 
@@ -145,13 +139,14 @@
     <div class="row">
       <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
         <select class="form-control input-group-md" id="age_group_selector" name="age_group_id" data-must_validate=<%= "#{is_event}" %>>
-            <%= erb :_standard_options, locals: {selected: defined?(item) && item.age_group_id || nil, collection: age_groups, type: :choose} %>
+            <%= erb :_standard_options, locals: {selected: defined?(item) && item.age_group_id || nil,
+               collection: age_groups, type: :choose} %>
         </select>
       </div>
       <% if is_event %>
       <div class="form-group col-xs-3 col-sm-3 col-md-2 col-lg-2">
         <input class="form-control input-group-md" type="number" min="0" name="attendants" id="attendants"
-         data-must_validate=true <%= " value='#{item.attendants}'" if is_edit %> >
+          data-must_validate=true <%= " value='#{item.attendants}'" if is_edit %> >
       </div>
       <% end %>
     </div>

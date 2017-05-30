@@ -119,7 +119,7 @@ class Branch < ActiveRecord::Base
 
   default_scope { order(:name => :asc) }
 
-  def has_templates
+  def has_templates?
     templates.count > 0
   end
 
