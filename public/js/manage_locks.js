@@ -4,9 +4,7 @@
 $(function() {
   const activateFilter = function() {
     $('.table-loading-inner').css("padding-top", ($('#event_table').offset().top + 100) + 'px');
-    $('#progressbar').show();
-    //const sort_by = 'sort_by=' + $('input[name=sort_by]:checked').val()
-    //const sort_order = 'sort_order=' + $('input[name=sort_order]:checked').val()
+    $('#loading_spinner').show();
     const to_date = 'to_date=' +$("#daterange_to").val()
     const branch = 'branch_id=' +$("#branch_selector").val()
 
@@ -20,6 +18,11 @@ $(function() {
 
   $('#branch_selector').change(function() {
     activateFilter();
+  })
+
+  $('#lock-form').submit(function() {
+    $('.table-loading-inner').css("padding-top", ($('#event_table').offset().top + 100) + 'px');
+    $('#loading_spinner').show();
   })
 
 })

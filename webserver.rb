@@ -137,7 +137,8 @@ post '/sessions' do
 
   session.options[:expire_after] = 60*60*24*60 if session[:user_id].present? && params[:remember].present?
 
-  session[:user_id] ? redirect('/settings') : redirect('/')
+  #session[:user_id] ? redirect('/') : redirect('/')
+  redirect('/')
 end
 
 get '/settings' do
@@ -234,6 +235,8 @@ end
   end
 
   get '/ajax/search' do
+    require_logged_in
+
     # TODO: sanitize input
     parse_parameters
     events = filter_result_set
@@ -268,7 +271,7 @@ end
   def filter_result_set
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
     events = events.by_age_category(@audience) unless @audience == 'all'
-    events = events.by_branch(@branch_id) unless @branch_id.blank?
+    events = events.by_branch(@branch_id) unless @branch_id.blank? || @branch_id == '0'
 
     if @show_marked == 'none'
       events = events.where(marked_for_deletion: 0)
@@ -460,7 +463,7 @@ end
       @unmarked_count = @events.where(marked_for_deletion: 0).size
       @marked_count = @events.where(marked_for_deletion: 1).size
     rescue
-      puts "it gone wrong"
+      puts "it gone wrong" # todo
     end
 
     erb :manage_locks, :locals => {branches: Branch.all}
@@ -473,11 +476,13 @@ end
   end
 
   get '/ajax/get_events' do
+    require_logged_in
+
     branch = Branch.where(id: params[:branch_id]).first
     current_lock_date = branch.locked_until
     new_lock_date = params[:new_date]
 
-    # if new_date > cur_date
+    # todo if new_date > cur_date
     events = Event.order_by_event_date.by_branch(branch.id).between_dates(current_lock_date, new_lock_date)
 
     {events: events}.to_json
@@ -486,43 +491,10 @@ end
   post '/api/lock' do
     require_logged_in
 
-    @selected_branch = params[:branch_id] || session[:default_branch]
-
-    begin
-      branch = Branch.where(id: @selected_branch).first!
-    rescue
-      redirect back
-    end
-
-    from_date = branch.locked_until.next_day
-    to_date = (params[:to_date] && Date.parse(params[:to_date])) || Date.today.prev_day
-    # return ERROR if from_date < to_date || to_date > Date.today
-
-    @events = Event.order_by_event_date
-      .by_branch(branch.id)
-      .between_dates(from_date, to_date)
-    @unmarked_count = @events.where(marked_for_deletion: 0).size
-    @marked_count = @events.where(marked_for_deletion: 1).size
-
-    success = false
-    ActiveRecord::Base.transaction do
-      @events.each do |event|
-        if event.marked_for_deletion == 1
-            event.delete!
-        else
-          event.is_locked = 1
-          event.save!
-        end
-      end
-      branch.locked_until = to_date
-      branch.save!
-
-      success = true
-    end
-
-      @message = success ? "Ok. Lagret" : "Beklager. Feil oppsto"
-      redirect back
-    end
+    success = Branch.activate_lock(params[:branch_id], params[:to_date])
+    @message = success ? "Ok. Lagret" : "Beklager. Feil oppsto"
+    redirect back
+  end
 
   # ////////////////////////////////////////////////////////////////////////////
 

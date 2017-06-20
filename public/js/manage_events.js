@@ -15,9 +15,6 @@ const setValidity = function($element, isValid) {
   }
 };
 
-const foo = function($elem) {
- return $elem.data('must_validate')
-}
 
 const validateSelection = function($selector) {
   const isValid = !$selector.data('must_validate') || !$selector.find(':selected').hasClass("invalid_option");
@@ -50,12 +47,16 @@ const validateAttendants = function() {
 };
 
 const validateDate = function() {
+  const isOK = true;
   const $dateInput = $('#daterange');
-  const isOK = moment($dateInput.val(), 'DD-MM-YYYY', true).isValid();
 
-  setValidity($dateInput, isOK);
-  //return !$dateInput || isOK;
-  return true; // TODO: fix this!
+  // templates do not have date inputs, so only check validity if date is present
+  if ($dateInput) {
+    isOK = moment($dateInput.val(), 'DD-MM-YYYY', true).isValid();
+    setValidity($dateInput, isOK);
+  }
+
+  return isOK;
 };
 
 // selector handling
@@ -133,8 +134,6 @@ $(function() {
     }
 
     isValid = validateTitle() && isValid;
-
-    alert(isValid)
 
     return isValid;
   });

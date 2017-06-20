@@ -26,15 +26,13 @@ function submitSettings() {
     const defaultPerPage = localStorage.getItem('defaultPerPage') || '10';
     const data = {defaultBranch: defaultBranch, defaultPerPage: defaultPerPage};
 
-    const request = $.ajax({
+    return request = $.ajax({
       url: "/api/settings",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
       data: JSON.stringify(data),
       type: "PUT"
     });
-
-    request.done(() =>  location.reload(true));
   }
 }
 
@@ -43,8 +41,7 @@ $(function() {
     if (storageAvailable('localStorage')) {
       localStorage.setItem('defaultBranch', $('#settings_branch').val());
       localStorage.setItem('defaultPerPage', $('input[name=settings_per_page]:checked').val());
-
-      submitSettings();
+      submitSettings().done(() =>  location.reload(true))
     }
     else {
       alert('Beklager. Nettleseren støtter ikke lokal lagring.')

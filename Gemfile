@@ -1,11 +1,12 @@
 source 'http://rubygems.org'
 
 gem 'mysql2', '~> 0.4.6'
-gem 'i18n', '~> 0.7.0'
 gem 'activerecord', '~> 5.1', '>= 5.1.1'
 gem 'sinatra', '~> 1.4', '>= 1.4.8'
+#gem 'sinatra', '~> 2.0'
 gem 'sinatra-cross_origin', '~> 0.4.0'
 gem 'sinatra-contrib', '~> 1.4.7'
+#gem 'sinatra-contrib', '~> 2.0'
 gem 'sinatra-flash', '~> 0.3.0'
 gem 'thin', '~> 1.7'
 gem 'rack-ssl', '~> 1.4', '>= 1.4.1'

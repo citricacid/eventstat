@@ -3,17 +3,6 @@
 require 'date'
 require 'active_record'
 
-require 'i18n'
-require 'i18n/backend/fallbacks'
-
-I18n.available_locales = [:nb, :en]
-I18n.default_locale = :nb
-I18n.locale = :nb
-
-I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks)
-I18n.load_path = Dir['config/locales/*.yml']
-
-
 
 class Event < ActiveRecord::Base
   belongs_to :age_group
@@ -123,10 +112,39 @@ class Branch < ActiveRecord::Base
     templates.count > 0
   end
 
-  def set_lock(date)
-    # check if valid...
-    locked_until = date # if locked_until < date
-    save!
+  def self.activate_lock(branch_id, date)
+    begin
+      lock_date = Date.parse(date)
+      find(branch_id).set_lock(lock_date)
+    rescue ArgumentError => e
+      e.message
+    rescue ActiveRecord::RecordNotFound => e
+      e.message
+    end
+  end
+
+
+  def set_lock(to_date)
+    from_date = locked_until.next_day
+    lock_events = events.where("date >= ? and date <= ?", from_date, to_date)
+
+    success = false
+    ActiveRecord::Base.transaction do
+      lock_events.each do |event|
+        if event.marked_for_deletion == 1
+          event.destroy!
+        else
+          event.is_locked = 1
+          event.save!
+        end
+      end
+
+      self.locked_until = to_date
+      save!
+      success = true
+    end
+
+    success
   end
 
 end
@@ -229,10 +247,6 @@ class EventSubtype < ActiveRecord::Base
 
   def associated?(maintype_id)
     event_type.event_maintype.id == maintype_id
-  end
-
-  def label
-    I18n.t("subtype.#{name}").capitalize
   end
 
   def category_ids

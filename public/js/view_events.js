@@ -23,15 +23,14 @@ $(function() {
   }
 
   const getResults = function(pageNumber) {
-    $('#loadbar').show();
-    //$('.table-loading-inner').css("padding-top", "300px");
+    $('#loading_spinner').show();
     $.get('/ajax/search' + generate_parameters(pageNumber), function(data) {
       $("#event_table").find("tbody").html(data.tablerows);
       $('#page_navigation').html(data.page_links)
     }).fail(function() {
       alert('Beklager. Kan ikke utføre søket.')
     }).always(function() {
-      $('#loadbar').hide();
+      $('#loading_spinner').hide();
     })
   }
 
@@ -39,24 +38,6 @@ $(function() {
     window.location.href = '/view_events' + generate_parameters();
   }
 
-  function showProgressBar() {
-    const html = " <div class='table-loading-overlay' id='loadbar'>"
-    + " <div class='table-loading-inner'>"
-    + "<div class=\"col-xs-4 col-xs-offset-4\">"
-    + "<div class=\"progress\"> "
-    + "<div class=\"progress-bar progress-bar-striped progress-bar-streit active\" role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\">"
-    + "        <span class=\"sr-only\">Vennligst vent...</span>"
-    + "    </div>"
-    + "    </div>"
-    + " </div>"
-    + " </div>"
-    + " </div>";
-
-    $('#mytable').prepend(html);
-    // $('.table-loading-overlay').css('height', ($('#mytable').height() / 2) + 'px');
-    //$('.table-loading-overlay').css('height', $('#mytable').height() + 'px');
-    $('.table-loading-inner').css('padding-top', '300' + 'px');
-  }
 
   $('#search_box').keyup(function() {
     // if text.len > 2...

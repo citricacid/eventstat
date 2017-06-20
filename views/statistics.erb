@@ -203,10 +203,9 @@
 
       </form>
 
-      <div id='container' style='min-width: 600px;display:none; height: 600px; margin: 0 auto'></div>
-
       <%# --- Remove dynamic headers....                --- %>
       <div class="table-responsive">
+        <%= erb :_loading_spinner %>
         <table class="table table-striped" id="stats_table">
           <thead class="thead-inverse">
             <tr>
@@ -227,6 +226,5 @@
       </div>
 
     </div>
-
 
   </div>

@@ -135,15 +135,17 @@ $(function() {
 
   $("#toggle_empty_rows").change(function() {
     $(".empty_row").toggle(!this.checked);
-    //tables.update({formats: ['xls']}); // refreshes table export
-    tables.reset();
+    tables.update() //{formats: ['xls']}); // refreshes table export
+    //tables.reset();
   })
 
   //
   // Submit parameters and process results
   //
   $('#submit').click(function() {
-    // method to get default headers
+    $('#loading_spinner').show();
+
+    // todo method to get default headers
     const periodString = $('#period_label').val();
 
     const form = $("#query_form");
@@ -212,14 +214,19 @@ $(function() {
 
       $(".empty_row").toggle(!$("#toggle_empty_rows").is(':checked'));
 
-      tables.reset();
-      //tables.update({formats: ['xls']}); // refreshes table export
+      //tables.reset();
+      tables.update() //{formats: ['xls']}); // refreshes table export
     });
 
 
     request.fail(function(xhr, textStatus, errorThrown) {
       alert(textStatus + ': ' + errorThrown);
     });
+
+    request.always(function() {
+      $('#loading_spinner').hide();
+    })
+
   });
 
 
@@ -301,26 +308,35 @@ $(function() {
   resetAgeGroups();
 
   // set parameters for tableExport plugin
+
+
+/* default filename if "id" attribute is set and undefined */
+// $.fn.tableExport.defaultFileName = "myDownload";
+
+// formats: ["xls", "csv", "txt"],
+$.fn.tableExport.xls.buttonContent = '-> excel'
+
+tables = $("#stats_table").tableExport({bootstrap: false, position: "top", formats: ['xls']});
+
+
+
+
+  // set parameters for tableExport plugin
   /* default filename if "id" attribute is set and undefined */
   // $.fn.tableExport.defaultFileName = "myDownload";
 
 
-  $.fn.tableExport.xlsx.buttonContent = '-> excel'
-  $.fn.tableExport.xls.buttonContent = '-> excel'
-  TableExport.prototype.charset = "charset=utf-8";
+  // $.fn.tableExport.xlsx.buttonContent = '-> excelx'
+  //$.fn.tableExport.xls.buttonContent = '-> excel'
+  // TableExport.prototype.charset = "charset=utf-8";
   /* Excel Binary spreadsheet (.xls) */
 
-  TableExport.prototype.xlsx = {
-    defaultClass: "xlsx",
-    buttonContent: "helledussen",
-    mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    fileExtension: ".xlsx"
-};
 
-  let settings = {
-    bootstrap: false, position: 'top', emptyCSS: ".tableexport-empty", formats: ['xlsx']
-  }
-  tables = $("#stats_table").tableExport(settings);
+  //let settings = {
+  //  bootstrap: false, position: 'top', emptyCSS: ".tableexport-empty", formats: ['xlsx', 'xls']
+  //}
+  //tables = $("#stats_table").tableExport(settings);
+  //tables = $("#stats_table").tableExport();
 
 
 });
