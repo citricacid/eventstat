@@ -47,7 +47,7 @@ const validateAttendants = function() {
 };
 
 const validateDate = function() {
-  const isOK = true;
+  let isOK = true;
   const $dateInput = $('#daterange');
 
   // templates do not have date inputs, so only check validity if date is present
@@ -113,7 +113,9 @@ $(function() {
   let subcategoryValues = $subcategorySelector.find("option");
   let ageValues = $ageGroupSelector.find("option");
 
-  $("form").submit(function() {
+  $("form").submit(function(event) {
+    //event.preventDefault();
+
     validationActive = true;
     let isValid = true;
 
@@ -122,17 +124,7 @@ $(function() {
     isValid = validateSelection($subcategorySelector) && isValid;
     isValid = validateSelection($ageGroupSelector) && isValid;
     isValid = validateAttendants() && isValid;
-    isValid = validateDate() && isValid; // should this be a function call?
-
-    // If only title is invalid, generate a default one
-    // (disabled for now to accommodate templates)
-    if (isValid && !validateTitle()) {
-      const branchName = $('#branch_selector option:selected').text();
-      const dateString = $('#daterange').val();
-
-      //$('#name').val(branchName + ' ' + dateString);
-    }
-
+    isValid = validateDate() && isValid;
     isValid = validateTitle() && isValid;
 
     return isValid;
@@ -169,7 +161,6 @@ $(function() {
     const isCountable = $subcategorySelector.find(":selected").data('is_countable') || false;
     $('#attendants').data('is_countable', isCountable).toggle(isCountable);
     $('#attendants_label').toggle(isCountable);
-    console.log("hmmf " + isCountable)
   });
 
   $subcategorySelector.change(function() {
