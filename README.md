@@ -8,7 +8,7 @@ If not installed already, do `sudo apt-get install libmysqlclient-dev`. Next get
 
 #### MySQL
 
-To create the database, open MySQL and do `CREATE DATABASE counterstat`. Set up the user for the main script as follows: `CREATE USER 'eventstat'@'localhost' IDENTIFIED BY 'secret';` and `GRANT ALL PRIVILEGES on eventstat.* to 'eventstat'@'localhost'` Open a new terminal to `cp settings.rb.example settings.rb`, then install the database structure with `ruby db/schema.rb`
+To create the database, open MySQL and do `CREATE DATABASE eventstat`. Set up the user for the main script as follows: `CREATE USER 'eventstat'@'localhost' IDENTIFIED BY 'secret';` and `GRANT ALL PRIVILEGES on eventstat.* to 'eventstat'@'localhost'` Open a new terminal to `cp settings.rb.example settings.rb`, then install the database structure with `ruby db/schema.rb`
 
 
 #### Logs
