@@ -157,6 +157,8 @@
   <div class="form-group">
     <% if is_event && (!is_edit || item.is_locked == 0) %>
       <%= %Q(<input type='submit' class='btn btn-primary' value='Lagre'>) %>
+    <% elsif is_admin && !is_event && (!is_edit || item.is_locked == 0) %>
+        <%= %Q(<input type='submit' class='btn btn-primary' value='Lagre'>) %>      
     <% elsif is_admin %>
       <%= %Q(
         <button type="submit" class="btn btn-primary">

@@ -36,6 +36,12 @@ const validateAttendants = function() {
   const $attendantsInput = $('#attendants');
   let isOK = true;
 
+  // templates do not have attendant inputs, so only check validity if it is present
+
+  if (!$attendantsInput.length) {
+    return isOK;
+  }
+
   if ($attendantsInput.data('is_countable')) {
     isOK = parseInt($attendantsInput.val(), 10) >= 0;
   } else {
@@ -51,7 +57,7 @@ const validateDate = function() {
   const $dateInput = $('#daterange');
 
   // templates do not have date inputs, so only check validity if date is present
-  if ($dateInput) {
+  if ($dateInput.length) {
     isOK = moment($dateInput.val(), 'DD-MM-YYYY', true).isValid();
     setValidity($dateInput, isOK);
   }
