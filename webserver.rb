@@ -157,7 +157,7 @@ get '/manage_template' do
     is_event: false, is_edit: false, selected_branch: selected_branch,
     selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-    event_types: EventType.ordered_view.all, error: error }
+    event_types: EventType.ordered_view.all, extra_categories: ExtraCategory.all, error: error }
 
 end
 
@@ -170,7 +170,8 @@ get '/add_event/:template_id' do
 
   erb :manage_event, :locals => {selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
-    event_types: EventType.ordered_view.all, error: error, item: Template.find(params[:template_id]) }
+    event_types: EventType.ordered_view.all, error: error, item: Template.find(params[:template_id]),
+    extra_categories: ExtraCategory.all, is_admin: is_admin?}
 end
 
 
@@ -181,10 +182,12 @@ get '/manage_event' do
   error = session.delete(:transaction_error)
   selected_branch = session[:default_branch] || '0'
 
-  erb :manage_event, :locals => {selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
-    subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
-    event_types: EventType.ordered_view.all, error: error }
-end
+  erb :manage_event, :locals => {selector_type: :form, branches: Branch.all,
+    subcategories: Subcategory.all, subcategory_links: SubcategoryLink.all,
+    age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
+    event_types: EventType.ordered_view.all, error: error, is_admin: is_admin?,
+    extra_categories: ExtraCategory.all, item: Event.new }
+  end
 
 
   def edit(model_name, item_id, is_event)
@@ -196,27 +199,16 @@ end
       error: session.delete(:transaction_error), is_admin: is_admin?,
       branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-      event_types: EventType.ordered_view.all}
-  end
+      event_types: EventType.ordered_view.all, extra_categories: ExtraCategory.all}
+    end
 
-  get '/edit_event/:event_id' do
-    require_logged_in
-
-    # params['event_id']
-    edit('Event', params['event_id'], true)
-
-    #error = session.delete(:transaction_error)
-    #event_id = params['event_id']
-
-    #event = Event.find(event_id)
-    #selected_branch = event.branch_id
-
-
+    get '/edit_event/:event_id' do
+      require_logged_in
+      edit('Event', params['event_id'], true)
     end
 
     get '/edit_template/:template_id' do
       protected!
-
       edit('Template', params['template_id'], false)
     end
 
@@ -736,8 +728,8 @@ end
       event_id = params[:id].to_i if is_edit
 
       event = is_edit ? Template.find(event_id) : Template.new
-      selected = params.select {|key| event.attributes.key?(key)}
-      event.attributes = event.attributes.merge(selected) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
+      updates = params.select {|key| event.attributes.key?(key)}
+      event.attributes = event.attributes.merge(updates) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
       category = event.event_type.get_category_id_by(event.subcategory_id) if event.event_type != nil
       event.category_id = category.id unless category.nil?
@@ -766,14 +758,24 @@ end
       is_edit = params[:id].present?
       event_id = params[:id].to_i if is_edit
 
+      # populate attributes
       event = is_edit ? Event.find(event_id) : Event.new
-      event.attributes = event.attributes.merge(params) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
+      updates = params.select {|key| event.attributes.keys.include?(key) }
+      event.attributes = event.attributes.merge(updates) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
+      # infer category and extra_type
       category = event.event_type.get_category_id_by(event.subcategory_id)
       event.category_id = category.id
 
-      event.added_after_lock = 1 if !is_edit && event.date < Branch.find(event.branch_id).locked_until
+      if event.branch.has_extra_type && event.extra_category
+        event.extra_type_id = event.extra_category.extra_type.id
+      else
+        event.extra_category_id = nil
+        event.extra_type_id = nil
+      end
 
+      # lock handling
+      event.added_after_lock = 1 if !is_edit && event.date < Branch.find(event.branch_id).locked_until
       protected! if event.is_locked == 1
 
       if event.save

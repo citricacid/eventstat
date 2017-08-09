@@ -3,6 +3,9 @@
 require 'date'
 require 'active_record'
 
+require 'logger'
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+
 
 class Event < ActiveRecord::Base
   belongs_to :age_group
@@ -10,6 +13,8 @@ class Event < ActiveRecord::Base
   belongs_to :branch
   belongs_to :category
   belongs_to :subcategory
+
+  belongs_to :extra_category
 
   scope :reverse, -> { order('id').reverse_order }
   scope :order_by_event_date, -> { order(date: :desc) }
@@ -97,6 +102,7 @@ class Template < ActiveRecord::Base
   belongs_to :branch
   belongs_to :category
   belongs_to :subcategory
+  belongs_to :extra_category
 end
 
 
@@ -304,5 +310,12 @@ end
 class SubcategoryLink < ActiveRecord::Base
   belongs_to :subcategory
   belongs_to :category
+end
 
+class ExtraType < ActiveRecord::Base
+
+end
+
+class ExtraCategory < ActiveRecord::Base
+  belongs_to :extra_type
 end

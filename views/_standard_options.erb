@@ -3,6 +3,9 @@
 
 <% collection.each do |item| %>
   <%= "<option value='#{item.id}'" %>
+    <% data.each do |d| %>
+      <%= "data-#{d[:name]}='#{item.send(d[:attribute])}' " %>
+    <% end if defined?(data) %>
     <%= " selected" if defined?(selected) && item.id.to_s == selected.to_s %>
   <%=  ">#{item.name}</option>" %>
 <% end %>

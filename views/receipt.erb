@@ -17,6 +17,8 @@
   <%= "<tr><td>Underkategori:</td><td>#{subcategory_string}</td></tr>" %>
   <%= "<tr><td>Målgruppe:</td><td>#{age_group_string}</td></tr>" %>
   <%= "<tr><td>Antall:</td><td>#{item.attendants}</td></tr>" if is_event %>
+  <%= "<tr><td>FUBIAK-type:</td><td>#{item.extra_category.extra_type.name}</td></tr>" if item.extra_category&.extra_type %>
+  <%= "<tr><td>FUBIAK-type:</td><td>#{item.extra_category.name}</td></tr>" if item.extra_category %>
 </table>
 
 <%= %Q(

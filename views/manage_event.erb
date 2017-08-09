@@ -71,7 +71,7 @@
     <label for="event_type_selector">Type:</label>
     <%= erb :_definition_button %>
     <select id="event_type_selector" class="form-control" name="event_type_id" data-must_validate=<%= "#{is_event}" %>>
-      <%= erb :_event_type_options, locals: {selected: defined?(item) && item.event_type_id || nil, event_types: event_types, type: :choose} %>
+      <%= erb :_event_type_options, locals: {selected: item.event_type_id, event_types: event_types, type: :choose} %>
   </select>
     <%= erb :_definition_panel %>
   </div>
@@ -81,14 +81,15 @@
   <div class="form-group">
     <label class="form-control-label" for="name">Tittel:</label>
     <input type="text" class="form-control" data-must_validate=true
-      id="name" name="name" <%= " value='#{item.name}'" if defined?(item) %> >
+      id="name" name="name" value= <%= "#{item.name}" %>>
   </div>
 
   <%# --- Dropdown for branches                               %>
   <div class="form-group">
     <label for="branch_selector">Sted:</label>
     <select id="branch_selector" name="branch_id" class="form-control" data-must_validate=true>
-      <%= erb :_standard_options, locals: {selected: selected_branch, collection: branches, type: :choose} %>
+      <%= erb :_standard_options, locals: {selected: selected_branch, collection: branches, type: :choose,
+        data: [{name: 'has_extra_type', attribute: 'has_extra_type'}]} %>
     </select>
   </div>
 
@@ -139,7 +140,7 @@
     <div class="row">
       <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
         <select class="form-control input-group-md" id="age_group_selector" name="age_group_id" data-must_validate=<%= "#{is_event}" %>>
-            <%= erb :_standard_options, locals: {selected: defined?(item) && item.age_group_id || nil,
+            <%= erb :_standard_options, locals: {selected: item.age_group_id,
                collection: age_groups, type: :choose} %>
         </select>
       </div>
@@ -153,12 +154,20 @@
     <%= erb :_definition_panel %>
   </div>
 
+  <%# --- Dropdown for FUBIAK                               %>
+  <div class="form-group" id="extra_category_panel">
+    <label for="extra_category_selector">FUBIAK-kategori:</label>
+    <select id="extra_category_selector" name="extra_category_id" class="form-control" data-must_validate=false>
+      <%= erb :_standard_options, locals: {selected: item.extra_category, collection: extra_categories, type: :nil} %>
+    </select>
+  </div>
+
+
   <%# --- Bottom buttons: save, delete, lock, etc         --- %>
   <div class="form-group">
-    <% if is_event && (!is_edit || item.is_locked == 0) %>
+    <% if (item.respond_to?(:is_locked) && item.is_locked == 0) || (is_event && !is_edit) || (is_admin && !is_event)
+    %>
       <%= %Q(<input type='submit' class='btn btn-primary' value='Lagre'>) %>
-    <% elsif is_admin && !is_event && (!is_edit || item.is_locked == 0) %>
-        <%= %Q(<input type='submit' class='btn btn-primary' value='Lagre'>) %>      
     <% elsif is_admin %>
       <%= %Q(
         <button type="submit" class="btn btn-primary">

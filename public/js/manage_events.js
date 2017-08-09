@@ -36,8 +36,7 @@ const validateAttendants = function() {
   const $attendantsInput = $('#attendants');
   let isOK = true;
 
-  // templates do not have attendant inputs, so only check validity if it is present
-
+  // templates do not have attendant inputs, so only check validity if it's present
   if (!$attendantsInput.length) {
     return isOK;
   }
@@ -114,14 +113,13 @@ $(function() {
   const $subcategorySelector = $('#subcategory_selector');
   const $eventTypeSelector = $('#event_type_selector');
   const $branchSelector = $('#branch_selector');
+  const $extraCategory = $('#extra_category_panel')
 
   let validationActive = false; // validation will only be activated after user has tried to submit
   let subcategoryValues = $subcategorySelector.find("option");
   let ageValues = $ageGroupSelector.find("option");
 
   $("form").submit(function(event) {
-    //event.preventDefault();
-
     validationActive = true;
     let isValid = true;
 
@@ -151,6 +149,12 @@ $(function() {
       $panel.show();
     }
   });
+
+
+  $branchSelector.change(function() {
+    $extraCategory.toggle($(this).find(':selected').data('has_extra_type') == 1)
+  })
+
 
   $eventTypeSelector.change(function() {
     showOrHideDefinitions($(this));
@@ -208,7 +212,6 @@ $(function() {
   //
   // initialize form
   //
-
   $eventTypeSelector.change(); // fire change to set up dependent selectors
   showOrHideDefinitions($subcategorySelector);
   showOrHideDefinitions($ageGroupSelector);
