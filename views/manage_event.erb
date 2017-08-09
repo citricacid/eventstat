@@ -181,7 +181,7 @@
     <% end %>
 
     <% if is_edit %>
-      <%= "<a class='btn btn-danger' href='/delete_event/#{item.id}'>Slette</a>" if is_admin %>
+      <%= "<a class='btn btn-danger' href='/delete_#{url_string}/#{item.id}'>Slette</a>" if is_admin %>
       <%= "<a class='btn btn-danger pull-right' data-toggle='modal'
         data-target='#confirmDeletionModal'>Marker for sletting</a>" if is_event && item.is_locked == 0 && item.marked_for_deletion == 0 %>
       <%= "<a class='btn btn-info pull-right' href='/unmark_event/#{item.id}'>
