@@ -67,11 +67,11 @@ $(function() {
   });
 
   $('#event_maintype_selector').change(function() {
-    // set
     const subtypeName = $(this).find(':selected').data('subtype_name');
-    $('.subtype_radio').hide();
+    $('.subtype_radio').hide().find(':input').prop('disabled', true);
+    //$('#' + subtypeName).show().find('input:radio:first').prop('checked', true);
+    $('#' + subtypeName).show().find('input').prop('disabled', false);
     $('#' + subtypeName).show().find('input:radio:first').prop('checked', true);
-
     // fire change
     $('input[name=subtype_id]:checked').change();
   });
@@ -94,6 +94,9 @@ $(function() {
     $('#period_label').val(periodString);
   });
 
+  //
+  //
+  //
   $(".quickpick").change(function() {
     let quarter = parseInt($("#select_quarter").val(), 10);
     let year = parseInt($("#select_year").val(), 10);
@@ -129,15 +132,71 @@ $(function() {
     $("#daterange_to").val(endOfPeriod);
   });
 
+
   $("#clear").click(function() {
     $("#stats_table").find("tbody tr").remove();
   });
+
 
   $("#toggle_empty_rows").change(function() {
     $(".empty_row").toggle(!this.checked);
     tables.update() //{formats: ['xls']}); // refreshes table export
     //tables.reset();
   })
+
+
+  //
+  // Save query
+  //
+  $('#save_query').click(function() {
+    const form = $("#query_form");
+    const data = convertFormToHash(form);
+
+    const request = $.ajax({
+      url: "/api/query",
+      dataType: "json",
+      contentType: "application/json; charset=UTF-8",
+      data: JSON.stringify(data), // $form.serializeArray()
+      type: "POST"
+    });
+
+
+    request.done(function(data, textStatus, xhr) {
+      alert('alles gut')
+    })
+
+    request.fail(function(data, textStatus, xhr) {
+      alert('nichts gut')
+    })
+  })
+
+
+  $('#query_selector').change(function() {
+    const queryID =  $(this).find(':selected').val()
+    if (queryID != 0) {
+      $.getJSON('/api/queries/' + queryID)
+      .done(function(data) {
+        resetCategories();
+        $('#category_selector').change();
+        resetAgeGroups();
+
+        $('#name').val(data.name)
+        data['query_elements'].forEach(function(elem) {
+          const el = $('[name=' + elem.element_name + ']')
+          if (el.prop('type') === 'radio') {
+            el.parent().find('input[value=' + elem.element_value + ']:enabled').prop('checked', 'checked')
+          } else {
+            el.val(elem.element_value)
+            el.change()
+          }
+        })
+      })
+      .fail(function() {
+        alert('fail')
+      })
+    }
+  })
+
 
   //
   // Submit parameters and process results
@@ -317,26 +376,5 @@ $(function() {
 $.fn.tableExport.xls.buttonContent = '-> excel'
 
 tables = $("#stats_table").tableExport({bootstrap: false, position: "top", formats: ['xls']});
-
-
-
-
-  // set parameters for tableExport plugin
-  /* default filename if "id" attribute is set and undefined */
-  // $.fn.tableExport.defaultFileName = "myDownload";
-
-
-  // $.fn.tableExport.xlsx.buttonContent = '-> excelx'
-  //$.fn.tableExport.xls.buttonContent = '-> excel'
-  // TableExport.prototype.charset = "charset=utf-8";
-  /* Excel Binary spreadsheet (.xls) */
-
-
-  //let settings = {
-  //  bootstrap: false, position: 'top', emptyCSS: ".tableexport-empty", formats: ['xlsx', 'xls']
-  //}
-  //tables = $("#stats_table").tableExport(settings);
-  //tables = $("#stats_table").tableExport();
-
 
 });

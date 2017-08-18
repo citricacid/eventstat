@@ -86,145 +86,15 @@
 </div>
 
 
-  <%# --- Statistics panel         --- %>
+
   <div id="freestyle" class="tab-pane fade in active">
-
-    <form class="form-inline" role="form" id="query_form" autocomplete="off">
-      <div class="row">
-        <%= erb :_quickpick  %>
-      </div>
+    <%# ---  locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,   --- %>
 
 
-      <div class="row">
-        <div class="form-group">
-          <label for="daterange_from" class="main">Periode:</label>
-          <input type="text" id="daterange_from" class="period" name="from_date">
-          <input type="text" id="daterange_to" class="period" name="to_date">
-          <input type="text" id="period_label" name="period_label">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="form-group">
-          <label for="branch_selector" class="main">Sted:</label>
-          <select id="branch_selector" name="branch_id">
-            <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :stats}  %>
-          </select>
-        </div>
-      </div>
-
-
-      <%# --- Dropdown and radio buttons for event types                  --- %>
-      <%# --- what the heck is happening here? clarify code               --- %>
-      <div class="row">
-        <div class="form-group">
-          <label for="event_maintype_selector" class="main">Type/undertype:</label>
-          <select id="event_maintype_selector" name="maintype_id">
-            <option value="sum_all" data-subtype_name='sum_all'>Samlet</option>
-            <option value="iterate_all" data-subtype_name='iterate_all'>Alle</option>
-            <% event_maintypes.ordered_view.each do |type| %>
-            <%= %Q(<option value='#{type.id}' data-subtype_name='#{type.name}'
-                data-subcategories='#{type.subcategory_ids}'
-                data-categories='#{type.category_ids}'>#{type.label}</option>) %>
-            <% end %>
-          </select>
-        </div>
-
-
-        <div class="form-group">
-          <div class='subtype_radio' id='sum_all'>
-            <label class='radio-inline'><input type='radio' value='sum_all'
-              name='subtype_id'>Samlet</label>
-          </div>
-
-          <div class='subtype_radio' id='iterate_all'>
-            <label class='radio-inline'><input type='radio' value='sum_all'
-               name='subtype_id'>Samlet</label>
-            <label class='radio-inline'><input type='radio' value='iterate_all'
-               name='subtype_id'>Alle</label>
-          </div>
-
-          <% event_maintypes.each do |type| %>
-          <%= "<div class='subtype_radio' id='#{type.name}'>" %>
-            <%=  "<label class='radio-inline'><input type='radio' value='sum_all'
-                  name='subtype_id'>Samlet</label>
-                <label class='radio-inline'><input type='radio' value='iterate_all'
-                  name='subtype_id'>Alle</label>" %>
-            <% type.event_types.each do |et| %>
-            <%= "<label class='radio-inline'><input type='radio' value='#{et.event_subtype.id}'
-                  name='subtype_id' data-categories='#{et.category_ids}' data-subcategories='#{et.subcategory_ids}'>#{et.event_subtype.label}</label>" %>
-            <% end %>
-            <%= "</div>" %>
-            <% end %>
-          </div>
-        </div>
-
-
-      <%# --- Dropdowns for categories and subcategories                 --- %>
-        <div class="form-group row" id="category_row">
-          <label for="category_selector" class="main">Kategori/underkategori:</label>
-
-          <select id="category_selector" class="category_selector" name="category_id">
-            <%= erb :_standard_options, locals: {collection: categories, type: :toggle}  %>
-          </select>
-
-          <select id="subcategory_selector" class="category_selector" name="subcategory_id">
-            <%= erb :_standard_options, locals: {collection: subcategories, type: :toggle}  %>
-          </select>
-        </div>
-
-
-        <%# --- Dropdowns for target audiences                 --- %>
-        <div class="row">
-          <div class="form-group" id="target_audience_row">
-            <label for="age_group_selector" class="main">Aldersgruppe/kategori:</label>
-
-            <select id="age_group_selector" class="target_audience_selector" name="age_group_id">
-              <%= erb :_standard_options, locals: {collection: age_groups, type: :toggle}  %>
-            </select>
-
-            <select id="age_category_selector" class="target_audience_selector" name="age_category_id">
-              <%= erb :_standard_options, locals: {collection: age_categories, type: :toggle}  %>
-            </select>
-          </div>
-        </div>
-
-
-
-        <%# --- Buttons                --- %>
-        <div class="row">
-          <div class="form-group">
-            <button type="button" class="btn btn-secondary" id="submit">Hent</button>
-            <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
-            <label class="checkbox-inline">Skjul tomme rader</label>
-            <input type="checkbox" id="toggle_empty_rows">
-          </div>
-        </div>
-
-      </form>
-
-      <%# --- Remove dynamic headers....                --- %>
-      <div class="table-responsive">
-        <%= erb :_loading_spinner %>
-        <table class="table table-striped" id="stats_table">
-          <thead class="thead-inverse">
-            <tr>
-              <th>Periode</th>
-              <th>Sted</th>
-              <th>Kategori</th>
-              <th data-is-accumulative=true>Barn/unge</th>
-              <th data-is-accumulative=true>Voksne</th>
-              <th data-is-accumulative=true>Samlet</th>
-              <th data-is-accumulative=true>Ant. arr</th>
-              <th>Type</th>
-              <th>Undertype</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-    </div>
-
+    <%= erb :_statistics_panel, locals: {branches: branches, subcategories: subcategories, categories: categories,
+      subcategory_links: subcategory_links, age_groups: age_groups, age_categories: age_categories,
+      event_types: event_types, event_maintypes: event_maintypes, event_subtypes: event_subtypes, selected_branch: selected_branch,
+      queries: queries } %>
   </div>
+
+</div>

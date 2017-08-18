@@ -153,7 +153,7 @@ get '/manage_template' do
   error = session.delete(:transaction_error)
   selected_branch = session[:default_branch] || '0'
 
-  erb :manage_event, :locals => { is_admin: is_admin?,
+  erb :manage_event, :locals => { item: nil, is_admin: is_admin?,
     is_event: false, is_edit: false, selected_branch: selected_branch,
     selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
@@ -533,7 +533,7 @@ get '/manage_event' do
       categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
       age_categories: groups, event_types: EventType.all,
       event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all,
-      selected_branch: selected_branch}
+      selected_branch: selected_branch, queries: Query.all}
     end
 
 
@@ -767,11 +767,12 @@ get '/manage_event' do
       category = event.event_type.get_category_id_by(event.subcategory_id)
       event.category_id = category.id
 
-      if event.branch.has_extra_type && event.extra_category
+      if event.branch.has_extra_type && event.registration_type != 'library_only'
         event.extra_type_id = event.extra_category.extra_type.id
       else
         event.extra_category_id = nil
         event.extra_type_id = nil
+        event.registration_type = 'library_only'
       end
 
       # lock handling
@@ -797,10 +798,42 @@ get '/manage_event' do
       session[:default_per_page] = data['defaultPerPage']
     end
 
+
+    # ////////////////////////////////////////////////////////////////
+
+    # QUERY
+
     post '/api/query' do
-      #data = JSON.parse(request.body.read)
-      puts params.inspect
+      data = JSON.parse(request.body.read)
+      data = data.select {|name, value| value != 'none' and not name.include?('date') and not name.include?('period')}
+
+
+      query_name = data.delete("name")
+      query = Query.find_or_initialize_by(name: query_name)
+      puts "-----------"
+      puts query.inspect
+      query.save!
+      query_id = query.id
+
+      query.query_elements.each  {|element| element.delete}
+
+      data.each do |name, value|
+          QueryParameter.new(query_id: query_id, element_name: name, element_value: value).save
+      end
+      # name.blank? raise error
+
     end
+
+
+    get '/api/queries' do
+      Query.all.to_json
+    end
+
+    get '/api/queries/:query_id' do
+      Query.includes(:query_parameters).find(params[:query_id]).to_json
+    end
+
+
 
     put '/api/statistics' do
       # require_logged_in

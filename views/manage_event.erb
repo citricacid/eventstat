@@ -5,6 +5,14 @@
 
 <script src="/js/manage_events.js"></script>
 
+<!--  Manage events
+
+
+
+-->
+
+
+
 <!-- Define variables -->
 <% url_string = is_event ? "event" : "template" %>
 <% form_type_ui_string = is_event ? "arrangement" : "mal" %>
@@ -42,7 +50,7 @@
 
 
 <%= "<form action='/api/#{url_string}' method='post' id='event-form' autocomplete='off'>" %>
-  <%= "<input type='hidden' name='id' value='#{item.id}'>" if is_edit %>
+  <%= "<input type='hidden' name='id' value='#{item.id}'>" if item&.id.present? %>
 
   <div class="form-group">
     <% if is_edit %>
@@ -63,15 +71,32 @@
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
               Dette arrangmentet er låst for videre endringer. (id: #{item.id})
           </div>
-      </div>) if is_event && is_edit && item.is_locked == 1 %>
+      </div>) if item&.respond_to?(:is_locked) && item.is_locked == 1 %>
+
+
+  <%# --- Dropdown for FUBIAK                               %>
+  <div class="form-group panel_group" id="extra_category_panel" hidden>
+    <label for="extra_category_selector">Registreres som:</label>
+    <label class='radio-inline'>
+      <input type='radio' value='library_only' <%= ' checked ' if item&.registration_type == 'library_only' %>
+        name='registration_type'>Kun Deichman</label>
+    <label class='radio-inline'>
+      <input type='radio' value='mixed' <%= ' checked ' if item&.registration_type == 'mixed' %>
+        name='registration_type'>Deichman og FUBIAK</label>
+    <select id="extra_category_selector" name="extra_category_id" class="form-control" data-must_validate=false>
+      <%= erb :_standard_options, locals: {selected: item&.extra_category_id, collection: extra_categories, type: :choose} %>
+    </select>
+    <%= erb :_definition_panel %>
+  </div>
+
 
 
   <%# --- Dropdown and definition panel for event type                  --- %>
-  <div class="form-group panel_group">
+  <div class="form-group panel_group" id="event_type_panel">
     <label for="event_type_selector">Type:</label>
     <%= erb :_definition_button %>
     <select id="event_type_selector" class="form-control" name="event_type_id" data-must_validate=<%= "#{is_event}" %>>
-      <%= erb :_event_type_options, locals: {selected: item.event_type_id, event_types: event_types, type: :choose} %>
+      <%= erb :_event_type_options, locals: {selected: item&.event_type_id, event_types: event_types, type: :choose} %>
   </select>
     <%= erb :_definition_panel %>
   </div>
@@ -81,7 +106,7 @@
   <div class="form-group">
     <label class="form-control-label" for="name">Tittel:</label>
     <input type="text" class="form-control" data-must_validate=true
-      id="name" name="name" value= <%= "#{item.name}" %>>
+      id="name" name="name" value= <%= "#{item&.name}" %>>
   </div>
 
   <%# --- Dropdown for branches                               %>
@@ -99,17 +124,17 @@
     <div class="form-group">
       <label for="daterange">Dato:</label>
       <input class="form-control" type="text" name="date" id="daterange" data-must_validate=true
-        <%= " value=#{item.date.strftime('%d-%m-%Y')}" if is_edit %> >
+        <%= " value=#{item.date.strftime('%d-%m-%Y')}" if item&.respond_to?(:date) && item&.date.present? %> >
     </div>
   <% end %>
 
 
   <%# --- Dropdown and definition panel for subcategory selector        --- %>
-  <div class="form-group panel_group">
+  <div class="form-group panel_group" id="subcategory_panel">
     <label for="subcategory_selector">Kategori:</label>
     <%= erb :_definition_button %>
     <select id="subcategory_selector" name="subcategory_id" class="form-control" data-must_validate=<%= "#{is_event}" %>>
-      <%= erb :_subcategory_options, locals: {selected: defined?(item) && item.subcategory_id || nil,
+      <%= erb :_subcategory_options, locals: {selected: item&.subcategory_id || nil,
          subcategories: subcategories, type: :choose} %>
     </select>
     <%= erb :_definition_panel %>
@@ -140,7 +165,7 @@
     <div class="row">
       <div class="form-group col-xs-6 col-sm-6 col-md-3 col-lg-3">
         <select class="form-control input-group-md" id="age_group_selector" name="age_group_id" data-must_validate=<%= "#{is_event}" %>>
-            <%= erb :_standard_options, locals: {selected: item.age_group_id,
+            <%= erb :_standard_options, locals: {selected: item&.age_group_id,
                collection: age_groups, type: :choose} %>
         </select>
       </div>
@@ -154,13 +179,8 @@
     <%= erb :_definition_panel %>
   </div>
 
-  <%# --- Dropdown for FUBIAK                               %>
-  <div class="form-group" id="extra_category_panel">
-    <label for="extra_category_selector">FUBIAK-kategori:</label>
-    <select id="extra_category_selector" name="extra_category_id" class="form-control" data-must_validate=false>
-      <%= erb :_standard_options, locals: {selected: item.extra_category, collection: extra_categories, type: :nil} %>
-    </select>
-  </div>
+
+
 
 
   <%# --- Bottom buttons: save, delete, lock, etc         --- %>

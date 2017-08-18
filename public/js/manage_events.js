@@ -114,12 +114,28 @@ $(function() {
   const $eventTypeSelector = $('#event_type_selector');
   const $branchSelector = $('#branch_selector');
   const $extraCategory = $('#extra_category_panel')
+  const $extraCategorySelector = $('#extra_category_selector')
 
   let validationActive = false; // validation will only be activated after user has tried to submit
   let subcategoryValues = $subcategorySelector.find("option");
   let ageValues = $ageGroupSelector.find("option");
 
+  const updateValidationSchema = function() {
+    const regType = $('input:radio[name="registration_type"]:checked').val()
+
+    const validateLibrarySelection = regType === 'library_only' || regType === 'mixed'
+    const validateExtraSelection = regType === 'mixed' || regType === 'district_only'
+
+    $extraCategorySelector.data('must_validate', validateExtraSelection)
+    $eventTypeSelector.data('must_validate', validateLibrarySelection)
+    $subcategorySelector.data('must_validate', validateLibrarySelection)
+    $ageGroupSelector.data('must_validate', validateLibrarySelection)
+  }
+
+
   $("form").submit(function(event) {
+    updateValidationSchema();
+
     validationActive = true;
     let isValid = true;
 
@@ -127,6 +143,7 @@ $(function() {
     isValid = validateSelection($branchSelector) && isValid;
     isValid = validateSelection($subcategorySelector) && isValid;
     isValid = validateSelection($ageGroupSelector) && isValid;
+    isValid = validateSelection($extraCategorySelector) && isValid;
     isValid = validateAttendants() && isValid;
     isValid = validateDate() && isValid;
     isValid = validateTitle() && isValid;
@@ -152,7 +169,11 @@ $(function() {
 
 
   $branchSelector.change(function() {
-    $extraCategory.toggle($(this).find(':selected').data('has_extra_type') == 1)
+    const hasExtraCategory = $(this).find(':selected').data('has_extra_type') == 1
+    $extraCategory.toggle(hasExtraCategory)
+    if (!hasExtraCategory) {
+      $('input:radio[name="registration_type"][value="library_only"]').prop('checked', true)
+    }
   })
 
 
@@ -208,10 +229,38 @@ $(function() {
   });
 
 
+  //
+  // methods related to FUBIAK/extra types
+  //
+
+
+
+  $('input:radio[name="registration_type"]').change(function() {
+    const regType = $(this).val() === "district_only"
+    $branchSelector.prop('disabled', regType)
+    $('#event_type_panel, #subcategory_panel').toggle(!regType)
+
+    if ($(this).val() === "library_only") {
+      $('#extra_category_selector').val('0')
+    }
+  })
+
+  $('#extra_category_selector').change(function() {
+    const extraType = $(this).find(':selected').val()
+    const regType = $('input:radio[name="registration_type"]:checked').val()
+
+    if (extraType === "0") {
+      $('input:radio[name="registration_type"][value="library_only"]').prop('checked', true)
+    } else if (regType === "library_only") {
+      $('input:radio[name="registration_type"][value="mixed"]').prop('checked', true)
+    }
+  })
+
 
   //
   // initialize form
   //
+  $branchSelector.change(); // fire change to toggle selectors
   $eventTypeSelector.change(); // fire change to set up dependent selectors
   showOrHideDefinitions($subcategorySelector);
   showOrHideDefinitions($ageGroupSelector);
