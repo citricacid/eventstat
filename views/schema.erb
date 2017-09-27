@@ -1,5 +1,31 @@
-<h3>Skjema</h3>
+<h4>Koblinger kategori/underkategori</h4>
+<table class="table table-striped table-hover table-sm">
+  <thead class="thead-inverse">
+    <tr>
+      <th>Underkategori</th>
+      <% categories.each do |type| %>
+      <%= "<th>#{type.name}</th>" %>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% subcategories.each do |cat| %>
+      <%= "<tr><td>#{cat.name}</td>" %>
+      <% categories.each do |type| %>
+        <% if type.subcategory_associated?(cat.id) %>
+          <%= "<td><span class='glyphicon glyphicon-ok'></span></td>" %>
+        <% else %>
+          <%= "<td></td>" %>
+        <% end %>
+      <% end %>
+      <%= "</tr>" %>
+    <% end %>
+  </tbody>
+</table>
 
+
+
+<h4>Koblinger typer/underkategori</h4>
 <table class="table table-striped table-hover table-sm">
   <thead class="thead-inverse">
     <tr>
