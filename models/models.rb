@@ -3,8 +3,22 @@
 require 'date'
 require 'active_record'
 
-require 'logger'
-ActiveRecord::Base.logger = Logger.new(STDOUT)
+#require 'logger'
+#ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+class Query < ActiveRecord::Base
+  has_many :query_parameters
+
+  def as_json(options={})
+      super.as_json(options).merge({query_elements: query_elements})
+  end
+end
+
+class QueryParameter < ActiveRecord::Base
+  belongs_to :query
+end
+
+
 
 
 class Event < ActiveRecord::Base
@@ -21,6 +35,7 @@ class Event < ActiveRecord::Base
   scope :order_by_registration_date, -> { order(id: :desc) }
   scope :exclude_marked_events, -> { where(marked_for_deletion: 0) }
 
+  # TODO: more validations
   validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
   validates :date, presence: true
 
@@ -48,13 +63,10 @@ class Event < ActiveRecord::Base
   end
 
   def self.by_subtype(id)
-    #id.present? ? joins(:event_type).where('event_types.event_subtype_id' => id) : all
     id.present? ? joins(:event_type).where('event_types.event_subtype_id = ?', id) : all
   end
 
-
   def self.by_maintype(id)
-    #id.present? ? joins(:event_type).where('event_types.event_maintype_id' => id) : all
     id.present? ? joins(:event_type).where('event_types.event_maintype_id = ?', id) : all
   end
 

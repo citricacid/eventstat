@@ -5,6 +5,8 @@
 <% category_string = item.event_type.present? ? item.event_type.name : empty_string  %>
 <% subcategory_string = item.subcategory.present? ? item.subcategory.name : empty_string  %>
 <% age_group_string = item.age_group.present? ? item.age_group.name : empty_string  %>
+<% reg_types = {library_only: 'Kun Deichman', mixed: 'Deichman og bydel', district_only: 'Kun bydel'} %>
+<% registration_type_string = item.branch.has_extra_type ? reg_types[item.registration_type.to_sym] : nil  %>
 
 <h3>Kvittering</h3>
 
@@ -19,6 +21,7 @@
   <%= "<tr><td>Antall:</td><td>#{item.attendants}</td></tr>" if is_event %>
   <%= "<tr><td>FUBIAK-type:</td><td>#{item.extra_category.extra_type.name}</td></tr>" if item.extra_category&.extra_type %>
   <%= "<tr><td>FUBIAK-type:</td><td>#{item.extra_category.name}</td></tr>" if item.extra_category %>
+  <%= "<tr><td>Registrerings-type:</td><td>#{registration_type_string}</td></tr>" if registration_type_string %>
 </table>
 
 <%= %Q(
