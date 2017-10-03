@@ -171,7 +171,7 @@ get '/add_event/:template_id' do
   erb :manage_event, :locals => {selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
     event_types: EventType.ordered_view.all, error: error, item: Template.find(params[:template_id]),
-    extra_categories: ExtraCategory.all, is_admin: is_admin?}
+    extra_categories: ExtraCategory.all, extra_subcategories: ExtraSubcategory.all, is_admin: is_admin?}
 end
 
 
@@ -186,7 +186,7 @@ get '/manage_event' do
     subcategories: Subcategory.all, subcategory_links: SubcategoryLink.all,
     age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
     event_types: EventType.ordered_view.all, error: error, is_admin: is_admin?,
-    extra_categories: ExtraCategory.all, item: Event.new }
+    extra_categories: ExtraCategory.all, extra_subcategories: ExtraSubcategory.all, item: Event.new }
   end
 
 
@@ -199,7 +199,7 @@ get '/manage_event' do
       error: session.delete(:transaction_error), is_admin: is_admin?,
       branches: Branch.all, subcategories: Subcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-      event_types: EventType.ordered_view.all, extra_categories: ExtraCategory.all}
+      event_types: EventType.ordered_view.all, extra_categories: ExtraCategory.all, extra_subcategories: ExtraSubcategory.all}
     end
 
     get '/edit_event/:event_id' do
@@ -766,6 +766,14 @@ get '/manage_event' do
       # infer category and extra_type
       category = event.event_type.get_category_id_by(event.subcategory_id)
       event.category_id = category.id
+
+
+      # if extra_type != "annet"
+      # -> sette type
+      # -> sette Kategori
+      # -> sette extra_type
+      # ->
+
 
       if event.branch.has_extra_type && event.registration_type != 'library_only'
         event.extra_type_id = event.extra_category.extra_type.id

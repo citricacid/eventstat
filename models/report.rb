@@ -96,7 +96,6 @@ class ReportBuilder
   end
 
   # refactor into set_category and set_subcategory
-
   def set_category(category_id, subcategory_id)
     @report.category_type = category_id != 'none' ? :category : :subcategory
 
@@ -157,14 +156,15 @@ end
 
 
 
-
-# Report
 #
+# Report
 #
 
 class Report
   attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :category_type,
   :maintypes, :subtypes, :age_groups, :age_categories, :headers, :strategy
+
+  # TODO constructor and validate methods?
 
   def get_results
     @results = []

@@ -124,6 +124,11 @@ class Branch < ActiveRecord::Base
   has_many :counts, :through => :events
   has_many :templates
 
+  has_many :extra_links
+  has_many :extra_categories, through: :extra_links
+  has_many :extra_subcategories, through: :extra_links
+
+
   default_scope { order(:name => :asc) }
 
   def has_templates?
@@ -324,10 +329,29 @@ class SubcategoryLink < ActiveRecord::Base
   belongs_to :category
 end
 
+
+# TODO delete this
 class ExtraType < ActiveRecord::Base
 
 end
 
+class ExtraLink < ActiveRecord::Base
+  belongs_to :branch
+  belongs_to :category
+  belongs_to :extra_category
+  belongs_to :extra_subcategory
+end
+
+
 class ExtraCategory < ActiveRecord::Base
-  belongs_to :extra_type
+  has_many :extra_links
+  has_many :extra_subcategories, through: :extra_links
+
+  def extra_subcategory_ids
+    extra_subcategories.pluck(:id)
+  end
+end
+
+class ExtraSubcategory < ActiveRecord::Base
+
 end

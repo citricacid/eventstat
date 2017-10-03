@@ -12,7 +12,6 @@
 -->
 
 
-
 <!-- Define variables -->
 <% url_string = is_event ? "event" : "template" %>
 <% form_type_ui_string = is_event ? "arrangement" : "mal" %>
@@ -76,20 +75,14 @@
 
   <%# --- Dropdown for FUBIAK                               %>
   <div class="form-group panel_group" id="extra_category_panel" hidden>
-    <label for="extra_category_selector">Registreres som:</label>
-    <label class='radio-inline'>
-      <input type='radio' value='library_only' <%= ' checked ' if item&.registration_type == 'library_only' %>
-        name='registration_type'>Kun Deichman</label>
-    <label class='radio-inline'>
-      <input type='radio' value='mixed' <%= ' checked ' if item&.registration_type == 'mixed' %>
-        name='registration_type'>Deichman og FUBIAK</label>
+    <label for="extra_category_selector">FUBIAK:</label>
     <select id="extra_category_selector" name="extra_category_id" class="form-control" data-must_validate=false>
-      <%= erb :_standard_options, locals: {selected: item&.extra_category_id, collection: extra_categories, type: :choose} %>
+      <%= erb :_standard_options, locals: {selected: item&.extra_category_id, collection: extra_categories,
+         type: :choose, data: [{name: 'treat_as_category', attribute: 'treat_as_category'},
+           {name: 'extra_subcategories', attribute: 'extra_subcategory_ids'}]} %>
     </select>
     <%= erb :_definition_panel %>
   </div>
-
-
 
   <%# --- Dropdown and definition panel for event type                  --- %>
   <div class="form-group panel_group" id="event_type_panel">
@@ -127,6 +120,16 @@
         <%= " value=#{item.date.strftime('%d-%m-%Y')}" if item&.respond_to?(:date) && item&.date.present? %> >
     </div>
   <% end %>
+
+  <%# --- Second dropdown for FUBIAK                               %>
+  <div class="form-group panel_group" id="extra_subcategory_panel" hidden>
+    <label for="extra_subcategory_selector">FKategori:</label>
+    <select id="extra_subcategory_selector" name="extra_subcategory_id" class="form-control" data-must_validate=false>
+      <%= erb :_standard_options, locals: {selected: item&.extra_subcategory_id, collection: extra_subcategories, type: :choose} %>
+    </select>
+    <%= erb :_definition_panel %>
+  </div>
+
 
 
   <%# --- Dropdown and definition panel for subcategory selector        --- %>

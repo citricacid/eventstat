@@ -115,8 +115,10 @@ $(function() {
   const $branchSelector = $('#branch_selector');
   const $extraCategory = $('#extra_category_panel')
   const $extraCategorySelector = $('#extra_category_selector')
+  const $extraSubcategorySelector = $('#extra_subcategory_selector')
 
   let validationActive = false; // validation will only be activated after user has tried to submit
+  let extraSubcategoryValues = $extraSubcategorySelector.find("option");
   let subcategoryValues = $subcategorySelector.find("option");
   let ageValues = $ageGroupSelector.find("option");
 
@@ -171,9 +173,6 @@ $(function() {
   $branchSelector.change(function() {
     const hasExtraCategory = $(this).find(':selected').data('has_extra_type') == 1
     $extraCategory.toggle(hasExtraCategory)
-    if (!hasExtraCategory) {
-      $('input:radio[name="registration_type"][value="library_only"]').prop('checked', true)
-    }
   })
 
 
@@ -233,27 +232,15 @@ $(function() {
   // methods related to FUBIAK/extra types
   //
 
-
-
-  $('input:radio[name="registration_type"]').change(function() {
-    const regType = $(this).val() === "district_only"
-    $branchSelector.prop('disabled', regType)
-    $('#event_type_panel, #subcategory_panel').toggle(!regType)
-
-    if ($(this).val() === "library_only") {
-      $('#extra_category_selector').val('0')
-    }
-  })
-
   $('#extra_category_selector').change(function() {
-    const extraType = $(this).find(':selected').val()
-    const regType = $('input:radio[name="registration_type"]:checked').val()
+    const extraCategory = $(this).find(':selected').val()
+    const showSubcategories = $(this).find(':selected').data('treat_as_category')
 
-    if (extraType === "0") {
-      $('input:radio[name="registration_type"][value="library_only"]').prop('checked', true)
-    } else if (regType === "library_only") {
-      $('input:radio[name="registration_type"][value="mixed"]').prop('checked', true)
-    }
+    $('#extra_subcategory_panel').toggle(!showSubcategories)
+    $('#subcategory_panel').toggle(showSubcategories)
+
+    const extraSubcategories = $(this).find(':selected').data('extra_subcategories');
+    setVisibleOptions($extraSubcategorySelector, extraSubcategoryValues, extraSubcategories);
   })
 
 
