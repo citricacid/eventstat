@@ -123,7 +123,7 @@
 
   <%# --- Second dropdown for FUBIAK                               %>
   <div class="form-group panel_group" id="extra_subcategory_panel" hidden>
-    <label for="extra_subcategory_selector">FKategori:</label>
+    <label for="extra_subcategory_selector">Kategori:</label>
     <select id="extra_subcategory_selector" name="extra_subcategory_id" class="form-control" data-must_validate=false>
       <%= erb :_standard_options, locals: {selected: item&.extra_subcategory_id, collection: extra_subcategories, type: :choose} %>
     </select>

@@ -714,6 +714,13 @@ get '/manage_event' do
 
     # -----------------------------------------------------------------------
 
+    get '/subs' do
+      selected_branch = session[:default_branch] || '0'
+
+      {subs: InternalSubcategory.all, dist: DistrictSubcategory.all}.to_json
+    end
+
+
     get '/view_templates' do
       protected!
       selected_branch = session[:default_branch] || '0'

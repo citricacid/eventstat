@@ -44,6 +44,10 @@ class Event < ActiveRecord::Base
     where("date >= ? and date <= ?", from_date, to_date)
   end
 
+  # TODO
+  # def self.on_weekdays(days)
+  #  where ()
+  # end
 
   def self.by_branch(id)
     id.present? ? where("branch_id = ?", id) : all
@@ -321,6 +325,14 @@ class Subcategory < ActiveRecord::Base
   def subtype_associated?(subtype_id, maintype_id)
     categories.map {|cat| cat.subtype_associated?(subtype_id, maintype_id)}.present?
   end
+
+end
+
+class InternalSubcategory < Subcategory
+
+end
+
+class DistrictSubcategory < Subcategory
 
 end
 
