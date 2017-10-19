@@ -26,9 +26,10 @@ class Event < ActiveRecord::Base
   belongs_to :event_type
   belongs_to :branch
   belongs_to :category
-  belongs_to :subcategory
+  belongs_to :internal_subcategory, foreign_key: 'subcategory_id'
 
-  belongs_to :extra_category
+  belongs_to :district_subcategory, foreign_key: 'district_subcategory_id'
+  belongs_to :district_category
 
   scope :reverse, -> { order('id').reverse_order }
   scope :order_by_event_date, -> { order(date: :desc) }
@@ -128,9 +129,9 @@ class Branch < ActiveRecord::Base
   has_many :counts, :through => :events
   has_many :templates
 
-  has_many :extra_links
-  has_many :extra_categories, through: :extra_links
-  has_many :extra_subcategories, through: :extra_links
+  has_many :district_links
+  has_many :district_categories, through: :district_links
+  has_many :district_subcategories, through: :district_links, source: 'DistrictSubcategory'
 
 
   default_scope { order(:name => :asc) }
@@ -317,6 +318,8 @@ class Subcategory < ActiveRecord::Base
   has_many :categories, through: :subcategory_links
 
   default_scope { order(:view_priority => :asc) }
+  #scope :lions, -> { where(race: 'Lion') }
+  #scope :meerkats, -> { where(race: 'Meerkat') }
 
   def maintype_associated?(maintype_id)
     categories.map {|cat| cat.maintype_associated?(maintype_id)}.present?
@@ -342,28 +345,18 @@ class SubcategoryLink < ActiveRecord::Base
 end
 
 
-# TODO delete this
-class ExtraType < ActiveRecord::Base
-
+class DistrictLink < ActiveRecord::Base
+  belongs_to :district_subcategory, foreign_key: 'subcategory_id'
+  belongs_to :district_category
 end
 
-class ExtraLink < ActiveRecord::Base
+
+class DistrictCategory < ActiveRecord::Base
   belongs_to :branch
-  belongs_to :category
-  belongs_to :extra_category
-  belongs_to :extra_subcategory
-end
+  has_many :district_links
+  has_many :district_subcategories, through: :district_links
 
-
-class ExtraCategory < ActiveRecord::Base
-  has_many :extra_links
-  has_many :extra_subcategories, through: :extra_links
-
-  def extra_subcategory_ids
-    extra_subcategories.pluck(:id)
+  def district_subcategory_ids
+    district_subcategories.pluck(:id)
   end
-end
-
-class ExtraSubcategory < ActiveRecord::Base
-
 end

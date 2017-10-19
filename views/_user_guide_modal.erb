@@ -21,7 +21,7 @@
         <%= "<p><b>#{type.name}:</b> #{type.definition}</p>" if type.definition.present? %>
         <% end %>
         <h4  class="underline">Definisjon kategorier</h4>
-        <% subcategories.each do |cat| %>
+        <% internal_subcategories.each do |cat| %>
         <%= "<p><b>#{cat.name}:</b> #{cat.definition}</p>" if cat.definition.present? %>
         <% end %>
       </div>

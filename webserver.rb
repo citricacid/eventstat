@@ -157,7 +157,7 @@ get '/manage_template' do
     is_event: false, is_edit: false, selected_branch: selected_branch,
     selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-    event_types: EventType.ordered_view.all, extra_categories: ExtraCategory.all, error: error }
+    event_types: EventType.ordered_view.all, extra_categories: DistrictCategory.all, error: error }
 
 end
 
@@ -183,10 +183,10 @@ get '/manage_event' do
   selected_branch = session[:default_branch] || '0'
 
   erb :manage_event, :locals => {selector_type: :form, branches: Branch.all,
-    subcategories: Subcategory.all, subcategory_links: SubcategoryLink.all,
+    internal_subcategories: InternalSubcategory.all, subcategory_links: SubcategoryLink.all,
     age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
     event_types: EventType.ordered_view.all, error: error, is_admin: is_admin?,
-    extra_categories: ExtraCategory.all, extra_subcategories: ExtraSubcategory.all, item: Event.new }
+    district_categories: DistrictCategory.all, district_subcategories: DistrictSubcategory.all, item: Event.new }
   end
 
 
@@ -770,24 +770,15 @@ get '/manage_event' do
       updates = params.select {|key| event.attributes.keys.include?(key) }
       event.attributes = event.attributes.merge(updates) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
-      # infer category and extra_type
-      category = event.event_type.get_category_id_by(event.subcategory_id)
-      event.category_id = category.id
-
-
-      # if extra_type != "annet"
-      # -> sette type
-      # -> sette Kategori
-      # -> sette extra_type
-      # ->
-
-
-      if event.branch.has_extra_type && event.registration_type != 'library_only'
-        event.extra_type_id = event.extra_category.extra_type.id
+      # logic
+      if event.branch.has_district_category && !event.district_category.treat_as_category
+        event.subcategory_id = nil
+        event.category_id = nil # possible TODO set this to special "fubiak" type?
       else
-        event.extra_category_id = nil
-        event.extra_type_id = nil
-        event.registration_type = 'library_only'
+        event.district_subcategory_id = nil
+        # infer category and extra_type
+        category = event.event_type.get_category_id_by(event.subcategory_id)
+        event.category_id = category.id
       end
 
       # lock handling

@@ -113,25 +113,25 @@ $(function() {
   const $subcategorySelector = $('#subcategory_selector');
   const $eventTypeSelector = $('#event_type_selector');
   const $branchSelector = $('#branch_selector');
-  const $extraCategory = $('#extra_category_panel')
-  const $extraCategorySelector = $('#extra_category_selector')
-  const $extraSubcategorySelector = $('#extra_subcategory_selector')
+  const $districtCategory = $('#district_category_panel')
+  const $districtCategorySelector = $('#district_category_selector')
+  const $districtSubcategorySelector = $('#district_subcategory_selector')
 
   let validationActive = false; // validation will only be activated after user has tried to submit
-  let extraSubcategoryValues = $extraSubcategorySelector.find("option");
+  let districtSubcategoryValues = $districtSubcategorySelector.find("option");
   let subcategoryValues = $subcategorySelector.find("option");
   let ageValues = $ageGroupSelector.find("option");
 
   const updateValidationSchema = function() {
-    const regType = $('input:radio[name="registration_type"]:checked').val()
+    const hasDistrictCategory = $branchSelector.find(':selected').data('has_district_category')
+    const treatAsCategory = hasDistrictCategory && $districtCategorySelector.find(':selected').data('treat_as_category')
 
-    const validateLibrarySelection = regType === 'library_only' || regType === 'mixed'
-    const validateExtraSelection = regType === 'mixed' || regType === 'district_only'
+    $districtCategorySelector.data('must_validate', hasDistrictCategory)
+    $districtSubcategorySelector.data('must_validate', !treatAsCategory)
+    $subcategorySelector.data('must_validate', treatAsCategory)
 
-    $extraCategorySelector.data('must_validate', validateExtraSelection)
-    $eventTypeSelector.data('must_validate', validateLibrarySelection)
-    $subcategorySelector.data('must_validate', validateLibrarySelection)
-    $ageGroupSelector.data('must_validate', validateLibrarySelection)
+    $('#uses_regular_subcategory').val(treatAsCategory)
+    // $ageGroupSelector.data('must_validate', validateLibrarySelection) - how does it work?
   }
 
 
@@ -145,7 +145,8 @@ $(function() {
     isValid = validateSelection($branchSelector) && isValid;
     isValid = validateSelection($subcategorySelector) && isValid;
     isValid = validateSelection($ageGroupSelector) && isValid;
-    isValid = validateSelection($extraCategorySelector) && isValid;
+    isValid = validateSelection($districtCategorySelector) && isValid;
+    isValid = validateSelection($districtSubcategorySelector) && isValid;
     isValid = validateAttendants() && isValid;
     isValid = validateDate() && isValid;
     isValid = validateTitle() && isValid;
@@ -171,8 +172,8 @@ $(function() {
 
 
   $branchSelector.change(function() {
-    const hasExtraCategory = $(this).find(':selected').data('has_extra_type') == 1
-    $extraCategory.toggle(hasExtraCategory)
+    const hasDistrictCategory = $(this).find(':selected').data('has_district_category') == 1
+    $districtCategory.toggle(hasDistrictCategory)
   })
 
 
@@ -229,18 +230,18 @@ $(function() {
 
 
   //
-  // methods related to FUBIAK/extra types
+  // methods related to FUBIAK/district types
   //
 
-  $('#extra_category_selector').change(function() {
-    const extraCategory = $(this).find(':selected').val()
+  $('#district_category_selector').change(function() {
+    const districtCategory = $(this).find(':selected').val()
     const showSubcategories = $(this).find(':selected').data('treat_as_category')
 
-    $('#extra_subcategory_panel').toggle(!showSubcategories)
+    $('#district_subcategory_panel').toggle(!showSubcategories)
     $('#subcategory_panel').toggle(showSubcategories)
 
-    const extraSubcategories = $(this).find(':selected').data('extra_subcategories');
-    setVisibleOptions($extraSubcategorySelector, extraSubcategoryValues, extraSubcategories);
+    const districtSubcategories = $(this).find(':selected').data('district_subcategories');
+    setVisibleOptions($districtSubcategorySelector, districtSubcategoryValues, districtSubcategories);
   })
 
 
