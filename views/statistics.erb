@@ -10,6 +10,10 @@
 <script src="/js/FileSaver.js"></script>
 <script src="/js/tableexport.min.js"></script>
 
+
+<link rel="stylesheet" type="text/css" href="/bootstrap-switch.min.css" />
+<script src="/bootstrap-switch.min.js"></script>
+
 <!-- <script src="https://code.highcharts.com/highcharts.js"></script> -->
 <!-- <script src="https://code.highcharts.com/modules/exporting.js"></script> -->
 
@@ -91,8 +95,9 @@
     <%# ---  locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,   --- %>
 
 
-    <%= erb :_statistics_panel, locals: {branches: branches, subcategories: subcategories, categories: categories,
+    <%= erb :_statistics_panel, locals: {branches: branches, internal_subcategories: internal_subcategories, categories: categories,
       subcategory_links: subcategory_links, age_groups: age_groups, age_categories: age_categories,
+      district_categories: district_categories, district_subcategories: district_subcategories,
       event_types: event_types, event_maintypes: event_maintypes, event_subtypes: event_subtypes, selected_branch: selected_branch,
       queries: queries } %>
   </div>
