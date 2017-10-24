@@ -1,6 +1,5 @@
 <form class="form-inline" role="form" id="query_form" autocomplete="off">
 
-
   <div class="row">
     <%= erb :_quickpick  %>
   </div>
@@ -80,9 +79,26 @@
       </select>
 
       <select id="subcategory_selector" class="category_selector" name="subcategory_id">
-        <%= erb :_standard_options, locals: {collection: subcategories, type: :toggle}  %>
+        <%= erb :_standard_options, locals: {collection: internal_subcategories, type: :toggle}  %>
       </select>
     </div>
+
+
+    <%# --- Dropdowns for district categories and subcategories                 --- %>
+      <div class="row" id="district_category_row">
+        <div class="form-group">
+        <label for="district_category_selector" class="main">FUBIAK:</label>
+
+        <select id="district_category_selector" class="category_selector" name="district_category_id">
+          <%= erb :_standard_options, locals: {collection: district_categories, type: :toggle}  %>
+        </select>
+
+        <select id="district_subcategory_selector" class="category_selector" name="district_subcategory_id">
+          <%= erb :_standard_options, locals: {collection: district_subcategories, type: :toggle}  %>
+        </select>
+      </div>
+    </div>
+
 
 
     <%# --- Dropdowns for target audiences                 --- %>
@@ -107,8 +123,9 @@
       <div class="form-group">
         <button type="button" class="btn btn-secondary" id="submit">Hent</button>
         <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
-        <label class="checkbox-inline">Skjul tomme rader</label>
-        <input type="checkbox" id="toggle_empty_rows">
+        <span style="padding: 0px 100px;"><input type="checkbox" id="toggle_empty_rows" checked></span>
+        <span><input type="checkbox" name="use_standard_categories" checked></span>
+        <span><input type="checkbox" name="expand_district_subcategories"></span>
       </div>
     </div>
 

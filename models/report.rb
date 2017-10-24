@@ -60,8 +60,8 @@ class ReportBuilder
     # dynamic headers
     headers << HeaderItem.new("Type", "maintype", false) unless @report.maintypes.sum_all
     headers << HeaderItem.new("Undertype", "subtype", false) unless @report.subtypes.sum_all
-    headers << HeaderItem.new("Kategori", "category", false) unless @report.categories.sum_all || @report.category_type == :subcategory
-    headers << HeaderItem.new("Underkategori", "subcategory", false) unless @report.categories.sum_all || @report.category_type == :category
+    headers << HeaderItem.new("Kategori", "category", false) unless @report.categories.nil? || @report.categories.sum_all #|| @report.category_type == :subcategory
+    headers << HeaderItem.new("Underkategori", "subcategory", false) unless @report.subcategories.nil? || @report.subcategories.sum_all #|| @report.category_type == :category
     headers << HeaderItem.new("Alder", "agecategory", false) unless @report.age_categories.nil? || @report.age_categories.sum_all
     headers << HeaderItem.new("Alder", "agegroup", false) unless @report.age_groups.nil? || @report.age_groups.sum_all
 
@@ -89,14 +89,19 @@ class ReportBuilder
     @report.to_date = to_date
   end
 
+
+  #
   def set_branch(branch_id)
     sum_all = branch_id == 'sum_all'
+
+    @report.include_district_subcategories = 'sum_all' || branch_id = 'iterate_all' || Branch.where(id: branch_id).where(has_district_category: 1).count > 0
+
     branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
     @report.branches = Filter.new(branches, sum_all)
   end
 
   # refactor into set_category and set_subcategory
-  def set_category(category_id, subcategory_id)
+  def xxxset_category(category_id, subcategory_id)
     @report.category_type = category_id != 'none' ? :category : :subcategory
 
     sum_all = category_id == 'sum_all' || subcategory_id == 'sum_all'
@@ -108,6 +113,39 @@ class ReportBuilder
     end
 
     @report.categories = Filter.new(categories, sum_all)
+  end
+
+  def set_category(category_id, use_standard_categories)
+    @report.use_standard_categories = use_standard_categories
+
+    sum_all = category_id == 'sum_all'
+
+    if use_standard_categories
+      categories = category_id == 'iterate_all' ? Category.all : Category.where(id: category_id)
+      @report.categories = Filter.new(categories, sum_all)
+    else
+      categories = category_id == 'iterate_all' ? DistrictCategory.all : DistrictCategory.where(id: category_id)
+      @report.categories = Filter.new(categories, sum_all)
+    end
+  end
+
+
+  def set_subcategory(subcategory_id, expand_district_subcategories)
+    sum_all = subcategory_id == 'sum_all'
+    subcategories = nil
+    district_subcategories = nil
+
+    if @report.include_district_subcategories and expand_district_subcategories
+      subcategories = subcategory_id == 'iterate_all' ? Subcategory. all : Subcategory.where(id: subcategory_id)
+    elsif @report.include_district_subcategories
+      subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory. all : InternalSubcategory.where(id: subcategory_id)
+      district_subcategories = subcategory_id == 'iterate_all' ? DistrictSubcategory. all : DistrictSubcategory.where(id: subcategory_id)
+      @report.district_subcategories = Filter.new(district_subcategories, sum_all, true)
+    else
+      subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory. all : InternalSubcategory.where(id: subcategory_id)
+    end
+
+    @report.subcategories = Filter.new(subcategories, sum_all)
   end
 
 
@@ -161,8 +199,8 @@ end
 #
 
 class Report
-  attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :category_type,
-  :maintypes, :subtypes, :age_groups, :age_categories, :headers, :strategy
+  attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :subcategories, :use_standard_categories,
+  :district_subcategories, :category_type, :maintypes, :subtypes, :age_groups, :age_categories, :headers, :strategy, :include_district_subcategories
 
   # TODO constructor and validate methods?
 
@@ -209,7 +247,7 @@ class Report
   def traverse_age_groups(branch, maintype, subtype)
     if @age_groups.sum_all
       traverse_categories(branch, maintype, subtype, LineItem.new(nil, 'Samlet'))
-    elsif @age_groups.sum_multiple_as_one == true
+    elsif @age_groups.sum_multiple_as_one
       traverse_categories(branch, maintype, subtype, @age_groups.collection)
     else
       @age_groups.collection.each do |ag|
@@ -218,8 +256,53 @@ class Report
     end
   end
 
-
   def traverse_categories(branch, maintype, subtype, age_group)
+    @categories.present? ? traverse_maincategories(branch, maintype, subtype, age_group) : traverse_subcategories(branch, maintype, subtype, age_group)
+  end
+
+  def traverse_subcategories(branch, maintype, subtype, age_group)
+    if @subcategories.sum_all
+      events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
+    elsif @include_district_subcategories && @district_subcategories&.sum_multiple_as_one
+      puts "multiplum"
+    else
+      @subcategories.collection.each do |cat|
+        next unless cat.subtype_associated?(subtype.id, maintype.id) ||
+          (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
+          (subtype.id == nil && maintype.id == nil)
+
+        events = get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+        calculate_result(branch_name: branch.label, category_name: cat.name, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
+      end
+    end
+  end
+
+
+
+    #subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory. all : InternalSubcategory.where(id: subcategory_id)
+    #district_subcategories = subcategory_id == 'iterate_all' ? DistrictSubcategory. all : DistrictSubcategory.where(id: subcategory_id)
+    #@report.district_subcategories = Filter.new(district_subcategories, sum_all, true)
+
+  def traverse_maincategories(branch, maintype, subtype, age_group)
+    if @categories.sum_all
+      events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
+    else @categories.collection.each do |cat|
+      next unless cat.subtype_associated?(subtype.id, maintype.id) ||
+        (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
+        (subtype.id == nil && maintype.id == nil)
+
+      events = get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
+      calculate_result(branch_name: branch.label, category_name: cat.name, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
+    end
+  end
+end
+
+
+
+
+  def xxxtraverse_categories(branch, maintype, subtype, age_group)
     if @categories.sum_all
       events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
       calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
@@ -233,54 +316,55 @@ class Report
       when :subcategory then get_events(branch.id, subcategory_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
       end
 
-      calculate_result(branch_name: branch.label, category_name: cat.name,
-      events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
+      calculate_result(branch_name: branch.label, category_name: cat.name, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
     end
   end
-
 end
 
+  def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil,
+    maintype: 'Samlet', subtype: 'Samlet', age_group: 'Samlet')
+    young_ages_count = events.to_a.sum(&:sum_non_adults)
+    all_ages_count = events.to_a.sum(&:sum_all_ages)
+    older_ages_count = events.to_a.sum(&:sum_adults)
 
-def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil,
-  maintype: 'Samlet', subtype: 'Samlet', age_group: 'Samlet')
-  young_ages_count = events.to_a.sum(&:sum_non_adults)
-  all_ages_count = events.to_a.sum(&:sum_all_ages)
-  older_ages_count = events.to_a.sum(&:sum_adults)
+    # legg til events.non_adults.size
+    # legg til header "Arr for barn/unge"
+    # ny set metode include_subsize(truefalse)
+    res = {}
+    @headers.each do |header|
+      res[header.id.to_sym] = @period_label if header.id == "period"
+      res[header.id.to_sym] = branch_name if header.id == "branch_name"
+      res[header.id.to_sym] = category_name if header.id == "category"
+      res[header.id.to_sym] = category_name if header.id == "subcategory"
+      res[header.id.to_sym] = maintype if header.id == "maintype"
+      res[header.id.to_sym] = subtype if header.id == "subtype"
+      res[header.id.to_sym] = age_group if header.id == "age_group"
+      res[header.id.to_sym] = events.size if header.id == "no_of_events"
+      res[header.id.to_sym] = all_ages_count if header.id == "no_of_attendants"
+      res[header.id.to_sym] = age_group if header.id == "agegroup"
+      # add more
+    end
 
-  # legg til events.non_adults.size
-  # legg til header "Arr for barn/unge"
-  # ny set metode include_subsize(truefalse)
-  res = {}
-  @headers.each do |header|
-    res[header.id.to_sym] = @period_label if header.id == "period"
-    res[header.id.to_sym] = branch_name if header.id == "branch_name"
-    res[header.id.to_sym] = category_name if header.id == "category"
-    res[header.id.to_sym] = category_name if header.id == "subcategory"
-    res[header.id.to_sym] = maintype if header.id == "maintype"
-    res[header.id.to_sym] = subtype if header.id == "subtype"
-    res[header.id.to_sym] = age_group if header.id == "age_group"
-    res[header.id.to_sym] = events.size if header.id == "no_of_events"
-    res[header.id.to_sym] = all_ages_count if header.id == "no_of_attendants"
-    res[header.id.to_sym] = age_group if header.id == "agegroup"
-    # add more
+    @results << res
   end
 
-  @results << res
-end
 
+  def get_events (branch_id = nil, category_id: nil, subcategory_id: nil, district_category_id: nil,
+    maintype_id: nil, subtype_id: nil, age_group_id: nil)
 
+    puts category_id
+    puts @use_standard_categories
+    catz = @use_standard_categories ? 'by_category' : 'by_district_category'
 
-
-def get_events (branch_id = nil, category_id: nil, subcategory_id: nil,
-  maintype_id: nil, subtype_id: nil, age_group_id: nil)
-  Event.between_dates(@from_date, @to_date)
-  .exclude_marked_events
-  .by_branch(branch_id)
-  .by_age_group(age_group_id)
-  .by_maintype(maintype_id)
-  .by_subtype(subtype_id)
-  .by_category(category_id)
-  .by_subcategory(subcategory_id)
-end
-
+    Event.between_dates(@from_date, @to_date)
+    .exclude_marked_events
+    .by_branch(branch_id)
+    .by_age_group(age_group_id)
+    .by_maintype(maintype_id)
+    .by_subtype(subtype_id)
+    .by_subcategory(subcategory_id)
+    .send(catz, category_id)
+    #.by_category(category_id)
+    #.by_district_category(district_category_id)
+  end
 end

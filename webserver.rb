@@ -158,7 +158,6 @@ get '/manage_template' do
     selector_type: :form, branches: Branch.all, subcategories: Subcategory.all,
     subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
     event_types: EventType.ordered_view.all, extra_categories: DistrictCategory.all, error: error }
-
 end
 
 
@@ -179,38 +178,46 @@ end
 get '/manage_event' do
   require_logged_in
 
-  error = session.delete(:transaction_error)
+  erb :manage_event, :locals => get_event_locals.merge!({is_edit: false, is_event: true, item: Event.new})
+end
+
+get '/edit_event/:event_id' do
+  require_logged_in
+  item = Event.find(params[:event_id])
+
+  erb :manage_event, :locals => get_event_locals.merge!({is_edit: true, is_event: true, item: item})
+end
+
+get '/clone_event/:event_id' do
+  require_logged_in
+  item = Event.find(params[:event_id]).dup
+
+  item.attendants = nil
+  item.date = nil
+  item.is_locked = 0
+  item.marked_for_deletion = 0
+  item.added_after_lock = 0
+
+  erb :manage_event, :locals => get_event_locals.merge!({is_edit: true, is_event: true, item: item})
+end
+
+get '/edit_template/:template_id' do
+  protected!
+  item = Template.find(params[:template_id])
+
+  erb :manage_event, :locals => get_event_locals.merge!({is_edit: true, is_event: true, item: item})
+end
+
+def get_event_locals
   selected_branch = session[:default_branch] || '0'
+  error = session.delete(:transaction_error)
 
-  erb :manage_event, :locals => {selector_type: :form, branches: Branch.all,
-    internal_subcategories: InternalSubcategory.all, subcategory_links: SubcategoryLink.all,
-    age_groups: AgeGroup.all, is_edit: false, is_event: true, selected_branch: selected_branch,
-    event_types: EventType.ordered_view.all, error: error, is_admin: is_admin?,
-    district_categories: DistrictCategory.all, district_subcategories: DistrictSubcategory.all, item: Event.new }
-  end
-
-
-  def edit(model_name, item_id, is_event)
-    model = model_name.safe_constantize
-    item = model.find(item_id)
-
-    erb :manage_event, :locals => {  # ... manage_events must be typified...
-      item: item, is_edit: true, is_event: is_event, selected_branch: item.branch_id,
-      error: session.delete(:transaction_error), is_admin: is_admin?,
-      branches: Branch.all, subcategories: Subcategory.all,
-      subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-      event_types: EventType.ordered_view.all, extra_categories: ExtraCategory.all, extra_subcategories: ExtraSubcategory.all}
-    end
-
-    get '/edit_event/:event_id' do
-      require_logged_in
-      edit('Event', params['event_id'], true)
-    end
-
-    get '/edit_template/:template_id' do
-      protected!
-      edit('Template', params['template_id'], false)
-    end
+  {selector_type: :form, branches: Branch.all,
+    subcategories: Subcategory.all, internal_subcategories: InternalSubcategory.all,
+    age_groups: AgeGroup.all, selected_branch: selected_branch, event_types: EventType.ordered_view.all,
+    is_admin: is_admin?, district_categories: DistrictCategory.all, error: error
+  }
+end
 
 
   # ////////////////////////////////////////////////////////////////////////////
@@ -304,6 +311,7 @@ get '/manage_event' do
 
   def generate_tablerows(events)
     tablerows = ''
+
     events.each do |event|
       if event.marked_for_deletion == 1
         style = 'text-decoration: line-through; color:red;'
@@ -529,9 +537,10 @@ get '/manage_event' do
     groups = []
     AgeGroup.age_categories.each { |k, v| groups << Group.new(v, AgeGroup.get_label(k)) }
 
-    erb :statistics, :locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,
-      categories: Category.all, subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all,
-      age_categories: groups, event_types: EventType.all,
+    erb :statistics, :locals => {selector_type: :stats, branches: Branch.all,
+      internal_subcategories: InternalSubcategory.all, district_subcategories: DistrictSubcategory.all,
+      district_categories: DistrictCategory.all, categories: Category.all,
+      subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, age_categories: groups, event_types: EventType.all,
       event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all,
       selected_branch: selected_branch, queries: Query.all}
     end
@@ -770,16 +779,11 @@ get '/manage_event' do
       updates = params.select {|key| event.attributes.keys.include?(key) }
       event.attributes = event.attributes.merge(updates) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
-      # logic
-      if event.branch.has_district_category && !event.district_category.treat_as_category
-        event.subcategory_id = nil
-        event.category_id = nil # possible TODO set this to special "fubiak" type?
-      else
-        event.district_subcategory_id = nil
-        # infer category and extra_type
-        category = event.event_type.get_category_id_by(event.subcategory_id)
-        event.category_id = category.id
-      end
+      # infer categories
+      event.district_category_id = nil if !event.branch.has_district_category
+
+      category = event.event_type.get_category_id_by(event.subcategory_id)
+      event.category_id = category.id
 
       # lock handling
       event.added_after_lock = 1 if !is_edit && event.date < Branch.find(event.branch_id).locked_until
@@ -846,6 +850,7 @@ get '/manage_event' do
       # TODO sanitize input
 
       data = JSON.parse(request.body.read)
+      puts data.inspect
 
       period_label = data['period_label']
       branch_id = data['branch_id']
@@ -862,18 +867,27 @@ get '/manage_event' do
       age_category_id = data['age_category_id']
       strategy = data['strategy']
 
+      use_standard_categories = data['use_standard_categories'] == 'on'
+      expand_district_subcategories = data['expand_district_subcategories'] == 'on'
+
       #
       report_builder = ReportBuilder.new
       report_builder.set_strategy(strategy)
       report_builder.set_period_label(period_label)
       report_builder.set_dates(@from_date, @to_date)
+
       report_builder.set_branch(branch_id)
       report_builder.set_age_group(age_group_id, age_category_id)
       #report_builder.set_type(maintype_id, subtype_id)
       #report_builder.set_type([7,9], subtype_id)
       report_builder.set_maintype(maintype_id)
       report_builder.set_subtype(subtype_id)
-      report_builder.set_category(category_id, subcategory_id)
+
+
+      #report_builder.set_category(category_id, subcategory_id)
+      report_builder.set_category(category_id, use_standard_categories) if category_id != 'none'
+          puts "hmm"
+      report_builder.set_subcategory(subcategory_id, expand_district_subcategories) if subcategory_id != 'none'
 
       report = report_builder.build
       report.get_results

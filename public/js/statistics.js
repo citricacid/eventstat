@@ -46,6 +46,9 @@ const setVisibleOptions = function($selector, data) {
 const resetCategories = function() {
   $('#category_selector').find('option:nth-child(2)').prop('selected', true);
   $('#subcategory_selector').find('option:first-child').prop('selected', true);
+
+  $('#district_category_selector').find('option:nth-child(2)').prop('selected', true);
+  $('#district_subcategory_selector').find('option:first-child').prop('selected', true);
 };
 
 // refactor?!
@@ -69,9 +72,9 @@ $(function() {
   $('#event_maintype_selector').change(function() {
     const subtypeName = $(this).find(':selected').data('subtype_name');
     $('.subtype_radio').hide().find(':input').prop('disabled', true);
-    //$('#' + subtypeName).show().find('input:radio:first').prop('checked', true);
     $('#' + subtypeName).show().find('input').prop('disabled', false);
     $('#' + subtypeName).show().find('input:radio:first').prop('checked', true);
+
     // fire change
     $('input[name=subtype_id]:checked').change();
   });
@@ -98,8 +101,8 @@ $(function() {
   //
   //
   $(".quickpick").change(function() {
-    let quarter = parseInt($("#select_quarter").val(), 10);
-    let year = parseInt($("#select_year").val(), 10);
+    const quarter = parseInt($("#select_quarter").val(), 10);
+    const year = parseInt($("#select_year").val(), 10);
 
     let quickpickString = '';
     let startOfPeriod, endOfPeriod;
@@ -214,7 +217,7 @@ $(function() {
       url: "/api/statistics",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
-      data: JSON.stringify(data), // $form.serializeArray()
+      data: JSON.stringify(data),
       type: "PUT"
     });
 
@@ -357,8 +360,8 @@ $(function() {
   const date = new Date();
   const dateString = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
   const currentQuarter = moment(dateString, "DD-MM-YYYY").quarter();
-  $("#select_quarter").val(currentQuarter).change();
 
+  $("#select_quarter").val(currentQuarter).change();
   $('#event_maintype_selector').change();
 
   // reset selectors
@@ -376,5 +379,32 @@ $(function() {
 $.fn.tableExport.xls.buttonContent = '-> excel'
 
 tables = $("#stats_table").tableExport({bootstrap: false, position: "top", formats: ['xls']});
+
+//
+// set up toggle switch
+//
+
+const toggleCategories = function(event, state) {
+    $('#category_row').toggle(state)
+    $('#district_category_row').toggle(!state)
+  }
+
+$.fn.bootstrapSwitch.defaults.offColor = 'primary';
+$.fn.bootstrapSwitch.defaults.size = 'small';
+$("[name='use_standard_categories']").bootstrapSwitch({onText: 'Standard', offText: 'FUBIAK', labelWidth: 0, onSwitchChange: toggleCategories});
+toggleCategories(null, true)
+
+const toggleEmptyRows = function()  {
+  $(".empty_row").toggle(this.checked);
+  tables.update() //{formats: ['xls']}); // refreshes table export
+  //tables.reset();
+}
+
+//$('#toggle_empty_rows').bootstrapSwitch('onText', 'Vis')
+$('#toggle_empty_rows').bootstrapSwitch({onText: 'Vis', offText: 'Skjul', labelWidth: 0, onSwitchChange: toggleEmptyRows})
+$("[name='expand_district_subcategories']").bootstrapSwitch({onText: 'Ekspandert', offText: 'Kompakt', labelWidth: 0})
+
+
+
 
 });

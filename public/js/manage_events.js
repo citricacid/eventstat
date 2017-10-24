@@ -36,6 +36,7 @@ const validateAttendants = function() {
   const $attendantsInput = $('#attendants');
   let isOK = true;
 
+  // TODO: fix this with 'must-validate' instead!
   // templates do not have attendant inputs, so only check validity if it's present
   if (!$attendantsInput.length) {
     return isOK;
@@ -64,7 +65,9 @@ const validateDate = function() {
   return isOK;
 };
 
-// selector handling
+//
+// selector updaters
+//
 const showOrHideDefinitions = function($selector) {
   const definition = $selector.find(":selected").data('definition');
   const $button = $selector.closest('.panel_group').find('.toggleDefinition').first();
@@ -115,25 +118,20 @@ $(function() {
   const $branchSelector = $('#branch_selector');
   const $districtCategory = $('#district_category_panel')
   const $districtCategorySelector = $('#district_category_selector')
-  const $districtSubcategorySelector = $('#district_subcategory_selector')
 
   let validationActive = false; // validation will only be activated after user has tried to submit
-  let districtSubcategoryValues = $districtSubcategorySelector.find("option");
   let subcategoryValues = $subcategorySelector.find("option");
   let ageValues = $ageGroupSelector.find("option");
 
+
   const updateValidationSchema = function() {
     const hasDistrictCategory = $branchSelector.find(':selected').data('has_district_category')
-    const treatAsCategory = hasDistrictCategory && $districtCategorySelector.find(':selected').data('treat_as_category')
-
     $districtCategorySelector.data('must_validate', hasDistrictCategory)
-    $districtSubcategorySelector.data('must_validate', !treatAsCategory)
-    $subcategorySelector.data('must_validate', treatAsCategory)
 
-    $('#uses_regular_subcategory').val(treatAsCategory)
-    // $ageGroupSelector.data('must_validate', validateLibrarySelection) - how does it work?
+    if (!hasDistrictCategory) {
+        $districtCategorySelector.find('option').first().prop('selected', true)
+    }
   }
-
 
   $("form").submit(function(event) {
     updateValidationSchema();
@@ -146,13 +144,16 @@ $(function() {
     isValid = validateSelection($subcategorySelector) && isValid;
     isValid = validateSelection($ageGroupSelector) && isValid;
     isValid = validateSelection($districtCategorySelector) && isValid;
-    isValid = validateSelection($districtSubcategorySelector) && isValid;
     isValid = validateAttendants() && isValid;
     isValid = validateDate() && isValid;
     isValid = validateTitle() && isValid;
 
     return isValid;
   });
+
+  //
+  // Event handlers
+  //
 
   $('.toggleDefinition').click(function() {
     const $panel = $(this).siblings('.panel');
@@ -174,25 +175,42 @@ $(function() {
   $branchSelector.change(function() {
     const hasDistrictCategory = $(this).find(':selected').data('has_district_category') == 1
     $districtCategory.toggle(hasDistrictCategory)
+
+    const selectedSubcategoryID = $subcategorySelector.find(':selected').val()
+    $eventTypeSelector.change()
   })
 
 
   $eventTypeSelector.change(function() {
-    showOrHideDefinitions($(this));
-
-    // handle age groups
-    const ageGroups = $(this).find(':selected').data('age_groups');
-    setVisibleOptions($ageGroupSelector, ageValues, ageGroups);
-
     // handle subcategories
-    const subcategories = $(this).find(':selected').data('subcategories');
+    const districtSubs = $districtCategorySelector.find(':selected').data('district_subcategories')
+    const subcategories = districtSubs === undefined || districtSubs.length == 0 ?
+      $(this).find(':selected').data('subcategories') : districtSubs
+
     setVisibleOptions($subcategorySelector, subcategoryValues, subcategories);
 
     // handle counts
     const isCountable = $subcategorySelector.find(":selected").data('is_countable') || false;
     $('#attendants').data('is_countable', isCountable).toggle(isCountable);
     $('#attendants_label').toggle(isCountable);
+
+
+    // handle age groups
+    const ageGroups = $(this).find(':selected').data('age_groups');
+    setVisibleOptions($ageGroupSelector, ageValues, ageGroups);
+
+    showOrHideDefinitions($(this));
   });
+
+  $districtCategorySelector.change(function() {
+    const districtSubcategories = $(this).find(':selected').data('district_subcategories');
+    if (districtSubcategories.length > 0) {
+      setVisibleOptions($subcategorySelector, subcategoryValues, districtSubcategories);
+    } else {
+      $eventTypeSelector.change();
+    }
+  })
+
 
   $subcategorySelector.change(function() {
     const hasComment = $(this).find(":selected").data('has_comment');
@@ -204,6 +222,7 @@ $(function() {
 
     showOrHideDefinitions($(this));
   });
+
 
   $ageGroupSelector.change(function() {
     showOrHideDefinitions($(this));
@@ -227,22 +246,6 @@ $(function() {
       validateAttendants();
     }
   });
-
-
-  //
-  // methods related to FUBIAK/district types
-  //
-
-  $('#district_category_selector').change(function() {
-    const districtCategory = $(this).find(':selected').val()
-    const showSubcategories = $(this).find(':selected').data('treat_as_category')
-
-    $('#district_subcategory_panel').toggle(!showSubcategories)
-    $('#subcategory_panel').toggle(showSubcategories)
-
-    const districtSubcategories = $(this).find(':selected').data('district_subcategories');
-    setVisibleOptions($districtSubcategorySelector, districtSubcategoryValues, districtSubcategories);
-  })
 
 
   //

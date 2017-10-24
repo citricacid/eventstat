@@ -1,13 +1,6 @@
 <% url_string = is_event ? "event" : "template" %>
 <% form_type_ui_string = is_event ? "arrangement" : "mal" %>
 
-<% empty_string = '[null]'  %>
-<% category_string = item.event_type.present? ? item.event_type.name : empty_string  %>
-<% subcategory_string = item.subcategory.present? ? item.subcategory.name : empty_string  %>
-<% age_group_string = item.age_group.present? ? item.age_group.name : empty_string  %>
-<% reg_types = {library_only: 'Kun Deichman', mixed: 'Deichman og bydel', district_only: 'Kun bydel'} %>
-<% registration_type_string = item.branch.has_extra_type ? reg_types[item.registration_type.to_sym] : nil  %>
-
 <h3>Kvittering</h3>
 
 <p>Arrangementet ble lagret med følgende data:</p>
@@ -15,13 +8,12 @@
   <%= "<tr><td>Tittel:</td><td>#{item.name}</td></tr>" %>
   <%= "<tr><td>Sted:</td><td>#{item.branch.name}</td></tr>" %>
   <%= "<tr><td>Dato:</td><td>#{item.date.strftime('%m/%d/%Y')}</td></tr>" if is_event %>
-  <%= "<tr><td>Kategori:</td><td>#{category_string}</td></tr>" %>
-  <%= "<tr><td>Underkategori:</td><td>#{subcategory_string}</td></tr>" %>
-  <%= "<tr><td>Målgruppe:</td><td>#{age_group_string}</td></tr>" %>
+  <%= "<tr><td>Type:</td><td>#{item.event_type.name}</td></tr>" %>
+  <%= "<tr><td>FUBIAK-kategori:</td><td>#{item.district_category.name}</td></tr>" if item.district_category %>
+  <%= "<tr><td>Kategori:</td><td>#{item.category.name}</td></tr>" %>
+  <%= "<tr><td>Underkategori:</td><td>#{item.subcategory.name}</td></tr>" %>
+  <%= "<tr><td>Målgruppe:</td><td>#{item.age_group.name}</td></tr>" %>
   <%= "<tr><td>Antall:</td><td>#{item.attendants}</td></tr>" if is_event %>
-  <%= "<tr><td>FUBIAK-type:</td><td>#{item.extra_category.extra_type.name}</td></tr>" if item.extra_category&.extra_type %>
-  <%= "<tr><td>FUBIAK-type:</td><td>#{item.extra_category.name}</td></tr>" if item.extra_category %>
-  <%= "<tr><td>Registrerings-type:</td><td>#{registration_type_string}</td></tr>" if registration_type_string %>
 </table>
 
 <%= %Q(
@@ -31,6 +23,11 @@
 <a class='btn btn-primary btn-md' href='/manage_#{url_string}'
   role='button'>Legg til ny <span class='glyphicon glyphicon-plus'></span></a>
 ) %>
+
+<%= %Q(
+<a class='btn btn-primary btn-md' href='/clone_#{url_string}/#{item.id}'
+  role='button'>Lag klone <span class='glyphicon glyphicon-duplicate'></span></a>
+  ) if is_event %>
 
 <% if is_event && templates.present? %>
 <div class="dropdown">

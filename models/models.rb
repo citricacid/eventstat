@@ -26,9 +26,9 @@ class Event < ActiveRecord::Base
   belongs_to :event_type
   belongs_to :branch
   belongs_to :category
-  belongs_to :internal_subcategory, foreign_key: 'subcategory_id'
-
-  belongs_to :district_subcategory, foreign_key: 'district_subcategory_id'
+  belongs_to :subcategory
+  #belongs_to :internal_subcategory, foreign_key: 'subcategory_id'
+  #belongs_to :district_subcategory, foreign_key: 'district_subcategory_id'
   belongs_to :district_category
 
   scope :reverse, -> { order('id').reverse_order }
@@ -56,6 +56,10 @@ class Event < ActiveRecord::Base
 
   def self.by_category(id) # and event_type = ????
     id.present? ? where("category_id = ?", id) : all
+  end
+
+  def self.by_district_category(id)
+    id.present? ? where("district_category_id = ?", id) : all
   end
 
 
@@ -236,6 +240,14 @@ class EventType < ActiveRecord::Base
 
 
   def subcategory_ids
+    puts "hei du!"
+    if event_subtype.subcategory_ids.present?
+      puts event_subtype.label
+      puts event_subtype.subcategory_ids
+    else
+      puts event_maintype.label
+      puts event_maintype.subcategory_ids
+    end
     event_subtype.subcategory_ids.present? ? event_subtype.subcategory_ids : event_maintype.subcategory_ids
   end
 
@@ -262,7 +274,8 @@ class EventMaintype < ActiveRecord::Base
   end
 
   def subcategory_ids
-    categories.map {|category| category.subcategories.pluck(:id)}.flatten
+    categories.map {|category| category.subcategories.where(type: 'InternalSubcategory').pluck(:id)}.flatten
+    #categories.map {|category| category.subcategories.pluck(:id)}.flatten
   end
 
 end
@@ -281,8 +294,14 @@ class EventSubtype < ActiveRecord::Base
     categories.pluck(:id)
   end
 
+  # TODO DONT LET THIS CODE PUBLISH WITHOUT PROPER TESTING
   def subcategory_ids
-    categories.map {|category| category.subcategories.pluck(:id)}.flatten
+    categories.map {|category| category.subcategories.where(type: 'InternalSubcategory').pluck(:id)}.flatten
+    #categories.map {|category| category.subcategories.pluck(:id)}.flatten
+  end
+
+  def internal_subcategory_ids
+    categories.map {|category| category.subcategories.wjere(type: 'InternalSubcategory').pluck(:id)}.flatten
   end
 
 end
@@ -318,8 +337,6 @@ class Subcategory < ActiveRecord::Base
   has_many :categories, through: :subcategory_links
 
   default_scope { order(:view_priority => :asc) }
-  #scope :lions, -> { where(race: 'Lion') }
-  #scope :meerkats, -> { where(race: 'Meerkat') }
 
   def maintype_associated?(maintype_id)
     categories.map {|cat| cat.maintype_associated?(maintype_id)}.present?
@@ -355,6 +372,22 @@ class DistrictCategory < ActiveRecord::Base
   belongs_to :branch
   has_many :district_links
   has_many :district_subcategories, through: :district_links
+
+  def subcategory_associated?(subcategory_id)
+      district_subcategories.pluck(:id).include?(subcategory_id)
+  end
+
+  def maintype_associated?(maintype_id)
+    #event_maintype.id == maintype_id
+    true
+  end
+
+  # rename to properly identify function
+  def subtype_associated?(subtype_id, maintype_id)
+    #(event_subtype && event_subtype.id == subtype_id) || (event_subtype == nil && event_maintype.id == maintype_id )
+    true
+  end
+
 
   def district_subcategory_ids
     district_subcategories.pluck(:id)

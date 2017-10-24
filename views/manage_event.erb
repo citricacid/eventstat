@@ -75,7 +75,6 @@
 
   <%# --- Dropdown for FUBIAK                               %>
   <div class="form-group panel_group" id="district_category_panel" hidden>
-    <div id="uses_regular_subcategory" name="uses_regular_subcategory" value=false />
     <label for="district_category_selector">FUBIAK:</label>
     <select id="district_category_selector" name="district_category_id" class="form-control" data-must_validate=false>
       <%= erb :_standard_options, locals: {selected: item&.district_category_id, collection: district_categories,
@@ -84,16 +83,21 @@
     </select>
     <%= erb :_definition_panel %>
   </div>
+</div>
 
   <%# --- Dropdown and definition panel for event type                  --- %>
   <div class="form-group panel_group" id="event_type_panel">
     <label for="event_type_selector">Type:</label>
     <%= erb :_definition_button %>
     <select id="event_type_selector" class="form-control" name="event_type_id" data-must_validate=<%= "#{is_event}" %>>
-      <%= erb :_event_type_options, locals: {selected: item&.event_type_id, event_types: event_types, type: :choose} %>
+      <%= erb :_standard_options, locals: {selected: item&.event_type_id, collection: event_types, type: :choose,
+        data: [{name: 'subcategories', attribute: 'subcategory_ids'},
+           {name: 'definition', attribute: 'definition'},
+           {name: 'age_groups', attribute: 'age_group_ids'}]} %>
   </select>
     <%= erb :_definition_panel %>
   </div>
+
 
 
   <%# --- Input for title                                               --- %>
@@ -107,7 +111,7 @@
   <div class="form-group">
     <label for="branch_selector">Sted:</label>
     <select id="branch_selector" name="branch_id" class="form-control" data-must_validate=true>
-      <%= erb :_standard_options, locals: {selected: selected_branch, collection: branches, type: :choose,
+      <%= erb :_standard_options, locals: {selected: item&.branch_id || selected_branch, collection: branches, type: :choose,
         data: [{name: 'has_district_category', attribute: 'has_district_category'}]} %>
     </select>
   </div>
@@ -122,22 +126,14 @@
     </div>
   <% end %>
 
-  <%# --- Dropdown for district subcategory     %>
-  <div class="form-group panel_group" id="district_subcategory_panel" hidden>
-    <label for="district_subcategory_selector">Kategori:</label>
-    <select id="district_subcategory_selector" name="district_subcategory_id" class="form-control" data-must_validate=false>
-      <%= erb :_standard_options, locals: {selected: item&.district_subcategory_id, collection: district_subcategories, type: :choose} %>
-    </select>
-    <%= erb :_definition_panel %>
-  </div>
-
 
   <%# --- Dropdown and definition panel for subcategory selector        --- %>
   <div class="form-group panel_group" id="subcategory_panel">
     <label for="subcategory_selector">Kategori:</label>
     <%= erb :_definition_button %>
     <select id="subcategory_selector" name="subcategory_id" class="form-control" data-must_validate=<%= "#{is_event}" %>>
-      <%= erb :_standard_options, locals: {selected: item&.subcategory_id, collection: internal_subcategories, type: :choose} %>
+      <%= erb :_standard_options, locals: {selected: item&.subcategory_id, collection: subcategories, type: :choose,
+        data: [{name: 'has_comment', attribute: 'has_comment'}, {name: 'is_countable', attribute: 'is_countable'}]} %>
     </select>
     <%= erb :_definition_panel %>
   </div>
