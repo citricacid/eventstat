@@ -116,6 +116,7 @@ class ReportBuilder
   end
 
   def set_category(category_id, use_standard_categories)
+    @report.category_type = :category
     @report.use_standard_categories = use_standard_categories
 
     sum_all = category_id == 'sum_all'
@@ -127,25 +128,30 @@ class ReportBuilder
       categories = category_id == 'iterate_all' ? DistrictCategory.all : DistrictCategory.where(id: category_id)
       @report.categories = Filter.new(categories, sum_all)
     end
+    puts "set_category"
+    puts @report.categories.inspect
   end
 
 
   def set_subcategory(subcategory_id, expand_district_subcategories)
+    @report.category_type = :subcategory
     sum_all = subcategory_id == 'sum_all'
     subcategories = nil
     district_subcategories = nil
 
     if @report.include_district_subcategories and expand_district_subcategories
-      subcategories = subcategory_id == 'iterate_all' ? Subcategory. all : Subcategory.where(id: subcategory_id)
+      subcategories = subcategory_id == 'iterate_all' ?
+        Subcategory.expanded : Subcategory.where(id: subcategory_id)
     elsif @report.include_district_subcategories
-      subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory. all : InternalSubcategory.where(id: subcategory_id)
-      district_subcategories = subcategory_id == 'iterate_all' ? DistrictSubcategory. all : DistrictSubcategory.where(id: subcategory_id)
-      @report.district_subcategories = Filter.new(district_subcategories, sum_all, true)
+      subcategories = subcategory_id == 'iterate_all' ? Subcategory.compacted : Subcategory.where(id: subcategory_id)
     else
-      subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory. all : InternalSubcategory.where(id: subcategory_id)
+      subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory.all : InternalSubcategory.where(id: subcategory_id)
     end
 
-    @report.subcategories = Filter.new(subcategories, sum_all)
+    @report.categories = Filter.new(subcategories, sum_all)
+    puts "set_sub"
+    puts @report.categories.collection.size
+    puts @report.categories.inspect
   end
 
 
@@ -199,8 +205,9 @@ end
 #
 
 class Report
-  attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :subcategories, :use_standard_categories,
-  :district_subcategories, :category_type, :maintypes, :subtypes, :age_groups, :age_categories, :headers, :strategy, :include_district_subcategories
+  attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :subcategories,
+    :use_standard_categories, :category_type, :maintypes, :subtypes, :age_groups,
+    :age_categories, :headers, :strategy, :include_district_subcategories
 
   # TODO constructor and validate methods?
 
@@ -256,53 +263,8 @@ class Report
     end
   end
 
+  
   def traverse_categories(branch, maintype, subtype, age_group)
-    @categories.present? ? traverse_maincategories(branch, maintype, subtype, age_group) : traverse_subcategories(branch, maintype, subtype, age_group)
-  end
-
-  def traverse_subcategories(branch, maintype, subtype, age_group)
-    if @subcategories.sum_all
-      events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
-      calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
-    elsif @include_district_subcategories && @district_subcategories&.sum_multiple_as_one
-      puts "multiplum"
-    else
-      @subcategories.collection.each do |cat|
-        next unless cat.subtype_associated?(subtype.id, maintype.id) ||
-          (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
-          (subtype.id == nil && maintype.id == nil)
-
-        events = get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
-        calculate_result(branch_name: branch.label, category_name: cat.name, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
-      end
-    end
-  end
-
-
-
-    #subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory. all : InternalSubcategory.where(id: subcategory_id)
-    #district_subcategories = subcategory_id == 'iterate_all' ? DistrictSubcategory. all : DistrictSubcategory.where(id: subcategory_id)
-    #@report.district_subcategories = Filter.new(district_subcategories, sum_all, true)
-
-  def traverse_maincategories(branch, maintype, subtype, age_group)
-    if @categories.sum_all
-      events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
-      calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
-    else @categories.collection.each do |cat|
-      next unless cat.subtype_associated?(subtype.id, maintype.id) ||
-        (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
-        (subtype.id == nil && maintype.id == nil)
-
-      events = get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
-      calculate_result(branch_name: branch.label, category_name: cat.name, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
-    end
-  end
-end
-
-
-
-
-  def xxxtraverse_categories(branch, maintype, subtype, age_group)
     if @categories.sum_all
       events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
       calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
@@ -352,8 +314,6 @@ end
   def get_events (branch_id = nil, category_id: nil, subcategory_id: nil, district_category_id: nil,
     maintype_id: nil, subtype_id: nil, age_group_id: nil)
 
-    puts category_id
-    puts @use_standard_categories
     catz = @use_standard_categories ? 'by_category' : 'by_district_category'
 
     Event.between_dates(@from_date, @to_date)
@@ -362,7 +322,7 @@ end
     .by_age_group(age_group_id)
     .by_maintype(maintype_id)
     .by_subtype(subtype_id)
-    .by_subcategory(subcategory_id)
+    .by_subcategory(subcategory_id, @expand_district_subcategories)
     .send(catz, category_id)
     #.by_category(category_id)
     #.by_district_category(district_category_id)

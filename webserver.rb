@@ -214,6 +214,7 @@ def get_event_locals
 
   {selector_type: :form, branches: Branch.all,
     subcategories: Subcategory.all, internal_subcategories: InternalSubcategory.all,
+    aggregated_subcategories: AggregatedSubcategory.all,
     age_groups: AgeGroup.all, selected_branch: selected_branch, event_types: EventType.ordered_view.all,
     is_admin: is_admin?, district_categories: DistrictCategory.all, error: error
   }
@@ -539,7 +540,7 @@ end
 
     erb :statistics, :locals => {selector_type: :stats, branches: Branch.all,
       internal_subcategories: InternalSubcategory.all, district_subcategories: DistrictSubcategory.all,
-      district_categories: DistrictCategory.all, categories: Category.all,
+      district_categories: DistrictCategory.all, categories: Category.all, aggregated_subcategories: AggregatedSubcategory.all,
       subcategory_links: SubcategoryLink.all, age_groups: AgeGroup.all, age_categories: groups, event_types: EventType.all,
       event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all,
       selected_branch: selected_branch, queries: Query.all}
@@ -549,7 +550,6 @@ end
     get '/enable_javascript' do
       erb :enable_javascript, :layout => false
     end
-
 
     # CRUDS
 
@@ -785,6 +785,12 @@ end
       category = event.event_type.get_category_id_by(event.subcategory_id)
       event.category_id = category.id
 
+      if event.subcategory.is_a?(DistrictSubcategory)
+        event.aggregated_subcategory_id = event.branch.aggregated_subcategory_id
+      else
+        event.aggregated_subcategory_id = nil
+      end
+
       # lock handling
       event.added_after_lock = 1 if !is_edit && event.date < Branch.find(event.branch_id).locked_until
       protected! if event.is_locked == 1
@@ -855,7 +861,9 @@ end
       period_label = data['period_label']
       branch_id = data['branch_id']
       category_id = data['category_id']
+      district_category_id = data['district_category_id']
       subcategory_id = data['subcategory_id']
+      district_subcategory_id = data['district_subcategory_id']
       age_group_id = data['age_group_id']
       @from_date = Date.parse(data['from_date'])
       @to_date = Date.parse(data['to_date'])
@@ -867,8 +875,6 @@ end
       age_category_id = data['age_category_id']
       strategy = data['strategy']
 
-      use_standard_categories = data['use_standard_categories'] == 'on'
-      expand_district_subcategories = data['expand_district_subcategories'] == 'on'
 
       #
       report_builder = ReportBuilder.new
@@ -883,11 +889,15 @@ end
       report_builder.set_maintype(maintype_id)
       report_builder.set_subtype(subtype_id)
 
+      use_standard_categories = data['use_standard_categories'] == 'on'
+      expand_district_subcategories = data['expand_district_subcategories'] == 'on'
 
       #report_builder.set_category(category_id, subcategory_id)
-      report_builder.set_category(category_id, use_standard_categories) if category_id != 'none'
-          puts "hmm"
-      report_builder.set_subcategory(subcategory_id, expand_district_subcategories) if subcategory_id != 'none'
+      report_builder.set_category(category_id, true) unless category_id == 'none'
+      report_builder.set_category(district_category_id, false) unless district_category_id == 'none'
+      report_builder.set_subcategory(subcategory_id, expand_district_subcategories) unless subcategory_id == 'none'
+      report_builder.set_subcategory(district_subcategory_id, expand_district_subcategories) unless district_subcategory_id == 'none'
+
 
       report = report_builder.build
       report.get_results

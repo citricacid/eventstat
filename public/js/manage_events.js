@@ -120,8 +120,8 @@ $(function() {
   const $districtCategorySelector = $('#district_category_selector')
 
   let validationActive = false; // validation will only be activated after user has tried to submit
-  let subcategoryValues = $subcategorySelector.find("option");
-  let ageValues = $ageGroupSelector.find("option");
+  const subcategoryValues = $subcategorySelector.find("option");
+  const ageValues = $ageGroupSelector.find("option");
 
 
   const updateValidationSchema = function() {
@@ -175,8 +175,8 @@ $(function() {
   $branchSelector.change(function() {
     const hasDistrictCategory = $(this).find(':selected').data('has_district_category') == 1
     $districtCategory.toggle(hasDistrictCategory)
+    $districtCategory.data('is_active', hasDistrictCategory)
 
-    const selectedSubcategoryID = $subcategorySelector.find(':selected').val()
     $eventTypeSelector.change()
   })
 
@@ -184,8 +184,9 @@ $(function() {
   $eventTypeSelector.change(function() {
     // handle subcategories
     const districtSubs = $districtCategorySelector.find(':selected').data('district_subcategories')
-    const subcategories = districtSubs === undefined || districtSubs.length == 0 ?
-      $(this).find(':selected').data('subcategories') : districtSubs
+    const subcategories = districtSubs === undefined || districtSubs.length === 0 ||
+     !$districtCategory.data('is_active') ?
+       $(this).find(':selected').data('subcategories') : districtSubs
 
     setVisibleOptions($subcategorySelector, subcategoryValues, subcategories);
 
@@ -193,7 +194,6 @@ $(function() {
     const isCountable = $subcategorySelector.find(":selected").data('is_countable') || false;
     $('#attendants').data('is_countable', isCountable).toggle(isCountable);
     $('#attendants_label').toggle(isCountable);
-
 
     // handle age groups
     const ageGroups = $(this).find(':selected').data('age_groups');

@@ -80,6 +80,7 @@
 
       <select id="subcategory_selector" class="category_selector" name="subcategory_id">
         <%= erb :_standard_options, locals: {collection: internal_subcategories, type: :toggle}  %>
+        <%= erb :_standard_options, locals: {collection: aggregated_subcategories, type: :nil}  %>
       </select>
     </div>
 
@@ -94,7 +95,8 @@
         </select>
 
         <select id="district_subcategory_selector" class="category_selector" name="district_subcategory_id">
-          <%= erb :_standard_options, locals: {collection: district_subcategories, type: :toggle}  %>
+          <%= erb :_standard_options, locals: {collection: internal_subcategories, type: :toggle}  %>
+          <%= erb :_standard_options, locals: {collection: district_subcategories, type: :nil}  %>
         </select>
       </div>
     </div>

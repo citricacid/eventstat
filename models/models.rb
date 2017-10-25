@@ -62,9 +62,12 @@ class Event < ActiveRecord::Base
     id.present? ? where("district_category_id = ?", id) : all
   end
 
-
-  def self.by_subcategory(id)
-    id.present? ? where("subcategory_id = ?", id) : all
+  def self.by_subcategory(id, expand = true)
+    if id.present? && !expand && Subcategory.find(id).is_a?(AggregatedSubcategory)
+      where("aggregated_subcategory_id = ?", id)
+    else
+      id.present? ? where("subcategory_id = ?", id) : all
+    end
   end
 
   def self.by_event_type(id)
@@ -338,6 +341,17 @@ class Subcategory < ActiveRecord::Base
 
   default_scope { order(:view_priority => :asc) }
 
+  def self.internal
+    where(type: 'InternalSubcategory')
+  end
+
+  def self.expanded
+    where(type: 'DistrictSubcategory').or(where(type: 'InternalSubcategory'))
+  end
+
+  scope :compacted, -> { where(type: 'AggregatedSubcategory').or(where(type: 'InternalSubcategory')) }
+
+
   def maintype_associated?(maintype_id)
     categories.map {|cat| cat.maintype_associated?(maintype_id)}.present?
   end
@@ -353,6 +367,10 @@ class InternalSubcategory < Subcategory
 end
 
 class DistrictSubcategory < Subcategory
+
+end
+
+class AggregatedSubcategory < Subcategory
 
 end
 
