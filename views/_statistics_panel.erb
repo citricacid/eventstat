@@ -1,5 +1,4 @@
 <form class="form-inline" role="form" id="query_form" autocomplete="off">
-
   <div class="row">
     <%= erb :_quickpick  %>
   </div>
@@ -18,7 +17,10 @@
     <div class="form-group">
       <label for="branch_selector" class="main">Sted:</label>
       <select id="branch_selector" name="branch_id">
-        <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :stats}  %>
+        <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :stats,
+          data: [{name: 'has_district_category', attribute: 'has_district_category'},
+            {name: 'aggregated_subcategory_id', attribute: 'aggregated_subcategory_id'},
+            {name: 'aggregated_subcategory_id', attribute: 'aggregated_subcategory_id'}]}  %>
       </select>
     </div>
   </div>
@@ -70,7 +72,7 @@
     </div>
 
 
-  <%# --- Dropdowns for categories and subcategories                 --- %>
+  <%# --- Dropdowns for categories, district categories and subcategories                 --- %>
     <div class="form-group row" id="category_row">
       <label for="category_selector" class="main">Kategori/underkategori:</label>
 
@@ -78,29 +80,16 @@
         <%= erb :_standard_options, locals: {collection: categories, type: :toggle}  %>
       </select>
 
+      <select id="district_category_selector" class="category_selector" name="district_category_id">
+        <%= erb :_standard_options, locals: {collection: district_categories, type: :toggle}  %>
+      </select>
+
       <select id="subcategory_selector" class="category_selector" name="subcategory_id">
-        <%= erb :_standard_options, locals: {collection: internal_subcategories, type: :toggle}  %>
-        <%= erb :_standard_options, locals: {collection: aggregated_subcategories, type: :nil}  %>
+        <%= erb :_standard_options, locals: {collection: subcategories, type: :toggle,
+          data: [{name: 'type', attribute: 'type'},
+                {name: 'aggregated_subcategory_id', attribute: 'aggregated_subcategory_id'} ]}  %>
       </select>
     </div>
-
-
-    <%# --- Dropdowns for district categories and subcategories                 --- %>
-      <div class="row" id="district_category_row">
-        <div class="form-group">
-        <label for="district_category_selector" class="main">FUBIAK:</label>
-
-        <select id="district_category_selector" class="category_selector" name="district_category_id">
-          <%= erb :_standard_options, locals: {collection: district_categories, type: :toggle}  %>
-        </select>
-
-        <select id="district_subcategory_selector" class="category_selector" name="district_subcategory_id">
-          <%= erb :_standard_options, locals: {collection: internal_subcategories, type: :toggle}  %>
-          <%= erb :_standard_options, locals: {collection: district_subcategories, type: :nil}  %>
-        </select>
-      </div>
-    </div>
-
 
 
     <%# --- Dropdowns for target audiences                 --- %>
@@ -119,15 +108,14 @@
     </div>
 
 
-
     <%# --- Buttons                --- %>
     <div class="row">
       <div class="form-group">
         <button type="button" class="btn btn-secondary" id="submit">Hent</button>
         <button type="button" class="btn btn-secondary" id="clear">Tøm liste</button>
-        <span style="padding: 0px 100px;"><input type="checkbox" id="toggle_empty_rows" checked></span>
-        <span><input type="checkbox" name="use_standard_categories" checked></span>
-        <span><input type="checkbox" name="expand_district_subcategories"></span>
+        <span style="padding: 0px 10px 0px 20px;">Skjul tomme rader <input type="checkbox" id="toggle_empty_rows"></span>
+        <span class="district" style="padding: 0px 10px 0px 10px;">Bruk bydelskategorier<input type="checkbox" name="use_district_categories"></span>
+        <span class="district">Ekspander underkategorier <input type="checkbox" name="expand_district_subcategories"></span>
       </div>
     </div>
 

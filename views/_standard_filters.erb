@@ -5,3 +5,4 @@
 <%= "<option value='iterate_all'>Alle</option>" if type == :stats || type == :toggle %>
 <%= "<option value='0'>Alle</option>" if type == :all %>
 <%= "<option class='invalid_option' value='0' disabled hidden selected>-- velg --</option>" if type == :choose %>
+<%= "<option class='new_item' value='0' disabled hidden selected>-- Lag ny --</option>" if type == :new %>

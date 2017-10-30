@@ -26,12 +26,12 @@
     <p><textarea rows="6" cols="60" name="definition" id="definition_area">
     </textarea></p>
      <p><input type="submit" class="btn btn-primary" value="Lagre">
-     <% if !success.nil? && success %>
+     <% if defined?(success) && success %>
      <%= '<div class="alert alert-success">' %>
        <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
        <%=   'Lagring OK' %>
        <%=  '</div>' %>
-       <% elsif !success.nil? %></p>
+       <% elsif defined?(success) %></p>
        <%= '<div class="alert alert-danger">' %>
          <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
          <%=   'OBS! Kunne ikke lagre.' %>

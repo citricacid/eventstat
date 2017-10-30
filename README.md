@@ -17,3 +17,15 @@ From the app folder, do `mkdir logs && touch logs/error.log && touch logs/events
 #### Web server
 
 There are many ways to set up the server, for example as a standalone Thin server or as a Phusion Passenger. For local testing, `ruby webserver.rb` should start it on port 5100.
+
+
+### Design (WIP)
+Event attributes:
+
+subcategory_id: value can refer to either internal or district subcategory.
+aggregated_subcategory_id: Only set when subcategory is an instance of DsitrictSubcategory. As with category_id, it's redundant, but code-saving.
+district_category_id:
+category_id: This value is inferred from subcategory_id and event_type. Strictly speaking, it might be somewhat redundant, but having it allows for clearer code elsewhere in the system.
+marked_for_deletion: true means event is excluded from statistics results and will be deleted during next locking phase (only superuser can delete directly)
+is_locked: locked events can only be altered by superuser
+added_after_lock: non-vital attribute, intended for monitoring how many events are added to a period after it was locked.

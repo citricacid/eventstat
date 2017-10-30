@@ -1,0 +1,61 @@
+<script src="/js/manage_schema.js"></script>
+
+
+<% if defined?(success) && success %>
+<%= '<div class="alert alert-success">' %>
+  <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
+  <%=   'Lagring OK' %>
+  <%=  '</div>' %>
+  <% elsif defined?(success) %></p>
+  <%= '<div class="alert alert-danger">' %>
+    <%=   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' %>
+    <%=   'OBS! Kunne ikke lagre.' %>
+    <%=  '</div>' %>
+    <% end %></p>
+
+
+
+<div class="col-sm-8">
+  <h4>Legg til/rediger underkategori</h4>
+
+    <%# --- Dropdowns for categories and subcategories                 --- %>
+      <div class="form-group row">
+        <label for="category_selector" class="main">Underkategori:</label>
+        <select id="subcategory_selector" class="category_selector" name="subcategory_id">
+          <%= erb :_standard_options, locals: {collection: subcategories,
+             data: [{name: 'id', attribute: 'id'},
+               {name: 'has_comment', attribute: 'has_comment'},
+               {name: 'is_countable', attribute: 'is_countable'},
+               {name: 'definition', attribute: 'definition'},
+               {name: 'type', attribute: 'type'},
+               {name: 'categories', attribute: 'categories'},
+               ]} %>
+        </select>
+    </div>
+
+  <%= "<form action='xxx' method='post'>" %>
+    <input hidden name="id" id="id">
+    <div class="form-group">
+      <label class="form-control-label" for="name">Tittel:</label>
+      <input type="text" class="form-control" data-must_validate=true id="name" name="name">
+    </div>
+
+    <div class="form-group row" id="category_row">
+      <label for="subcategory_type_selector">Type:</label>
+      <select id="subcategory_type_selector" class="subcategory_type_selector" name="type">
+        <% types.each do |type| %>
+          <%= "<option value='#{type}'>#{type}</option>" %>
+        <% end %>
+      </select>
+      <label>Is countable:</label>
+      <input type="checkbox" name="is_countable">
+      <label>Has comment:</label>
+      <input type="checkbox" name="has_comment">
+  </div>
+
+  <p><textarea rows="6" cols="60" name="definition" id="definition_area">
+  </textarea></p>
+   <p><input type="submit" class="btn btn-primary" value="Lagre">
+
+
+ </form>

@@ -3,6 +3,7 @@
 require 'date'
 require 'active_record'
 
+
 #require 'logger'
 #ActiveRecord::Base.logger = Logger.new(STDOUT)
 
@@ -38,7 +39,15 @@ class Event < ActiveRecord::Base
 
   # TODO: more validations
   validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}
-  validates :date, presence: true
+  validates :date, :attendants, :age_group_id, presence: true
+  #validates :
+
+  #validate :matching_aggregated_sub
+
+  def matching_aggregated_sub
+    errors.add(:aggregated_subcategory_id, "is not set") if subcategory.is_a(DistrictSubcategory) &&
+      (aggregated_subcategory_id.blank? || aggregated_subcategory_id != branch.aggregated_subcategory_id)
+  end
 
 
   def self.between_dates(from_date, to_date)
@@ -243,14 +252,6 @@ class EventType < ActiveRecord::Base
 
 
   def subcategory_ids
-    puts "hei du!"
-    if event_subtype.subcategory_ids.present?
-      puts event_subtype.label
-      puts event_subtype.subcategory_ids
-    else
-      puts event_maintype.label
-      puts event_maintype.subcategory_ids
-    end
     event_subtype.subcategory_ids.present? ? event_subtype.subcategory_ids : event_maintype.subcategory_ids
   end
 
@@ -320,16 +321,15 @@ class Category < ActiveRecord::Base
 
 
   def subcategory_associated?(subcategory_id)
-      subcategories.pluck(:id).include?(subcategory_id)
+      subcategories.pluck(:id).include?(subcategory_id.to_i)
   end
 
   def maintype_associated?(maintype_id)
-    event_maintype.id == maintype_id
+    event_maintype.id == maintype_id.to_i
   end
 
-  # rename to properly identify function
-  def subtype_associated?(subtype_id, maintype_id)
-    (event_subtype && event_subtype.id == subtype_id) || (event_subtype == nil && event_maintype.id == maintype_id )
+  def subtype_associated?(subtype_id)
+    event_subtype && event_subtype.id == subtype_id.to_i
   end
 
 end
@@ -338,6 +338,9 @@ end
 class Subcategory < ActiveRecord::Base
   has_many :subcategory_links
   has_many :categories, through: :subcategory_links
+
+  has_one :aggregated_link
+  has_one :aggregated_subcategory, through: :aggregated_link
 
   default_scope { order(:view_priority => :asc) }
 
@@ -351,14 +354,18 @@ class Subcategory < ActiveRecord::Base
 
   scope :compacted, -> { where(type: 'AggregatedSubcategory').or(where(type: 'InternalSubcategory')) }
 
-
   def maintype_associated?(maintype_id)
-    categories.map {|cat| cat.maintype_associated?(maintype_id)}.present?
+    categories.select {|cat| cat.maintype_associated?(maintype_id)}.present?
   end
 
-  def subtype_associated?(subtype_id, maintype_id)
-    categories.map {|cat| cat.subtype_associated?(subtype_id, maintype_id)}.present?
+  def subtype_associated?(subtype_id)
+    categories.select {|cat| cat.subtype_associated?(subtype_id)}.present?
   end
+
+  def aggregated_subcategory_id
+    aggregated_subcategory&.id || nil
+  end
+
 
 end
 
@@ -371,7 +378,8 @@ class DistrictSubcategory < Subcategory
 end
 
 class AggregatedSubcategory < Subcategory
-
+  has_many :aggregated_links
+  has_many :subcategories, through: :aggregtated_links
 end
 
 class SubcategoryLink < ActiveRecord::Base
@@ -383,6 +391,11 @@ end
 class DistrictLink < ActiveRecord::Base
   belongs_to :district_subcategory, foreign_key: 'subcategory_id'
   belongs_to :district_category
+end
+
+class AggregatedLink < ActiveRecord::Base
+  belongs_to :aggregated_subcategory
+  belongs_to :subcategory
 end
 
 
@@ -400,8 +413,7 @@ class DistrictCategory < ActiveRecord::Base
     true
   end
 
-  # rename to properly identify function
-  def subtype_associated?(subtype_id, maintype_id)
+  def subtype_associated?(subtype_id)
     #(event_subtype && event_subtype.id == subtype_id) || (event_subtype == nil && event_maintype.id == maintype_id )
     true
   end

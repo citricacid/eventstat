@@ -92,14 +92,7 @@
 
 
   <div id="freestyle" class="tab-pane fade in active">
-    <%# ---  locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,   --- %>
-
-
-    <%= erb :_statistics_panel, locals: {branches: branches, internal_subcategories: internal_subcategories, categories: categories,
-      subcategory_links: subcategory_links, age_groups: age_groups, age_categories: age_categories,
-      district_categories: district_categories, district_subcategories: district_subcategories,
-      event_types: event_types, event_maintypes: event_maintypes, event_subtypes: event_subtypes, selected_branch: selected_branch,
-      queries: queries, aggregated_subcategories: aggregated_subcategories} %>
+    <%= erb :_statistics_panel, locals: locals %>
   </div>
 
 </div>

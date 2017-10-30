@@ -17,7 +17,7 @@ LineItem = Struct.new(:id, :label)
 #
 # :label - for the table headers
 # :id - marker for matching table data with the correct column
-# :is_counntable - boolean flag indicating whether the column values should be accumulated
+# :is_countable - boolean flag indicating whether the column values should be accumulated
 HeaderItem = Struct.new(:label, :id, :is_countable)
 
 
@@ -73,6 +73,12 @@ class ReportBuilder
   end
 
 
+  def create_filter(id, klazz)
+    sum_all = id == 'sum_all'
+    collection = id == 'iterate_all' ? klazz.all : klazz.where(id: id)
+    Filter.new(collection, sum_all)
+  end
+
   #
   # Setters
   #
@@ -90,14 +96,13 @@ class ReportBuilder
   end
 
 
-  #
+  # TODO this only works as long as there is only one set of district subcategories
+  # a better solution would figure out which district subcategories should be included
   def set_branch(branch_id)
-    sum_all = branch_id == 'sum_all'
+    @report.include_district_subcategories = ['sum_all', 'iterate_all'].include?(branch_id) || Branch.where(id: branch_id).where(has_district_category: 1).count > 0
 
-    @report.include_district_subcategories = 'sum_all' || branch_id = 'iterate_all' || Branch.where(id: branch_id).where(has_district_category: 1).count > 0
-
-    branches = branch_id == 'iterate_all' ? Branch.all : Branch.where(id: branch_id)
-    @report.branches = Filter.new(branches, sum_all)
+    @report.branches = create_filter(branch_id, Branch)
+    self
   end
 
   # refactor into set_category and set_subcategory
@@ -115,29 +120,19 @@ class ReportBuilder
     @report.categories = Filter.new(categories, sum_all)
   end
 
-  def set_category(category_id, use_standard_categories)
+  def set_category(category_id, use_district_categories)
     @report.category_type = :category
-    @report.use_standard_categories = use_standard_categories
+    @report.use_district_categories = use_district_categories
 
-    sum_all = category_id == 'sum_all'
+    klazz = use_district_categories ? DistrictCategory : Category
 
-    if use_standard_categories
-      categories = category_id == 'iterate_all' ? Category.all : Category.where(id: category_id)
-      @report.categories = Filter.new(categories, sum_all)
-    else
-      categories = category_id == 'iterate_all' ? DistrictCategory.all : DistrictCategory.where(id: category_id)
-      @report.categories = Filter.new(categories, sum_all)
-    end
-    puts "set_category"
-    puts @report.categories.inspect
+    @report.categories = create_filter(category_id, klazz)
   end
 
 
+  # TODO this presupposes that @report.include_district_subcategories has already been set
   def set_subcategory(subcategory_id, expand_district_subcategories)
     @report.category_type = :subcategory
-    sum_all = subcategory_id == 'sum_all'
-    subcategories = nil
-    district_subcategories = nil
 
     if @report.include_district_subcategories and expand_district_subcategories
       subcategories = subcategory_id == 'iterate_all' ?
@@ -148,23 +143,17 @@ class ReportBuilder
       subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory.all : InternalSubcategory.where(id: subcategory_id)
     end
 
+    sum_all = subcategory_id == 'sum_all'
     @report.categories = Filter.new(subcategories, sum_all)
-    puts "set_sub"
-    puts @report.categories.collection.size
-    puts @report.categories.inspect
   end
 
 
   def set_maintype(maintype_id)
-    sum_all = maintype_id == 'sum_all'
-    maintypes = maintype_id == 'iterate_all' ? EventMaintype.all : EventMaintype.where(id: maintype_id)
-    @report.maintypes = Filter.new(maintypes, sum_all)
+    @report.maintypes = create_filter(maintype_id, EventMaintype)
   end
 
   def set_subtype(subtype_id)
-    sum_all_subtypes = subtype_id == 'sum_all'
-    subtypes = subtype_id == 'iterate_all' ? EventSubtype.all : EventSubtype.where(id: subtype_id)
-    @report.subtypes = Filter.new(subtypes, sum_all_subtypes)
+    @report.subtypes = create_filter(subtype_id, EventSubtype)
   end
 
 
@@ -206,10 +195,10 @@ end
 
 class Report
   attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :subcategories,
-    :use_standard_categories, :category_type, :maintypes, :subtypes, :age_groups,
+    :use_district_categories, :category_type, :maintypes, :subtypes, :age_groups,
     :age_categories, :headers, :strategy, :include_district_subcategories
 
-  # TODO constructor and validate methods?
+  # TODO validate methods?
 
   def get_results
     @results = []
@@ -263,15 +252,14 @@ class Report
     end
   end
 
-  
+
   def traverse_categories(branch, maintype, subtype, age_group)
     if @categories.sum_all
       events = get_events(branch.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
       calculate_result(branch_name: branch.label, events: events, subtype: subtype.label, maintype: maintype.label, age_group: age_group.label)
     else @categories.collection.each do |cat|
-      next unless cat.subtype_associated?(subtype.id, maintype.id) ||
-      (subtype.id == nil && cat.maintype_associated?(maintype.id)) ||
-      (subtype.id == nil && maintype.id == nil)
+      next unless cat.subtype_associated?(subtype.id) ||
+      cat.maintype_associated?(maintype.id) ||(subtype.id.nil? && maintype.id.nil?)
 
       events = case @category_type
       when :category then get_events(branch.id, category_id: cat.id, subtype_id: subtype.id, maintype_id: maintype.id, age_group_id: age_group.id)
@@ -283,6 +271,8 @@ class Report
   end
 end
 
+
+  # return value = {}
   def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil,
     maintype: 'Samlet', subtype: 'Samlet', age_group: 'Samlet')
     young_ages_count = events.to_a.sum(&:sum_non_adults)
@@ -307,6 +297,9 @@ end
       # add more
     end
 
+    #es[:link] = {from_date: @from_date, to_date: @to_date, label: @period_label, }
+
+
     @results << res
   end
 
@@ -314,7 +307,7 @@ end
   def get_events (branch_id = nil, category_id: nil, subcategory_id: nil, district_category_id: nil,
     maintype_id: nil, subtype_id: nil, age_group_id: nil)
 
-    catz = @use_standard_categories ? 'by_category' : 'by_district_category'
+    catz = @use_district_categories ? 'by_district_category' : 'by_category'
 
     Event.between_dates(@from_date, @to_date)
     .exclude_marked_events
@@ -324,7 +317,5 @@ end
     .by_subtype(subtype_id)
     .by_subcategory(subcategory_id, @expand_district_subcategories)
     .send(catz, category_id)
-    #.by_category(category_id)
-    #.by_district_category(district_category_id)
   end
 end
