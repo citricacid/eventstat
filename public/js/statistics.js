@@ -398,7 +398,7 @@ function processSummationRow($table) {
     if ($(this).data('is-accumulative')) {
       let sum = 0;
 
-      $('tr td:nth-child(' + (index + 1) + ')').each(function() {
+      $table.find('tr td:nth-child(' + (index + 1) + ')').each(function() {
         sum += parseInt($(this).html(), 10);
       });
 
