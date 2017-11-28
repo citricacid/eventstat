@@ -333,6 +333,7 @@ $(function() {
         click: function() {
           $(this).closest('tr').remove();
           processSummationRow($("#stats_table"));
+          tables.update();
         }
       });
 
