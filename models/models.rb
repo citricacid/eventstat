@@ -169,7 +169,7 @@ class Branch < ActiveRecord::Base
 
 
   def set_lock(to_date)
-    from_date = locked_until.next_day
+    from_date = locked_until.next_day #TODO fix this
     lock_events = events.where("date >= ? and date <= ?", from_date, to_date)
 
     success = false
@@ -200,7 +200,7 @@ class AgeGroup < ActiveRecord::Base
   enum age_category: { adult: 0, non_adult: 1 }
 
   def self.get_label(enum_key)
-    if enum_key == 'adult'
+    if enum_key == 'adult' || enum_key.to_i == 0
       'voksne/alle'
     else
       'barn/unge'
@@ -408,7 +408,7 @@ class DistrictCategory < ActiveRecord::Base
       district_subcategories.pluck(:id).include?(subcategory_id)
   end
 
-  def maintype_associated?(maintype_id)
+  def maintype_associated?(maintype_id) #TODO fix?
     #event_maintype.id == maintype_id
     true
   end
