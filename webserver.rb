@@ -268,7 +268,7 @@ end
     @search = params[:search] || ''
     @page_number = params[:page_number].present? ? params[:page_number].to_i : 1
 
-    @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Okt", "Nov", "Des"]
+    @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"]
   end
 
   def filter_result_set
