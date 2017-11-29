@@ -200,7 +200,7 @@ class AgeGroup < ActiveRecord::Base
   enum age_category: { adult: 0, non_adult: 1 }
 
   def self.get_label(enum_key)
-    if enum_key == 'adult' || enum_key.to_i == 0
+    if enum_key == 'adult' || enum_key == "0"
       'voksne/alle'
     else
       'barn/unge'

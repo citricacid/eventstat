@@ -852,7 +852,6 @@ end
       # TODO sanitize input
 
       data = JSON.parse(request.body.read)
-      puts data.inspect
 
       period_label = data['period_label']
       branch_id = data['branch_id']
