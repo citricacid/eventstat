@@ -104,7 +104,7 @@
   <div class="form-group">
     <label class="form-control-label" for="name">Tittel:</label>
     <input type="text" class="form-control" data-must_validate=true
-      id="name" name="name" value= <%= "#{item&.name}" %>>
+      id="name" name="name" value='<%="#{item&.name}"%>'>
   </div>
 
   <%# --- Dropdown for branches                               %>
