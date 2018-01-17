@@ -90,6 +90,10 @@ const extractIDs = function($collection) {
 // document ready
 $(function() {
   const $subcategorySelector = $('#subcategory_selector')
+  const $categorySelector = $('#category_selector')
+
+  const $agegroupSelector = $('#age_group_selector')
+  const $agecategorySelector = $('#age_category_selector')
 
   const internalSubcategoryValues = extractType($subcategorySelector, 'InternalSubcategory')
   const aggregatedSubcategoryValues = extractType($subcategorySelector, 'AggregatedSubcategory')
@@ -100,7 +104,7 @@ $(function() {
   // could be further enhanced if you're feeling adventurous
   //
   const determineVisibleSubcategories = function() {
-    // for the sake of simpllicity, subcategories that are set through type selector override branch selections
+    // for the sake of simplicity, subcategories that are set through type selector override branch selections
     const subcategories = $('input[name=subtype_id]:checked').data('subcategories') ||
     $('#event_maintype_selector').find(':selected').data('subcategories');
 
@@ -158,7 +162,7 @@ $(function() {
     const categories = $(this).data('categories') ||
     $('#event_maintype_selector').find(':selected').data('categories');
 
-    setVisibleOptions($('#category_selector'), categories);
+    setVisibleOptions($categorySelector, categories);
     determineVisibleSubcategories()
   });
 
@@ -185,7 +189,6 @@ $(function() {
     const periodString = $("#daterange_from").val() + "/" + $("#daterange_to").val();
     $('#period_label').val(periodString);
   });
-
 
 
   //
@@ -227,40 +230,20 @@ $(function() {
   });
 
 
-
   //
-  // Save query
+  // query handling
   //
-  $('#save_query').click(function() {
-    const form = $("#query_form");
-    const data = convertFormToHash(form);
 
-    const request = $.ajax({
-      url: "/api/query",
-      dataType: "json",
-      contentType: "application/json; charset=UTF-8",
-      data: JSON.stringify(data), // $form.serializeArray()
-      type: "POST"
-    });
+  let subqueries = []
 
-
-    request.done(function(data, textStatus, xhr) {
-      alert('alles gut')
-    })
-
-    request.fail(function(data, textStatus, xhr) {
-      alert('nichts gut')
-    })
-  })
-
-
+  // don't think i'll need anything like this - delete it
   $('#query_selector').change(function() {
     const queryID =  $(this).find(':selected').val()
     if (queryID != 0) {
       $.getJSON('/api/queries/' + queryID)
       .done(function(data) {
         resetCategories();
-        $('#category_selector').change();
+        $categorySelector.change();
         resetAgeGroups();
 
         $('#name').val(data.name)
@@ -280,6 +263,7 @@ $(function() {
     }
   })
 
+// --------------------------------------------------------------------------------
 
   //
   // Submit parameters and process results
@@ -303,6 +287,9 @@ $(function() {
 
 
     request.done(function(data, textStatus, xhr) {
+      // make a copy of old headers
+      const oldHeaders = $('thead').html()
+
       // set new headers
       const newHeaders = []
 
@@ -312,7 +299,6 @@ $(function() {
       }))
     })
 
-    const oldHeaders = $('thead').html()
     $('thead').find('tr').html(newHeaders)
 
     // if header structure has changed, clear table
@@ -371,7 +357,7 @@ $(function() {
 
 });
 
-
+// TODO not using the argument at all, might as well remove
 function findCountableKeys(headers) {
   const keys = []
   $('#stats_table th').each(function(index) {

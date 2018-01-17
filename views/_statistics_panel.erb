@@ -13,22 +13,32 @@
     </div>
   </div>
 
-  <div class="row">
+  <%# --- Dropdown for branches                  --- %>
+  <div class="row selfdefined">
     <div class="form-group">
       <label for="branch_selector" class="main">Sted:</label>
       <select id="branch_selector" name="branch_id">
         <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :stats,
           data: [{name: 'has_district_category', attribute: 'has_district_category'},
-            {name: 'aggregated_subcategory_id', attribute: 'aggregated_subcategory_id'},
             {name: 'aggregated_subcategory_id', attribute: 'aggregated_subcategory_id'}]}  %>
       </select>
     </div>
   </div>
 
+  <%# --- Dropdown for queries                  --- %>
+  <div class="row predefined">
+    <div class="form-group">
+      <label for="queries" class="main">Spørring:</label>
+      <select id="queries" name="compound_query_id">
+        <%= erb :_standard_options, locals: {collection: compound_queries, type: :choose}  %>
+      </select>
+    </div>
+  </div>
+
+
 
   <%# --- Dropdown and radio buttons for event types                  --- %>
-  <%# --- what the heck is happening here? clarify code               --- %>
-  <div class="row">
+  <div class="row selfdefined">
     <div class="form-group">
       <label for="event_maintype_selector" class="main">Type/undertype:</label>
       <select id="event_maintype_selector" name="maintype_id">
@@ -93,7 +103,7 @@
 
 
     <%# --- Dropdowns for target audiences                 --- %>
-    <div class="row">
+    <div class="row  selfdefined">
       <div class="form-group" id="target_audience_row">
         <label for="age_group_selector" class="main">Aldersgruppe/kategori:</label>
 
@@ -121,7 +131,7 @@
 
   </form>
 
-  <%# --- Remove dynamic headers....                --- %>
+  <%# --- TODO? Remove dynamic headers....                --- %>
   <div class="table-responsive">
     <%= erb :_loading_spinner %>
     <table class="table table-striped" id="stats_table">

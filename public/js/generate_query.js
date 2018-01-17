@@ -23,7 +23,7 @@ $(function() {
     updateFormElements()
   })
 
-
+  // Copies selected values from the UI panels into the hidden form inputs
   const updateFormElements = function() {
     $('ul.target').each(function(i, targetList) {
       let values = $(this).find('li').map(function() {return $(this).attr('value')}).get()//.join('0')

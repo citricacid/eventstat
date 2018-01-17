@@ -19,7 +19,15 @@ class QueryParameter < ActiveRecord::Base
   belongs_to :query
 end
 
+class CompoundQuery < ActiveRecord::Base
+  has_many :compound_query_links
+  has_many :queries, through: :compound_query_links
+end
 
+class CompoundQueryLink < ActiveRecord::Base
+  belongs_to :query
+  belongs_to :compound_query
+end
 
 
 class Event < ActiveRecord::Base
@@ -148,7 +156,6 @@ class Branch < ActiveRecord::Base
   has_many :district_links
   has_many :district_categories, through: :district_links
   has_many :district_subcategories, through: :district_links, source: 'DistrictSubcategory'
-
 
   default_scope { order(:name => :asc) }
 

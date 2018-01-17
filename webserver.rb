@@ -538,14 +538,13 @@ end
     error = session.delete(:transaction_error)
     selected_branch = session[:default_branch] || '0'
 
-    groups = []
-    AgeGroup.age_categories.each { |k, v| groups << Group.new(v, AgeGroup.get_label(k)) }
+    categories = AgeGroup.age_categories.map {|k,v| Group.new(v, AgeGroup.get_label(k))}
 
     erb :statistics, :locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,
       internal_subcategories: InternalSubcategory.all, district_categories: DistrictCategory.all, categories: Category.all,
-      age_groups: AgeGroup.all, age_categories: groups, event_types: EventType.all,
+      age_groups: AgeGroup.all, age_categories: categories, event_types: EventType.all,
       event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all,
-      selected_branch: selected_branch, queries: Query.all}
+      selected_branch: selected_branch, queries: Query.all, compound_queries: CompoundQuery.all}
     end
 
 
@@ -816,21 +815,22 @@ end
     # QUERY
 
     post '/api/query' do
-      data = JSON.parse(request.body.read)
-      data = data.select {|name, value| value != 'none' and not name.include?('date') and not name.include?('period')}
-
+      accepted_values = %w(name event_maintype_id event_subtype_id category_id subcategory_id age_category_id age_group_id)
+      data = params.select {|key, value| accepted_values.include?(key) }
+      puts data.inspect
 
       query_name = data.delete("name")
-      query = Query.find_or_initialize_by(name: query_name)
-      puts "-----------"
-      puts query.inspect
-      query.save!
-      query_id = query.id
 
-      query.query_elements.each  {|element| element.delete}
+      query = Query.find_or_initialize_by(name: query_name)
+      puts "<-----------"
+      puts query.inspect
+      puts "------------>"
+      query.save!
+
+      query.query_parameters.each  {|element| element.delete}
 
       data.each do |name, value|
-          QueryParameter.new(query_id: query_id, element_name: name, element_value: value).save
+        QueryParameter.new(query_id: query.id, element_name: name, element_value: value).save
       end
       # name.blank? raise error
 
@@ -845,14 +845,23 @@ end
       Query.includes(:query_parameters).find(params[:query_id]).to_json
     end
 
+    get '/q' do
+      categories = AgeGroup.age_categories.map {|k,v| Group.new(v, AgeGroup.get_label(k))}
 
+      erb :generate_query_beta, :locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,
+        internal_subcategories: InternalSubcategory.all, district_categories: DistrictCategory.all, categories: Category.all,
+        age_groups: AgeGroup.all, age_categories: categories, event_types: EventType.all,
+        event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all,
+        selected_branch: nil, queries: Query.all}
+    end
 
     put '/api/statistics' do
       # require_logged_in
       # TODO sanitize input
-
+      # TODO add set_query method to builder object
       data = JSON.parse(request.body.read)
 
+      compound_query_id = data['compound_query_id'].to_i
       period_label = data['period_label']
       branch_id = data['branch_id']
       category_id = data['category_id']
@@ -872,6 +881,8 @@ end
       expand_district_subcategories = data['expand_district_subcategories'] == 'on'
 
       report_builder = ReportBuilder.new
+      report_builder.set_report_type(:compound) if compound_query_id.blank? || compound_query_id != 0
+
       report_builder.set_period_label(period_label)
       report_builder.set_dates(@from_date, @to_date)
 
@@ -884,6 +895,7 @@ end
       report_builder.set_category(district_category_id, use_district_categories) if district_category_id != 'none'
       report_builder.set_subcategory(subcategory_id, expand_district_subcategories) if subcategory_id != 'none'
 
+      report_builder.set_header_type(:static)
       report = report_builder.build
       report.get_results
     end

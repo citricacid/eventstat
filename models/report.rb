@@ -34,6 +34,38 @@ HeaderItem = Struct.new(:label, :id, :is_countable)
 
 # idea: get_headers_for(...) and get_default_headers() - but where to place them?
 
+class Subquery
+  def initialize(args)
+    @subquery = {}
+    @subquery[:maintype_id] = args[:maintype_id] || "all"
+    @subquery[:subtype_id] = args[:subtype_id] || "all"
+
+    if args[:category_id].nil? and args[:subcategory_id].nil?
+      @subquery[:category_id] = "all"
+    elsif args[:category_id].present?
+      @subquery[:category_id] = args[:category_id]
+    else
+      @subquery[:subcategory_id] = args[:subcategory_id]
+    end
+
+    if args[:age_group_id].nil? and args[:age_category_id].nil?
+      @subquery[:age_group_id] = "all"
+    elsif args[:age_group_id].present?
+      @subquery[:age_group_id] = args[:age_group_id]
+    else
+      @subquery[:age_category_id] = args[:age_category_id]
+    end
+  end
+end
+
+class CompoundQuery
+  #
+
+end
+
+
+
+
 class ReportBuilder
   def initialize
     @report = Report.new
@@ -46,11 +78,16 @@ class ReportBuilder
   end
 
   def build
+    @report.report_type ||= :single
+    @report.header_type ||= :dynamic
     @report.headers = build_headers
     return report
   end
 
   def build_headers
+    is_dynamic = @report.header_type == :dynamic
+    is_dynamic = false
+
     headers = []
 
     # fixed headers
@@ -58,12 +95,12 @@ class ReportBuilder
     headers << HeaderItem.new("Sted", "branch_name", false)
 
     # dynamic headers
-    headers << HeaderItem.new("Type", "maintype", false) unless @report.maintypes.sum_all
-    headers << HeaderItem.new("Undertype", "subtype", false) unless @report.subtypes.sum_all
-    headers << HeaderItem.new("Kategori", "category", false) unless @report.categories.nil? || @report.categories.sum_all #|| @report.category_type == :subcategory
-    headers << HeaderItem.new("Underkategori", "subcategory", false) unless @report.subcategories.nil? || @report.subcategories.sum_all #|| @report.category_type == :category
-    headers << HeaderItem.new("Alder", "agecategory", false) unless @report.age_categories.nil? || @report.age_categories.sum_all
-    headers << HeaderItem.new("Alder", "agegroup", false) unless @report.age_groups.nil? || @report.age_groups.sum_all
+    headers << HeaderItem.new("Type", "maintype", false) unless is_dynamic && @report.maintypes.sum_all
+    headers << HeaderItem.new("Undertype", "subtype", false) unless is_dynamic && @report.subtypes.sum_all
+    headers << HeaderItem.new("Kategori", "category", false) unless is_dynamic && (@report.categories.nil? || @report.categories.sum_all) #|| @report.category_type == :subcategory
+    headers << HeaderItem.new("Underkategori", "subcategory", false) unless is_dynamic && (@report.subcategories.nil? || @report.subcategories.sum_all) #|| @report.category_type == :category
+    headers << HeaderItem.new("Alder", "agecategory", false) unless is_dynamic && (@report.age_categories.nil? || @report.age_categories.sum_all)
+    headers << HeaderItem.new("Alder", "agegroup", false) unless is_dynamic && (@report.age_groups.nil? || @report.age_groups.sum_all)
 
     # fixed, countable headers
     headers << HeaderItem.new("Ant. deltagere", "no_of_attendants", true)
@@ -82,6 +119,17 @@ class ReportBuilder
   #
   # Setters
   #
+
+  # :static || :dynamic
+  def set_header_type(type)
+    @report.header_type = type
+  end
+
+  # :single || :compound
+  def set_report_type(type)
+    @report.report_type = type
+  end
+
   def set_strategy(key)
     @report.strategy = key
   end
@@ -105,20 +153,6 @@ class ReportBuilder
     self
   end
 
-  # refactor into set_category and set_subcategory
-  def xxxset_category(category_id, subcategory_id)
-    @report.category_type = category_id != 'none' ? :category : :subcategory
-
-    sum_all = category_id == 'sum_all' || subcategory_id == 'sum_all'
-
-    if @report.category_type == :category
-      categories = category_id == 'iterate_all' ? Category.all : Category.where(id: category_id)
-    else
-      categories = subcategory_id == 'iterate_all' ? Subcategory.all : Subcategory.where(id: subcategory_id)
-    end
-
-    @report.categories = Filter.new(categories, sum_all)
-  end
 
   def set_category(category_id, use_district_categories)
     @report.category_type = :category
@@ -188,6 +222,31 @@ class ReportBuilder
 end
 
 
+#
+# Aggregate report
+#
+# Each report consists of a headers object and a results object
+# If the headers are set to static, the results object will always have the same fields
+#
+# For compound queries, you want the sort the results per branch
+# Adding a branch_id key or branch code key would be good for this
+# Possible strategy I: Run each query in succession, store the results and then sort them by branch code/id
+#
+# Setup will be: query, and aggregate queries ()
+#
+#mysql> describe queries;
+#+----------+--------------+------+-----+---------+----------------+
+#| Field    | Type         | Null | Key | Default | Extra          |
+#+----------+--------------+------+-----+---------+----------------+
+#| id       | int(11)      | NO   | PRI | NULL    | auto_increment |
+#| name     | varchar(255) | NO   |     | NULL    |                |
+#| type     | varchar(255) | YES  |     | Query   |                |
+#| query_id | int(11)      | YES  |     | NULL    |                |
+#+----------+--------------+------+-----+---------+----------------+
+
+# where type is either subquery or compound_query
+
+
 
 #
 # Report
@@ -196,11 +255,14 @@ end
 class Report
   attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :subcategories,
     :use_district_categories, :category_type, :maintypes, :subtypes, :age_groups,
-    :age_categories, :headers, :strategy, :include_district_subcategories
+    :age_categories, :headers, :strategy, :include_district_subcategories, :header_type, :report_type
 
   # TODO validate methods?
 
   def get_results
+    # if @report_type == :compound
+    # do stuff.....
+
     @results = []
     traverse_branches
 
@@ -275,6 +337,7 @@ end
   # return value = {}
   def calculate_result(branch_name: 'Samlet', category_name: 'Samlet', events: nil,
     maintype: 'Samlet', subtype: 'Samlet', age_group: 'Samlet')
+
     young_ages_count = events.to_a.sum(&:sum_non_adults)
     all_ages_count = events.to_a.sum(&:sum_all_ages)
     older_ages_count = events.to_a.sum(&:sum_adults)
