@@ -817,14 +817,10 @@ end
     post '/api/query' do
       accepted_values = %w(name event_maintype_id event_subtype_id category_id subcategory_id age_category_id age_group_id)
       data = params.select {|key, value| accepted_values.include?(key) }
-      puts data.inspect
 
       query_name = data.delete("name")
 
       query = Query.find_or_initialize_by(name: query_name)
-      puts "<-----------"
-      puts query.inspect
-      puts "------------>"
       query.save!
 
       query.query_parameters.each  {|element| element.delete}
@@ -846,6 +842,7 @@ end
     end
 
     get '/q' do
+      protected!
       categories = AgeGroup.age_categories.map {|k,v| Group.new(v, AgeGroup.get_label(k))}
 
       erb :generate_query_beta, :locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,
@@ -861,7 +858,7 @@ end
       # TODO add set_query method to builder object
       data = JSON.parse(request.body.read)
 
-      compound_query_id = data['compound_query_id'].to_i
+      compound_query_id = data['compound_query_id']
       period_label = data['period_label']
       branch_id = data['branch_id']
       category_id = data['category_id']
@@ -881,8 +878,7 @@ end
       expand_district_subcategories = data['expand_district_subcategories'] == 'on'
 
       report_builder = ReportBuilder.new
-      report_builder.set_report_type(:compound) if compound_query_id.blank? || compound_query_id != 0
-
+      report_builder.set_compound_query(compound_query_id) if compound_query_id
       report_builder.set_period_label(period_label)
       report_builder.set_dates(@from_date, @to_date)
 
@@ -895,7 +891,6 @@ end
       report_builder.set_category(district_category_id, use_district_categories) if district_category_id != 'none'
       report_builder.set_subcategory(subcategory_id, expand_district_subcategories) if subcategory_id != 'none'
 
-      report_builder.set_header_type(:static)
       report = report_builder.build
       report.get_results
     end

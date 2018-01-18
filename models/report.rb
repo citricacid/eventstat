@@ -34,6 +34,7 @@ HeaderItem = Struct.new(:label, :id, :is_countable)
 
 # idea: get_headers_for(...) and get_default_headers() - but where to place them?
 
+# TODO finish this up or scratch its
 class Subquery
   def initialize(args)
     @subquery = {}
@@ -58,10 +59,7 @@ class Subquery
   end
 end
 
-class CompoundQuery
-  #
 
-end
 
 
 
@@ -86,7 +84,6 @@ class ReportBuilder
 
   def build_headers
     is_dynamic = @report.header_type == :dynamic
-    is_dynamic = false
 
     headers = []
 
@@ -99,12 +96,13 @@ class ReportBuilder
     headers << HeaderItem.new("Undertype", "subtype", false) unless is_dynamic && @report.subtypes.sum_all
     headers << HeaderItem.new("Kategori", "category", false) unless is_dynamic && (@report.categories.nil? || @report.categories.sum_all) #|| @report.category_type == :subcategory
     headers << HeaderItem.new("Underkategori", "subcategory", false) unless is_dynamic && (@report.subcategories.nil? || @report.subcategories.sum_all) #|| @report.category_type == :category
-    headers << HeaderItem.new("Alder", "agecategory", false) unless is_dynamic && (@report.age_categories.nil? || @report.age_categories.sum_all)
-    headers << HeaderItem.new("Alder", "agegroup", false) unless is_dynamic && (@report.age_groups.nil? || @report.age_groups.sum_all)
+    headers << HeaderItem.new("Alder", "agecategory", false) unless true && (@report.age_categories.nil? || @report.age_categories.sum_all)
+    headers << HeaderItem.new("Alder", "agegroup", false) unless true && (@report.age_groups.nil? || @report.age_groups.sum_all)
 
     # fixed, countable headers
-    headers << HeaderItem.new("Ant. deltagere", "no_of_attendants", true)
     headers << HeaderItem.new("Ant. arr", "no_of_events", true)
+    headers << HeaderItem.new("Ant. deltagere", "no_of_attendants", true)
+
 
     headers.flatten
   end
@@ -120,14 +118,10 @@ class ReportBuilder
   # Setters
   #
 
-  # :static || :dynamic
-  def set_header_type(type)
-    @report.header_type = type
-  end
 
-  # :single || :compound
-  def set_report_type(type)
-    @report.report_type = type
+  def set_compound_query(id)
+    @report.report_type = :compound
+    @report.compound_query_id = id
   end
 
   def set_strategy(key)
@@ -255,11 +249,12 @@ end
 class Report
   attr_accessor :period_label, :from_date, :to_date, :branches, :categories, :subcategories,
     :use_district_categories, :category_type, :maintypes, :subtypes, :age_groups,
-    :age_categories, :headers, :strategy, :include_district_subcategories, :header_type, :report_type
+    :age_categories, :headers, :strategy, :include_district_subcategories, :header_type, :report_type,
+    :compound_query_id
 
   # TODO validate methods?
 
-  # helpers
+  # helpers - TODO move to module
 
   def create_filter(id, klazz)
     sum_all = id == 'sum_all'
@@ -267,31 +262,63 @@ class Report
     Filter.new(collection, sum_all)
   end
 
+  def build_headers
+    is_dynamic = @header_type == :dynamic
+
+    headers = []
+
+    # fixed headers
+    headers << HeaderItem.new("Periode", "period", false)
+    headers << HeaderItem.new("Sted", "branch_name", false)
+
+    # dynamic headers
+    headers << HeaderItem.new("Type", "maintype", false) unless is_dynamic && @maintypes.sum_all
+    headers << HeaderItem.new("Undertype", "subtype", false) unless is_dynamic && @subtypes.sum_all
+    headers << HeaderItem.new("Kategori", "category", false) unless is_dynamic && (@categories.nil? || @categories.sum_all) #|| @report.category_type == :subcategory
+    headers << HeaderItem.new("Underkategori", "subcategory", false) unless is_dynamic && (@subcategories.nil? || @subcategories.sum_all) #|| @report.category_type == :category
+    headers << HeaderItem.new("Alder", "agecategory", false) unless true && (@age_categories.nil? || @age_categories.sum_all)
+    headers << HeaderItem.new("Alder", "agegroup", false) unless true && (@age_groups.nil? || @age_groups.sum_all)
+
+    # fixed, countable headers
+    headers << HeaderItem.new("Ant. arr", "no_of_events", true)
+    headers << HeaderItem.new("Ant. deltagere", "no_of_attendants", true)
+
+    headers.flatten
+  end
+
+
   # business
 
 
   def get_results
-    puts @report_type
     @report_type == :compound ? get_compound_results : get_single_results
   end
 
   # for each query, only type, category and age will vary - all else remains stable
-  #
+  # but - should age vary?
 
+  def parse_value(input)
+    %w(iterate_all sum_all none).include?(input) ? input : input.split(',')
+  end
 
   def get_compound_results
-    compound_query = CompoundQuery.find(1) #TODO setter for query
+    compound_query = CompoundQuery.find(@compound_query_id)
 
     queries = compound_query.queries.map do |query|
       query_map = {}
-      query.query_parameters.each {|parameter| query_map[parameter.element_name.to_sym] = parameter.element_value}
+      query.query_parameters.each {|parameter| query_map[parameter.element_name.to_sym] = parse_value(parameter.element_value)}
       query_map
     end
+
+    @header_type == compound_query.use_static_headers ? :static : :dynamic
+    @headers = build_headers if compound_query.use_static_headers
+    build_headers_once = !compound_query.use_static_headers
 
     compound_results = []
     queries.each do |query|
       @maintypes = create_filter(query[:event_maintype_id], EventMaintype)
       @subtypes = create_filter(query[:event_subtype_id], EventSubtype)
+
 
       if query[:category_id] != 'none'
         @category_type = :category
@@ -328,15 +355,21 @@ class Report
 
       @age_groups = Filter.new(categories, sum_all, sum_multiple_as_one)
 
-      # compouns_results << traverse_branches # or traverse_branches[:results]
+      # only buld headers once...
+      if build_headers_once
+        @headers = build_headers
+        build_headers_once = false
+      end
+
+      @results = []
+      traverse_branches
+      compound_results << @results.flatten
     end
 
-    # next: sort entries by branch and merge.... and return
+    compound_results.flatten!
+    compound_results.sort! {|x,y| x[:branch_name] <=> y[:branch_name] }
 
-    @results = []
-    traverse_branches
-
-    {headers: @headers.flatten, results: @results.flatten}.to_json
+    {headers: @headers.flatten, results: compound_results.flatten}.to_json
   end
 
   def get_single_results

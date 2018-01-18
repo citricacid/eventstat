@@ -19,9 +19,9 @@
 
 
 <ul class="nav nav-tabs">
-  <li class="active"><a data-toggle="tab" href="#freestyle">Egendefinert</a></li>
-  <li><a data-toggle="tab" href="#predefined">Forhåndsgenerert</a></li>
-  <li><a data-toggle="tab" href="#user_guide">Veiledning</a></li>
+  <li data-type="selfdefined" class="active"><a data-toggle="tab" href="#stats_engine">Egendefinert</a></li>
+  <li data-type="predefined"><a data-toggle="tab" href="#stats_engine">Forhåndsgenerert</a></li>
+  <li data-type="guide"><a data-toggle="tab" href="#user_guide">Veiledning</a></li>
 </ul>
 
 
@@ -92,15 +92,8 @@
 </div>
 
 
-<div id="predefined" class="tab-pane fade">
-  <h2>Kommer snart!</h2>
-
+<div id="stats_engine" class="tab-pane fade in active">
+  <%= erb :_statistics_panel, locals: locals %>
 </div>
-
-
-
-  <div id="freestyle" class="tab-pane fade in active">
-    <%= erb :_statistics_panel, locals: locals %>
-  </div>
 
 </div>

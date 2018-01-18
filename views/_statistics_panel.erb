@@ -14,7 +14,7 @@
   </div>
 
   <%# --- Dropdown for branches                  --- %>
-  <div class="row selfdefined">
+  <div class="row">
     <div class="form-group">
       <label for="branch_selector" class="main">Sted:</label>
       <select id="branch_selector" name="branch_id">
@@ -28,8 +28,8 @@
   <%# --- Dropdown for queries                  --- %>
   <div class="row predefined">
     <div class="form-group">
-      <label for="queries" class="main">Spørring:</label>
-      <select id="queries" name="compound_query_id">
+      <label for="query_selector" class="main">Spørring:</label>
+      <select id="query_selector" name="compound_query_id">
         <%= erb :_standard_options, locals: {collection: compound_queries, type: :choose}  %>
       </select>
     </div>
@@ -83,7 +83,7 @@
 
 
   <%# --- Dropdowns for categories, district categories and subcategories                 --- %>
-    <div class="form-group row" id="category_row">
+    <div class="form-group row selfdefined" id="category_row">
       <label for="category_selector" class="main">Kategori/underkategori:</label>
 
       <select id="category_selector" class="category_selector" name="category_id">

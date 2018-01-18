@@ -230,39 +230,6 @@ $(function() {
   });
 
 
-  //
-  // query handling
-  //
-
-  let subqueries = []
-
-  // don't think i'll need anything like this - delete it
-  $('#query_selector').change(function() {
-    const queryID =  $(this).find(':selected').val()
-    if (queryID != 0) {
-      $.getJSON('/api/queries/' + queryID)
-      .done(function(data) {
-        resetCategories();
-        $categorySelector.change();
-        resetAgeGroups();
-
-        $('#name').val(data.name)
-        data['query_elements'].forEach(function(elem) {
-          const el = $('[name=' + elem.element_name + ']')
-          if (el.prop('type') === 'radio') {
-            el.parent().find('input[value=' + elem.element_value + ']:enabled').prop('checked', 'checked')
-          } else {
-            el.val(elem.element_value)
-            el.change()
-          }
-        })
-      })
-      .fail(function() {
-        alert('fail')
-      })
-    }
-  })
-
 // --------------------------------------------------------------------------------
 
   //
@@ -398,9 +365,28 @@ function processSummationRow($table) {
   $tbody.append($row);
 }
 
+
+  // additional logic for tab navigation
+  const setQueryType = function(type) {
+    if (type !== 'guide') {
+      const showPredefined = type === 'predefined'
+      $('.predefined').toggle(showPredefined)
+      $('.selfdefined').toggle(!showPredefined)
+      showPredefined ? $('#query_selector').prop('name', 'compound_query_id') : $('#query_selector').removeProp('name')
+    }
+    // toggle column selector row
+    // toggle column visibility based on showPredefined status
+  }
+
+  $('.nav.nav-tabs li').click(function() {
+    setQueryType($(this).data('type'))
+  })
 //
 // initialize page
 //
+
+// initialize query selector
+  setQueryType('selfdefined')
 
 // initialize daterange pickers
 $('#daterange_from, #daterange_to').daterangepicker({
