@@ -348,14 +348,14 @@ class Report
           categories << LineItem.new(id, label)
         end
       else
-        label =  AgeGroup.get_label(age_category_id)
-        id = AgeGroup.where(age_category: age_category_id)
+        label =  AgeGroup.get_label(query[:age_category_id])
+        id = AgeGroup.where(age_category: query[:age_category_id])
         categories = LineItem.new(id, label)
       end
 
       @age_groups = Filter.new(categories, sum_all, sum_multiple_as_one)
 
-      # only buld headers once...
+      # only build headers once...
       if build_headers_once
         @headers = build_headers
         build_headers_once = false
