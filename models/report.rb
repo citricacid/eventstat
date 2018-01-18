@@ -259,10 +259,87 @@ class Report
 
   # TODO validate methods?
 
-  def get_results
-    # if @report_type == :compound
-    # do stuff.....
+  # helpers
 
+  def create_filter(id, klazz)
+    sum_all = id == 'sum_all'
+    collection = id == 'iterate_all' ? klazz.all : klazz.where(id: id)
+    Filter.new(collection, sum_all)
+  end
+
+  # business
+
+
+  def get_results
+    puts @report_type
+    @report_type == :compound ? get_compound_results : get_single_results
+  end
+
+  # for each query, only type, category and age will vary - all else remains stable
+  #
+
+
+  def get_compound_results
+    compound_query = CompoundQuery.find(1) #TODO setter for query
+
+    queries = compound_query.queries.map do |query|
+      query_map = {}
+      query.query_parameters.each {|parameter| query_map[parameter.element_name.to_sym] = parameter.element_value}
+      query_map
+    end
+
+    compound_results = []
+    queries.each do |query|
+      @maintypes = create_filter(query[:event_maintype_id], EventMaintype)
+      @subtypes = create_filter(query[:event_subtype_id], EventSubtype)
+
+      if query[:category_id] != 'none'
+        @category_type = :category
+        #use_district_categories = use_district_categories
+        #klazz = use_district_categories ? DistrictCategory : Category
+        @categories = create_filter(query[:category_id], Category)
+      else
+        @category_type = :subcategory
+        @subcategories = query[:subcategory_id] == 'iterate_all' ? Subcategory.compacted : Subcategory.where(id: subcategory_id)
+        @categories = create_filter(query[:subcategory_id], Subcategory.compacted)
+      end
+
+      sum_all = query[:age_group_id] == 'sum_all' || query[:age_category_id] == 'sum_all'
+      sum_multiple_as_one = query[:age_group_id] != 'none'
+
+      if query[:age_category_id] == 'none'
+        categories = []
+        age_groups = query[:age_group_id] == 'iterate_all' ? AgeGroup.all : AgeGroup.where(id: query[:age_group_id])
+        age_groups.each do |ag|
+          categories << LineItem.new(ag.id, ag.name)
+        end
+      elsif query[:age_category_id] == 'iterate_all'
+        categories = []
+        AgeGroup.age_categories.each do |ag|
+          label = AgeGroup.get_label(ag[0])
+          id = AgeGroup.where(age_category: ag[1])
+          categories << LineItem.new(id, label)
+        end
+      else
+        label =  AgeGroup.get_label(age_category_id)
+        id = AgeGroup.where(age_category: age_category_id)
+        categories = LineItem.new(id, label)
+      end
+
+      @age_groups = Filter.new(categories, sum_all, sum_multiple_as_one)
+
+      # compouns_results << traverse_branches # or traverse_branches[:results]
+    end
+
+    # next: sort entries by branch and merge.... and return
+
+    @results = []
+    traverse_branches
+
+    {headers: @headers.flatten, results: @results.flatten}.to_json
+  end
+
+  def get_single_results
     @results = []
     traverse_branches
 
