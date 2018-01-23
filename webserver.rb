@@ -856,41 +856,11 @@ end
       # require_logged_in
       # TODO sanitize input
       # TODO add set_query method to builder object
-      data = JSON.parse(request.body.read)
+      data = JSON.parse(request.body.read, opts = {symbolize_names: true})
 
-      compound_query_id = data['compound_query_id']
-      period_label = data['period_label']
-      branch_id = data['branch_id']
-      category_id = data['category_id']
-      district_category_id = data['district_category_id']
-      subcategory_id = data['subcategory_id']
-      age_group_id = data['age_group_id']
-      @from_date = Date.parse(data['from_date'])
-      @to_date = Date.parse(data['to_date'])
+      report = BetaReport.new(data).get_results
+      #report.get_results
+      #foot
 
-      maintype_id = data['maintype_id']
-      subtype_id = data['subtype_id']
-
-      age_group_id = data['age_group_id']
-      age_category_id = data['age_category_id']
-
-      use_district_categories = data['use_district_categories'] == 'on'
-      expand_district_subcategories = data['expand_district_subcategories'] == 'on'
-
-      report_builder = ReportBuilder.new
-      report_builder.set_compound_query(compound_query_id) if compound_query_id
-      report_builder.set_period_label(period_label)
-      report_builder.set_dates(@from_date, @to_date)
-
-      report_builder.set_branch(branch_id)
-      report_builder.set_age_group(age_group_id, age_category_id)
-      report_builder.set_maintype(maintype_id)
-      report_builder.set_subtype(subtype_id)
-
-      report_builder.set_category(category_id, use_district_categories) if category_id != 'none'
-      report_builder.set_category(district_category_id, use_district_categories) if district_category_id != 'none'
-      report_builder.set_subcategory(subcategory_id, expand_district_subcategories) if subcategory_id != 'none'
-
-      report = report_builder.build
-      report.get_results
+      #report.get_results
     end
