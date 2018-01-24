@@ -97,12 +97,12 @@ class Report
   def initialize(args)
     @header_man = HeaderManager.new
 
-    # build static portion of query
-    static_keys = %i(period_label from_date to_date branch_id)
-    static_arguments = args.select {|key| static_keys.include?(key)}
-    q = Q.new(static_arguments)
+    # build metadata for the queries
+    metadata_keys = %i(period_label from_date to_date branch_id)
+    arguments = args.select {|key| metadata_keys.include?(key)}
+    @metadata = Metadata.new(arguments)
 
-    # build dynamic portion of query
+    # build queries
     @queries = []
     if args[:compound_query_id].present?
       compound_query = CompoundQuery.find(args[:compound_query_id])
@@ -113,14 +113,14 @@ class Report
         query_map
       end
 
-      query_list.each do |query|
-        @queries << Subquery.new(q, query)
+      query_list.each do |query_parameters|
+        @queries << Subquery.new(query_parameters)
       end
     else
-      dynamic_keys = %i(maintype_id subtype_id category_id district_category_id subcategory_id district_category_id
+      parameter_keys = %i(maintype_id subtype_id category_id district_category_id subcategory_id district_category_id
        age_group_id age_category_id use_district_categories expand_district_subcategories)
-      dynamic_arguments = args.select {|key| dynamic_keys.include?(key)}
-      @queries << Subquery.new(q, dynamic_arguments)
+      query_parameters = args.select {|key| parameter_keys.include?(key)}
+      @queries << Subquery.new(query_parameters)
     end
 
     # get visible header keys
@@ -134,7 +134,7 @@ class Report
     headers = @header_man.get_visible_headers
     compound_results = []
     @queries.each do |query|
-      compound_results << query.get_results(headers)
+      compound_results << query.get_results(headers, @metadata)
     end
 
     compound_results.flatten!
@@ -147,7 +147,7 @@ end
 
 
 
-class Q
+class Metadata
   include Mod
 
   attr_accessor :period_label, :from_date, :to_date, :branches, :include_district_subcategories
@@ -177,11 +177,7 @@ end
 class Subquery
   include Mod
 
-  # attr_accessor :category_type, :categories, :maintypes, :subtypes, :age_groups, :results, :q, :headers
-
-  def initialize(q, args)
-    @q = q
-
+  def initialize(args)
     @maintypes = Mod.create_filter(args[:maintype_id], EventMaintype)
     @subtypes = Mod.create_filter(args[:subtype_id], EventSubtype)
 
@@ -211,10 +207,10 @@ class Subquery
     subcategory_id = Mod.parse_value(arg)
     @category_type = :subcategory
 
-    if @q.include_district_subcategories && expand_district_subcategories
+    if @metadata.include_district_subcategories && expand_district_subcategories
       subcategories = subcategory_id == 'iterate_all' ?
         Subcategory.expanded : Subcategory.where(id: subcategory_id)
-    elsif @q.include_district_subcategories
+    elsif @metadata.include_district_subcategories
       subcategories = subcategory_id == 'iterate_all' ? Subcategory.compacted : Subcategory.where(id: subcategory_id)
     else
       subcategories = subcategory_id == 'iterate_all' ? InternalSubcategory.all : InternalSubcategory.where(id: subcategory_id)
@@ -279,7 +275,9 @@ class Subquery
   # -------------------
   #
 
-  def get_results(headers)
+  # def get_results(headers, metadata)
+  def get_results(headers, metadata)
+    @metadata = metadata
     @headers = headers
     @results = []
     traverse_branches
@@ -288,10 +286,10 @@ class Subquery
   end
 
   def traverse_branches
-    if @q.branches.sum_all
+    if @metadata.branches.sum_all
       traverse_maintypes(LineItem.new(nil, 'Samlet'))
     else
-      @q.branches.collection.each do |branch|
+      @metadata.branches.collection.each do |branch|
         traverse_maintypes(LineItem.new(branch.id, branch.name))
       end
     end
@@ -365,7 +363,7 @@ end
     # ny set metode include_subsize(truefalse)
     res = {}
     @headers.each do |header|
-      res[header.id.to_sym] = @q.period_label if header.id == "period"
+      res[header.id.to_sym] = @metadata.period_label if header.id == "period"
       res[header.id.to_sym] = branch_name if header.id == "branch_name"
       res[header.id.to_sym] = category_name if header.id == "category"
       res[header.id.to_sym] = category_name if header.id == "subcategory"
@@ -392,7 +390,7 @@ end
 
     catz = @use_district_categories ? 'by_district_category' : 'by_category'
 
-    Event.between_dates(@q.from_date, @q.to_date)
+    Event.between_dates(@metadata.from_date, @metadata.to_date)
     .exclude_marked_events
     .by_branch(branch_id)
     .by_age_group(age_group_id)
