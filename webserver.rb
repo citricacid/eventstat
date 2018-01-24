@@ -815,7 +815,7 @@ end
     # QUERY
 
     post '/api/query' do
-      accepted_values = %w(name event_maintype_id event_subtype_id category_id subcategory_id age_category_id age_group_id)
+      accepted_values = %w(name maintype_id subtype_id category_id subcategory_id age_category_id age_group_id)
       data = params.select {|key, value| accepted_values.include?(key) }
 
       query_name = data.delete("name")
@@ -845,7 +845,7 @@ end
       protected!
       categories = AgeGroup.age_categories.map {|k,v| Group.new(v, AgeGroup.get_label(k))}
 
-      erb :generate_query_beta, :locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,
+      erb :generate_query, :locals => {selector_type: :stats, branches: Branch.all, subcategories: Subcategory.all,
         internal_subcategories: InternalSubcategory.all, district_categories: DistrictCategory.all, categories: Category.all,
         age_groups: AgeGroup.all, age_categories: categories, event_types: EventType.all,
         event_maintypes: EventMaintype.all, event_subtypes: EventSubtype.all,
@@ -853,14 +853,9 @@ end
     end
 
     put '/api/statistics' do
-      # require_logged_in
+      require_logged_in
       # TODO sanitize input
-      # TODO add set_query method to builder object
+
       data = JSON.parse(request.body.read, opts = {symbolize_names: true})
-
-      report = BetaReport.new(data).get_results
-      #report.get_results
-      #foot
-
-      #report.get_results
+      Report.new(data).get_results
     end

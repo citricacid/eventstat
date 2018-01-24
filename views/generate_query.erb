@@ -8,13 +8,13 @@
   </h4>
 
 <div class="panel panel-default col-xs-4">
-<ul class='target list-unstyled' data-type='event_maintype_id'>
+<ul class='target list-unstyled' data-type='maintype_id'>
     <li value='sum_all' class='exclusive'>Samlet</li>
 </ul>
 </div>
 
 <div class="panel panel-default col-xs-4 sourcepanel" hidden>
-  <ul class='source list-unstyled' data-type='event_maintype_id'>
+  <ul class='source list-unstyled' data-type='maintype_id'>
     <li value='iterate_all' class='exclusive'>Alle</li>
     <% event_maintypes.each do |item| %>
       <%= "<li value='#{item.id}'>#{item.label}</li>" %>
@@ -31,13 +31,13 @@
     <button class="list_hide"><span class="glyphicon glyphicon-collapse-down" /></button>
   </h3>
   <div class="panel panel-default col-xs-4">
-    <ul class='target list-unstyled' data-type='event_subtype_id'>
+    <ul class='target list-unstyled' data-type='subtype_id'>
       <li value='sum_all' class="exclusive">Samlet</li>
     </ul>
   </div>
 
 <div class="panel panel-default col-xs-4 sourcepanel" hidden>
-  <ul class='source list-unstyled' data-type='event_subtype_id'>
+  <ul class='source list-unstyled' data-type='subtype_id'>
     <li value='iterate_all' class='exclusive'>Alle</li>
     <% event_subtypes.each do |es| %>
       <%= "<li value='#{es.id}'>#{es.label}</li>" %>
@@ -148,8 +148,8 @@
     <input name="name">
   </label>
 
-<input type="text" name="event_maintype_id" hidden>
-<input type="text" name="event_subtype_id" hidden>
+<input type="text" name="maintype_id" hidden>
+<input type="text" name="subtype_id" hidden>
 <input type="text" name="category_id" hidden>
 <input type="text" name="subcategory_id" hidden>
 <input type="text" name="age_category_id" hidden>

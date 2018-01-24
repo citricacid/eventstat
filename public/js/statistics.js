@@ -261,6 +261,7 @@ $(function() {
       const newHeaders = []
 
       data.headers.forEach(header => {
+        // if header.is_visible ->
         newHeaders.push($('<th />',
         {text: header.label, 'data-is-accumulative': header.is_countable, 'data-id': header.id
       }))
