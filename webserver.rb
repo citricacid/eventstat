@@ -202,7 +202,7 @@ get '/manage_template' do
   erb :manage_event, :locals => get_event_locals.merge!({is_edit: false, is_event: false, item: nil})
 end
 
-
+#TODO find better name
 get '/add_event/:template_id' do
   require_logged_in
 
@@ -741,8 +741,11 @@ end
       updates = params.select {|key| event.attributes.key?(key)}
       event.attributes = event.attributes.merge(updates) {|key, oldVal, newVal| key == 'id' ? oldVal : newVal}
 
-      category = event.event_type.get_category_id_by(event.subcategory_id) if event.event_type != nil
-      event.category_id = category.id unless category.nil?
+      # infer categories
+      event.district_category_id = nil if !event.branch.has_district_category
+
+      category = event.event_type.get_category_id_by(event.subcategory_id)
+      event.category_id = category.id
 
       if event.save
         type = is_edit ? "MODIFY TEMPLATE: " : "ADD TEMPLATE: "
@@ -761,7 +764,6 @@ end
 
     # -----------------------------------------------------------------------
 
-    # TODO  move to model...
     post '/api/event' do
       require_logged_in
 

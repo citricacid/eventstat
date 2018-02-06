@@ -143,7 +143,7 @@ class Template < ActiveRecord::Base
   belongs_to :branch
   belongs_to :category
   belongs_to :subcategory
-  belongs_to :extra_category
+  belongs_to :district_category
 end
 
 
@@ -386,7 +386,7 @@ end
 
 class AggregatedSubcategory < Subcategory
   has_many :aggregated_links
-  has_many :subcategories, through: :aggregtated_links
+  has_many :subcategories, through: :aggregated_links
 end
 
 class SubcategoryLink < ActiveRecord::Base

@@ -1,9 +1,9 @@
 <% url_string = is_event ? "event" : "template" %>
-<% form_type_ui_string = is_event ? "arrangement" : "mal" %>
+<% form_type_ui_string = is_event ? "Arrangementet" : "Malen" %>
 
 <h3>Kvittering</h3>
 
-<p>Arrangementet ble lagret med følgende data:</p>
+<%= "<p>#{form_type_ui_string} ble lagret med følgende data:</p>" %>
 <table class="table table-sm table-striped table-responsive">
   <%= "<tr><td>Tittel:</td><td>#{item.name}</td></tr>" %>
   <%= "<tr><td>Sted:</td><td>#{item.branch.name}</td></tr>" %>
