@@ -101,7 +101,7 @@ class Report
     metadata_keys = %i(period_label from_date to_date branch_id)
     arguments = args.select {|key| metadata_keys.include?(key)}
     @metadata = Metadata.new(arguments)
-
+    
     # build queries
     @queries = []
     if args[:compound_query_id].present?
@@ -120,7 +120,7 @@ class Report
       parameter_keys = %i(maintype_id subtype_id category_id district_category_id subcategory_id district_category_id
        age_group_id age_category_id use_district_categories expand_district_subcategories)
       query_parameters = args.select {|key| parameter_keys.include?(key)}
-      @queries << Subquery.new(query_parameters)
+      @queries << Subquery.new(@metadata, query_parameters)
     end
 
     # get visible header keys
@@ -177,7 +177,8 @@ end
 class Subquery
   include Mod
 
-  def initialize(args)
+  def initialize(metadata, args)
+    @metadata = metadata
     @maintypes = Mod.create_filter(args[:maintype_id], EventMaintype)
     @subtypes = Mod.create_filter(args[:subtype_id], EventSubtype)
 
