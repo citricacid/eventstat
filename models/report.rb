@@ -101,7 +101,7 @@ class Report
     metadata_keys = %i(period_label from_date to_date branch_id)
     arguments = args.select {|key| metadata_keys.include?(key)}
     @metadata = Metadata.new(arguments)
-    
+
     # build queries
     @queries = []
     if args[:compound_query_id].present?
@@ -114,7 +114,7 @@ class Report
       end
 
       query_list.each do |query_parameters|
-        @queries << Subquery.new(query_parameters)
+        @queries << Subquery.new(@metadata, query_parameters)
       end
     else
       parameter_keys = %i(maintype_id subtype_id category_id district_category_id subcategory_id district_category_id
