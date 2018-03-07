@@ -332,7 +332,7 @@ class Category < ActiveRecord::Base
   end
 
   def maintype_associated?(maintype_id)
-    event_maintype.id == maintype_id.to_i
+    maintype_id && event_maintype.id == maintype_id.to_i
   end
 
   def subtype_associated?(subtype_id)
