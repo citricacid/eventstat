@@ -312,7 +312,7 @@ class EventSubtype < ActiveRecord::Base
   end
 
   def internal_subcategory_ids
-    categories.map {|category| category.subcategories.wjere(type: 'InternalSubcategory').pluck(:id)}.flatten
+    categories.map {|category| category.subcategories.where(type: 'InternalSubcategory').pluck(:id)}.flatten
   end
 
 end
