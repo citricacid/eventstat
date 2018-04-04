@@ -36,11 +36,11 @@ Det finnes to sett hovedkategorier: ett som tilsvarer Nbs inndelinger (“samtal
 
 Det finnes også to sett underkatergorier: ett som tilsvarer Deichmans interne inndelinger (“internal_subcategories”) og ett for bydelen (“district_subcategories”).
 
-For å sy dette sammen, er det nødvendig med to integrasjonsskjemaer (link-tabeller): Ett for å assosiere interne underkategorier med hovedkategoriene, pluss ett for å knytte bydelsunderkategoriene med de interne ditto. (Øvrige link-tabeller beskrives i eget punkt lenger ned...)
+For å sy dette sammen, er det nødvendig med flere integrasjonsskjemaer (link-tabeller): Ett for å assosiere interne underkategorier med hovedkategoriene, pluss to for å knytte bydelsunderkategoriene til hhv bydels- og hovedkategorier. (Øvrige link-tabeller beskrives i eget punkt lenger ned...)
 
 I tillegg har vi en aggregert underkategori (sekkepost) for at interne rapportkjøringer skal bli mer oversiktlige.
 
-Det hele kan se slik ut når det strekes opp av noen som gjorde det ekstra dårlig i tegning, form og farge på grunnskolen:
+Det hele kan se slik ut når det strekes opp av noen som gjorde det ekstra dårlig i tegning, form og farge på grunnskolen (fete piler representerer link-tabeller):
 
 ![alt text](./documentation/categories.png)
 
@@ -54,7 +54,7 @@ Et mye enklere attributt er aldersgrupper (“barn 0-5 år”, “barn (ungdomss
 ### LENKING
 Oversikt over de forskjellige link-tabellene:
 
-* “district_links” binder bydelskategorier til intern-underkategorier
+* “district_links” binder sammen bydelskategorier og bydels-underkategorier
 * “aggregated_links” knytter bydelsunderkategorier til en sekkepost i intern-underkategoriene (pt har vi bare én, kalt “Annet - FUBIAK”)
 * “subcategory_links” knytter intern-underkategorier til hovedkategorier
 * “event_types” brukes i registreringen og er assosiert med hovedtype og undertype.
@@ -78,7 +78,7 @@ Det finnes også en innlogging for superbruker, med særskilte rettigheter som k
 #### Låsing
 For at den som registrerer arrangementer skal slippe å bekymre seg for at noen klusser med allerede innlagte data, er det lagt til en mekanisme for å låse av datoperioder.
 
-Denne låsingen medfører at arrangementer kun kan redigeres eller slettes av superbruker, og det som måtte finnes av arrangemeter som er markert for sletting vil forsvinne for godt.
+Denne låsingen medfører at arrangementer kun kan redigeres eller slettes av superbruker, og det som måtte finnes av arrangementer som er markert for sletting vil forsvinne for godt.
 
 Ett spørsmål var om det også skulle være umulig for standardbrukere å legge til nye arrangementer for låste perioder, men dette ble ikke ansett som den beste løsningen. Det ble dog lagt til et attributt "added_after_lock", som gjør det mulig å holde oversikt over disse.
 
@@ -101,7 +101,7 @@ Under følger noen utvidede kommentarer til nåværende implementasjon:
 #### Dataformat for statistikkresultater
 I første iterasjon av statistikken, viste man alltid alle kolonnene uansett spørring, noe som førte til mye overflødig info.
 
-Dette ble forsøkt utbedret i neste iterasjon, som bygget dynamiske headere for hver spørring slik at bare relevant informasjon ble presentert. Dersom brukeren kjørte flere spørringer etter hverandre, ble headerne sammenlignet og hvis de var like ble tallene aggregert, og dersom de var ulike ble de gamle tallene slettet.
+Dette ble forsøkt utbedret i nåværende iterasjon, som bygget dynamiske headere for hver spørring slik at bare relevant informasjon ble presentert. Dersom brukeren kjørte flere spørringer etter hverandre, ble headerne sammenlignet og hvis de var like ble tallene aggregert, og dersom de var ulike ble de gamle tallene slettet.
 
 Det som var planlagt for neste iterasjon, var å ha statiske headere, men legge ved et flagg som viste om de bød på relevant informasjon eller ei. Selve visningen kunne dermed være dynamisk på tvers av spørringer, og brukeren kunne evt. velge å klikke kolonnene av/på.
 
