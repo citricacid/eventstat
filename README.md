@@ -19,6 +19,11 @@ From the app folder, do `mkdir logs && touch logs/error.log && touch logs/events
 There are many ways to set up the server, for example as a standalone Thin server or as a Phusion Passenger. For local testing, `ruby webserver.rb` should start it on port 5100.
 
 
+* [Øvrige designvalg](#Øvrige-designvalg)
+* [Notater til backend](#notater-til-backend)
+* [Gjenstående oppgaver](#gjenstÅende-oppgaver)
+* [Grovskisse API](#grovskisse-api)
+
 
 ### GRUNNDESIGN OG BEGREPER
 
@@ -124,3 +129,107 @@ En ting nåværende kode ikke sier noe om, er hva som skal skje dersom noen av k
 Disse strategiene kan også påvirke hvilke felter som trengs og ikke trengs i tabellen "events". Feks er feltet category_id redundant i dag, men avhengig av strategi kan det enten vise seg nyttig eller direkte misvisende.
 
 #### Visningsmaler for standardrapporter
+
+
+
+### Grovskisse API
+
+#### Spørringer POST
+Foreslår at spørringsapi'et deles inn i type-attributter og et JSON-objekt inneholdende metadata og spørringsparametere.
+
+* Type-attributter: egendefinert eller lagret spørring, og resultater som er akkumulert for hele perioden eller inndelt i trender (ukedag, uker, osv.)
+* JSON: metadata er tenkt som de parametrene som ikke er definert i de lagrede spørringene, mens spørringsparametrene altså er de "faste" som er det.
+
+Det er ikke viktig for meg (tror jeg) om attributtene defineres i REST-url (api/v1/queries/manual/accumulative, api/v1/queries/selfdefined/trended, osv.), eller som POST-parametere (/api/v1/queries?type=selfdefined&method=accumulative).
+
+
+
+I de forskjellige scenariene vil metadata-objektet alltid være det samme:
+
+```
+metadata: {
+ library_id: int | int[]
+ branch_id: int | int[]
+ period_label: string
+ period_start: date (dd-mm-yyyy)
+ period_end: date (dd-mm-yyyy)
+
+result_format: “json” | “csv”
+}
+```
+
+* I ovenstående forslag er det bare lagt opp til bruk av int ID, men kode ("hutl", "flam" osv.) kan også være interessant.
+
+Egendefinert spørring vil ha følgende objekt:
+
+```
+query_parameters: {
+  maintype_id: int | int[] | “iterate_all” | (“all”, null)
+  subtype_id:
+  category_id
+  district_category_id
+  internal_subcategory_id
+  age_group_id
+  age_category_id
+
+  use_district_categories: bool
+  expand_district_subcategories: bool  
+}
+```
+
+Objekt for predefinerte:
+
+```
+queryparameters: {
+  type: "single_query" | "compound_query"
+  query_id: int
+}
+```
+
+Objekt for trendspørring:
+
+```
+trendparameters: {
+  trend_by: “weekday” | “week” | “month” | “quarter” | “tertial”  | “year”
+  trend_focus: int | int[] | null
+}
+```
+* trend_focus angir hvilke dager/uker/måneder/etc som evt. skal trekkes ut. Her vil nok dager være det som brukes mest, men det koster trolig lite å inkludere de øvrige.
+
+Objekt for akkumulativ:
+
+```
+trendparameters: {
+  trend_by: nil
+  trend_focus: nil
+}
+```
+
+Dette er et grovutkast, og jeg blir ikke lei meg dersom dere finner forbedringer. Er i utgangspunktet ikke elegant å ha et tomt trendparameters-objekt i den akkumulative spørringen, men med litt flikking på konseptet kan det kanskje fjernes?!
+
+#### Spørringer JSON RESPONSE
+Svar-objektet vil være mye enklere:
+
+```
+headers: {
+  [{
+    id: string
+    date_long_label: string,
+    date_short_label: string,
+    query_label: string,
+    is_countable: bool,
+    has_information: bool,    
+  }]  
+}
+```
+
+* query_label er en kort beskrivelse av spørringen. Feks. navnet på spørringen + datointervallet
+* has_information er false dersom det bare står "Samlet" i alle radene, ellers true
+
+```
+results: {[
+  {period: "2. kvartal 2018", branch_name: "Samlet", no_of_events: 3110, ...}
+  ]}
+```
+
+Dette er ganske likt det som er implementert nå. Igjen åpen for at det kan finnes forbedringer.
