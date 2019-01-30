@@ -199,8 +199,9 @@ class Subquery
 
   def set_category(arg, use_district_categories)
     @category_type = :category
+    @use_district_categories = use_district_categories
 
-    klazz = use_district_categories ? DistrictCategory : Category
+    klazz = @use_district_categories ? DistrictCategory : Category
     @categories = Mod.create_filter(arg, klazz)
   end
 

@@ -40,7 +40,7 @@ class Event < ActiveRecord::Base
   #belongs_to :district_subcategory, foreign_key: 'district_subcategory_id'
   belongs_to :district_category
 
-  scope :reverse, -> { order('id').reverse_order }
+  scope :order_by_reverse_id, -> { order('id').reverse_order }
   scope :order_by_event_date, -> { order(date: :desc) }
   scope :order_by_registration_date, -> { order(id: :desc) }
   scope :exclude_marked_events, -> { where(marked_for_deletion: 0) }
