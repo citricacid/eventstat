@@ -66,6 +66,8 @@ module Mod
     id = parse_value(id)
     sum_all = id == 'sum_all'
 
+    puts id
+
     if id == 'iterate_all'
       collection = klazz.all
     elsif id == 'iterate_all_with_exceptions'
@@ -79,7 +81,7 @@ module Mod
 
 
   def Mod.parse_value(input)
-    %w(iterate_all iterate_all_with_exceptions sum_all none).include?(input) ? input : input.split(',')
+    %w(iterate_all iterate_all_with_exceptions iterate_all_district_subs sum_all none).include?(input) ? input : input.split(',')
   end
 
 end
@@ -216,8 +218,17 @@ class Subquery
     @category_type = :subcategory
 
     if @metadata.include_district_subcategories && expand_district_subcategories
-      subcategories = subcategory_id == 'iterate_all' ?
-        Subcategory.expanded : Subcategory.where(id: subcategory_id)
+      #subcategories = subcategory_id == 'iterate_all' ?
+      #  Subcategory.expanded : Subcategory.where(id: subcategory_id)
+      if subcategory_id == 'iterate_all'
+        subcategories = Subcategory.expanded
+      elsif subcategory_id == 'iterate_all_district_subs'
+        subcategories = DistrictSubcategory.all # TODO refine this such that it works with several sets of district subcategories
+      else
+        subcategories = Subcategory.where(id: subcategory_id)
+      end
+
+
     elsif @metadata.include_district_subcategories
       subcategories = subcategory_id == 'iterate_all' ? Subcategory.compacted : Subcategory.where(id: subcategory_id)
     else

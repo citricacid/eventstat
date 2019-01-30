@@ -127,7 +127,8 @@ $(function() {
     const expandDSC = $('[name="expand_district_subcategories"]').is(':checked')
     let dc = !expandDSC ? aggregatedSubs : districtSubcategoryValues.filter(function()
     {return $.inArray($(this).data('aggregated_subcategory_id'), aggregatedSubs) >= 0})
-    .map(function() {return parseInt($(this).val(), 10)}).toArray()
+    //.map(function() {return parseInt($(this).val(), 10)}).toArray()
+      .map(function () { return $(this).val() }).toArray()
 
     // merge in internal subcategories and finish up
     setVisibleOptions($('#subcategory_selector'), $.merge(dc, extractIDs(internalSubcategoryValues)))

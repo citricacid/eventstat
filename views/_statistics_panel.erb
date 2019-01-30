@@ -95,7 +95,7 @@
       </select>
 
       <select id="subcategory_selector" class="category_selector" name="subcategory_id">
-        <%= erb :_standard_options, locals: {collection: subcategories, type: :toggle,
+        <%= erb :_standard_options, locals: {collection: subcategories, type: :toggle, district_subs_option: true,
           data: [{name: 'type', attribute: 'type'},
                 {name: 'aggregated_subcategory_id', attribute: 'aggregated_subcategory_id'} ]}  %>
       </select>
