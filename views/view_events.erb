@@ -7,9 +7,6 @@
     <select id="branch_selector" name="branch_id">
       <%= erb :_standard_options, locals: {collection: branches, selected: @branch_id, type: :all}  %>
     </select>
-
-    <label class="checkbox-inline">Vis filtre</label>
-    <input type="checkbox" id="filter_switch" <%= "checked" if @show_filters %>>
   </div>
 
   <div class="input-group hidden-xs">
@@ -21,6 +18,21 @@
       </button>
     </span>
   </div>
+  <label class="checkbox-inline">Vis filtre</label>
+  <input type="checkbox" id="filter_switch" <%= "checked" if @show_filters %>>
+  <label for="category_selector" class="radio-inline">Kat/underkat:</label>
+  <select id="category_selector" name="category_id" class="category_selector">
+    <option value='all'>-</option>
+    <% categories.each do |category| %>
+      <%= "<option value='#{category.id}'>#{category.name}</option>" %>
+    <% end %>
+  </select>
+  <select id="subcategory_selector" name="subcategory_id">
+    <option value='all'>-</option>
+    <% subcategories.each do |subcategory| %>
+      <%= "<option value='#{subcategory.id}'>#{subcategory.name}</option>" %>
+    <% end %>
+  </select>
 </div>
 
 <div id="filter_bar" <%= "hidden" unless @show_filters %>>

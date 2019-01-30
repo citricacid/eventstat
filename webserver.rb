@@ -233,7 +233,7 @@ end
 
     # TODO: sanitize input
     parse_parameters
-    erb :view_events, :locals => {branches: Branch.all }
+    erb :view_events, :locals => {branches: Branch.all, categories: Category.all, subcategories: Subcategory.all }
 
   end
 
@@ -268,6 +268,9 @@ end
     @search = params[:search] || ''
     @page_number = params[:page_number].present? ? params[:page_number].to_i : 1
 
+    @category_id = params[:category]
+    @subcategory_id = params[:subcategory]
+
     @month_names = ["", "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"]
   end
 
@@ -275,6 +278,8 @@ end
     events = @sort_by == 'reg' ? Event.order_by_registration_date : Event.order_by_event_date
     events = events.by_age_category(@audience) unless @audience == 'all'
     events = events.by_branch(@branch_id) unless @branch_id.blank? || @branch_id == '0'
+    events = events.by_category(@category_id) unless @category_id.blank? || @category_id == 'all'
+    events = events.by_subcategory(@subcategory_id) unless @subcategory_id.blank? || @subcategory_id == 'all'
 
     if @show_marked == 'none'
       events = events.where(marked_for_deletion: 0)

@@ -17,9 +17,12 @@ $(function() {
     const search = 'search=' + $('#search_box').val();
     const page_number = '?page_number=' + pageNumber || $('#page_number').html() || '1';
 
+    const category = 'category=' + $('#category_selector').find('option:selected').val();
+    const subcategory = 'subcategory=' + $('#subcategory_selector').find('option:selected').val();
+
     return page_number + '&' + per_page + '&' + sort_by + '&' + sort_order
     + '&' + audience + '&' + branch + '&' + month + '&' + year + '&' + show_filters
-    + '&' + show_marked + '&' + search;
+    + '&' + show_marked + '&' + search + '&' + category + '&' + subcategory;
   }
 
   const getResults = function(pageNumber) {
@@ -51,6 +54,16 @@ $(function() {
   $("#branch_selector, #month_selector, #sort_selector, .filter_radio").change(function() {
     getResults('1');
   });
+
+  $("#category_selector").change(function() {
+    $("#subcategory_selector").find("option:first").prop("selected",true)
+    getResults('1');
+  })
+
+  $("#subcategory_selector").change(function () {
+    $("#category_selector").find("option:first").prop("selected", true)
+    getResults('1');
+  })
 
   $('#clear_search').click(function() {
     $('#search_box').val('');
