@@ -51,6 +51,7 @@ set :allow_credentials, true
 set :max_age, "1728000"
 set :expose_headers, ['Content-Type']
 
+set :static_cache_control, [:public, {:max_age => 60*60*24}]
 
 before do
   env["rack.errors"] = error_logger
