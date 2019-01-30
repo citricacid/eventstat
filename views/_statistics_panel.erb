@@ -18,7 +18,7 @@
     <div class="form-group">
       <label for="branch_selector" class="main">Sted:</label>
       <select id="branch_selector" name="branch_id">
-        <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :stats,
+        <%= erb :_standard_options, locals: {collection: branches, selected: selected_branch, type: :stats, exclusive_option: true,
           data: [{name: 'has_district_category', attribute: 'has_district_category'},
             {name: 'aggregated_subcategory_id', attribute: 'aggregated_subcategory_id'}]}  %>
       </select>

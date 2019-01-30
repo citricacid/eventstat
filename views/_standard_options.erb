@@ -1,5 +1,5 @@
 <%# Inputs: collection, type, [selected]   %>
-<%= erb :_standard_filters, locals: {type: defined?(type) ? type : nil} %>
+<%= erb :_standard_filters, locals: {type: defined?(type) ? type : nil, exclusive_option: defined?(exclusive_option) ? exclusive_option : nil} %>
 
 <% collection.each do |item| %>
   <%= "<option value='#{item.id}'" %>

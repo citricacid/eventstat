@@ -21,7 +21,6 @@ LineItem = Struct.new(:id, :label)
 # :is_visible - boolean flag
 HeaderItem = Struct.new(:label, :id, :is_countable, :is_visible)
 
-
 class HeaderManager
   #attr_accessor :headers
 
@@ -66,13 +65,21 @@ module Mod
   def Mod.create_filter(id, klazz)
     id = parse_value(id)
     sum_all = id == 'sum_all'
-    collection = id == 'iterate_all' ? klazz.all : klazz.where(id: id)
+
+    if id == 'iterate_all'
+      collection = klazz.all
+    elsif id == 'iterate_all_with_exceptions'
+      collection = klazz.where.not(id: 1)
+    else
+      collection = klazz.where(id: id)
+    end
+    # collection = id == 'iterate_all' ? klazz.all : klazz.where(id: id)
     Filter.new(collection, sum_all)
   end
 
 
   def Mod.parse_value(input)
-    %w(iterate_all sum_all none).include?(input) ? input : input.split(',')
+    %w(iterate_all iterate_all_with_exceptions sum_all none).include?(input) ? input : input.split(',')
   end
 
 end
@@ -88,7 +95,6 @@ end
 # - 'sum_all' - all existing items will be lumped as one
 # - 'none' - for mutually exclusive categories...
 # - single id or list of id values
-
 
 
 class Report
