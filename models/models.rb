@@ -44,6 +44,9 @@ class Event < ActiveRecord::Base
   scope :order_by_event_date, -> { order(date: :desc) }
   scope :order_by_registration_date, -> { order(id: :desc) }
   scope :exclude_marked_events, -> { where(marked_for_deletion: 0) }
+  
+  scope :sans_excluded_branches, -> { where.not(branch_id: [1]) }
+
 
   # TODO: more validations
   validates :name, length: { minimum: 2, too_short: "Minimum %{count} tegn"}

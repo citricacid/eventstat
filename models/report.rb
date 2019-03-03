@@ -56,36 +56,33 @@ class HeaderManager
     ids = [*item_id]
     @items.each {|item| item.is_visible = true if ids.include?(item.id)}
   end
-
 end
 
 
 module Mod
-
   def Mod.create_filter(id, klazz)
     id = parse_value(id)
     sum_all = id == 'sum_all'
-
-    puts id
-
+    
     if id == 'iterate_all'
       collection = klazz.all
     elsif id == 'iterate_all_with_exceptions'
       collection = klazz.where.not(id: 1)
+    elsif id == "sum_all_with_exceptions"
+      collection = klazz.where.not(id: 1) # this doesn't matter... just a quick hack
     else
       collection = klazz.where(id: id)
     end
-    # collection = id == 'iterate_all' ? klazz.all : klazz.where(id: id)
+        
     Filter.new(collection, sum_all)
   end
 
 
   def Mod.parse_value(input)
-    %w(iterate_all iterate_all_with_exceptions iterate_all_district_subs sum_all none).include?(input) ? input : input.split(',')
+    %w(iterate_all sum_all_with_exceptions iterate_all_with_exceptions iterate_all_district_subs sum_all none).include?(input) ? input : input.split(',')
   end
 
 end
-
 
 #
 # Report
@@ -158,7 +155,7 @@ end
 class Metadata
   include Mod
 
-  attr_accessor :period_label, :from_date, :to_date, :branches, :include_district_subcategories
+  attr_accessor :period_label, :from_date, :to_date, :branches, :include_district_subcategories, :sum_all_branches_with_exceptions
 
   # TODO rescue invalid dates
   # TODO accept branch codes as well as id; rescue invalid branch id/code
@@ -168,6 +165,7 @@ class Metadata
     @period_label = args[:period_label]
 
     branch_id = args[:branch_id]
+    @sum_all_branches_with_exceptions = branch_id == "sum_all_with_exceptions"
     @branches = Mod.create_filter(branch_id, Branch)
 
     # TODO this only works as long as there is only one set of district subcategories
@@ -176,7 +174,6 @@ class Metadata
     # also, allow for libraries who do not use district cats/subcats
     @include_district_subcategories = %w(sum_all iterate_all).include?(branch_id) || Branch.where(id: branch_id).where(has_district_category: 1).count > 0
   end
-
 end
 
 # results should have: headers, data, template
@@ -294,7 +291,6 @@ class Subquery
   # -------------------
   #
 
-  # def get_results(headers, metadata)
   def get_results(headers, metadata)
     @metadata = metadata
     @headers = headers
@@ -305,7 +301,9 @@ class Subquery
   end
 
   def traverse_branches
-    if @metadata.branches.sum_all
+    if @metadata.sum_all_branches_with_exceptions
+      traverse_maintypes(LineItem.new(nil, 'Samlet (med unntak)'))
+    elsif @metadata.branches.sum_all
       traverse_maintypes(LineItem.new(nil, 'Samlet'))
     else
       @metadata.branches.collection.each do |branch|
@@ -409,7 +407,10 @@ end
 
     catz = @use_district_categories ? 'by_district_category' : 'by_category'
 
-    Event.between_dates(@metadata.from_date, @metadata.to_date)
+    events = @metadata.sum_all_branches_with_exceptions ?
+      Event.sans_excluded_branches : Event.all
+
+    events.between_dates(@metadata.from_date, @metadata.to_date)
     .exclude_marked_events
     .by_branch(branch_id)
     .by_age_group(age_group_id)

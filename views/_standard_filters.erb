@@ -1,6 +1,7 @@
 <%# type: :choose || :stats || :toggle   %>
 <%= "<option value='none'>-</option>" if type == :toggle %>
 <%= "<option value='sum_all'>Samlet</option>" if type == :stats || type == :toggle %>
+<%= "<option value='sum_all_with_exceptions'>Samlet (med unntak)</option>" if exclusive_option %>
 <%= "<option value='iterate_all'>Alle</option>" if type == :stats || type == :toggle %>
 <%= "<option value='iterate_all_with_exceptions'>Alle (med unntak)</option>" if exclusive_option %>
 <%= "<option value='iterate_all_district_subs' data-type='DistrictSubcategory' data-aggregated_subcategory_id='48'>Alle bydelsunderkategorier</option>" if district_subs_option %>
